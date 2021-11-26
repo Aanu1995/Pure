@@ -126,4 +126,3 @@ app.*.map.json
 !.idea/dictionaries/
 !.idea/runConfigurations/
 
-lib/repositories/algolia_application.dart
