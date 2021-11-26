@@ -7,8 +7,8 @@ class AlgoliaApplication {
     switch (F.appFlavor) {
       case Flavor.prod:
         return Algolia.init(
-          applicationId: 'R0547NV5EC',
-          apiKey: '536c516e3a6d13732b71017fa635dcfa',
+          applicationId: '',
+          apiKey: '',
         );
       case Flavor.staging:
         return Algolia.init(
