@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Pure Staging</string>
+    <string name="dynamic_link_host">purestg.page.link</string>
+</resources>
