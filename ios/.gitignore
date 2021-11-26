@@ -27,6 +27,7 @@ Runner/GeneratedPluginRegistrant.*
 Runner/Firebase/development/GoogleService-Info.plist
 Runner/Firebase/staging/GoogleService-Info.plist
 Runner/Firebase/production/GoogleService-Info.plist
+Runner/GoogleService-Info.plist
 
 
 # Exceptions to above rules.
