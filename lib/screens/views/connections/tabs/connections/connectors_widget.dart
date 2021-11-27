@@ -1,6 +1,7 @@
 import 'package:flash/flash.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../blocs/bloc.dart';
 import '../../../../../model/invitation_model.dart';
@@ -12,7 +13,7 @@ import '../../../../widgets/progress_indicator.dart';
 import '../../../../widgets/shimmers/loading_shimmer.dart';
 import '../../../../widgets/snackbars.dart';
 import '../../search/search_screen.dart';
-import '../../widgets/message_widget.dart';
+import '../../../../widgets/message_widget.dart';
 import 'connectors_list.dart';
 
 class ConnectorsWidget extends StatefulWidget {
@@ -102,15 +103,18 @@ class _ConnectorsWidgetState extends State<ConnectorsWidget> {
                   final connectorList = state.connectionModel.connectors;
                   if (connectorList.isEmpty)
                     return SingleChildScrollView(
-                      child: MessageDisplay(
-                        fontSize: 18.0,
-                        title: "You don't have any connections yet",
-                        description:
-                            "You can search other connections and send them "
-                            "invitations or connect with friends that are not on "
-                            "the app using the invite link",
-                        buttonTitle: "Search",
-                        onPressed: () => _onSearchTapped(),
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 1.sh * 0.15),
+                        child: MessageDisplay(
+                          fontSize: 18.0,
+                          title: "You don't have any connections yet",
+                          description:
+                              "You can search other connections and send them "
+                              "invitations or connect with friends that are not on "
+                              "the app using the invite link",
+                          buttonTitle: "Search",
+                          onPressed: () => _onSearchTapped(),
+                        ),
                       ),
                     );
                   else

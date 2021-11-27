@@ -5,7 +5,7 @@ import '../../../../blocs/bloc.dart';
 import '../../../../model/pure_user_model.dart';
 import '../../../widgets/progress_indicator.dart';
 import '../../../widgets/user_profile_provider.dart';
-import '../../connections/widgets/message_widget.dart';
+import '../../../widgets/message_widget.dart';
 import 'one_to_one_card.dart';
 import 'unread_message_provider.dart';
 
@@ -73,7 +73,7 @@ class _ChatListState extends State<ChatList> {
               ),
             );
         }
-        return const CustomProgressIndicator();
+        return Center(child: const CustomProgressIndicator());
       },
     );
   }

@@ -7,7 +7,7 @@ import 'package:pure/model/pure_user_model.dart';
 import '../../../../blocs/bloc.dart';
 import '../../../widgets/snackbars.dart';
 import '../tabs/connections/connectors_list.dart';
-import '../widgets/message_widget.dart';
+import '../../../widgets/message_widget.dart';
 
 class SearchFriends extends StatefulWidget {
   const SearchFriends({Key? key}) : super(key: key);

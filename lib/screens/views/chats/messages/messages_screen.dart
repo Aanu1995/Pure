@@ -112,7 +112,10 @@ class _MessagesScreenState extends State<MessagesScreen> {
             ],
           ),
         ),
-        body: _MessageBody(chatId: widget.chatId),
+        body: _MessageBody(
+          chatId: widget.chatId,
+          receipientName: widget.receipient.firstName,
+        ),
       ),
     );
   }
@@ -120,7 +123,10 @@ class _MessagesScreenState extends State<MessagesScreen> {
 
 class _MessageBody extends StatelessWidget {
   final String chatId;
-  const _MessageBody({Key? key, required this.chatId}) : super(key: key);
+  final String receipientName;
+  const _MessageBody(
+      {Key? key, required this.chatId, required this.receipientName})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +141,14 @@ class _MessageBody extends StatelessWidget {
       child: Column(
         children: [
           // Messages
-          Expanded(child: Messagesbody(chatId: chatId)),
+          Expanded(
+            child: Messagesbody(
+              chatId: chatId,
+              firstName: receipientName,
+              onSentButtonPressed: (final message) =>
+                  sendMessage(context, message),
+            ),
+          ),
           // Message Input Box
           AnimatedPadding(
             duration: Duration(milliseconds: 300),

@@ -39,7 +39,7 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
     enabledBorder: InputBorder.none,
     errorBorder: InputBorder.none,
     focusedErrorBorder: InputBorder.none,
-    contentPadding: const EdgeInsets.fromLTRB(10, 8, 10, 2),
+    contentPadding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
   );
 
   @override

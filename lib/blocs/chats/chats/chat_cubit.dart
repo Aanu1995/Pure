@@ -120,11 +120,13 @@ class ChatCubit extends Cubit<ChatState> {
   void dispose() {
     _subscription?.cancel();
     _realTimeSubscription?.cancel();
+    emit(ChatInitial());
   }
 
   @override
   Future<void> close() {
-    dispose();
+    _subscription?.cancel();
+    _realTimeSubscription?.cancel();
     return super.close();
   }
 }

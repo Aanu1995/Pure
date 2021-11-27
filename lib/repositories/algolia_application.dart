@@ -17,8 +17,8 @@ class AlgoliaApplication {
         );
       default:
         return Algolia.init(
-          applicationId: '',
-          apiKey: '',
+          applicationId: 'R0547NV5EC',
+          apiKey: '536c516e3a6d13732b71017fa635dcfa',
         );
     }
   }

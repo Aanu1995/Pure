@@ -40,7 +40,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     enabledBorder: InputBorder.none,
     errorBorder: InputBorder.none,
     focusedErrorBorder: InputBorder.none,
-    contentPadding: const EdgeInsets.fromLTRB(10, 8, 10, 2),
+    contentPadding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
   );
 
   static const _textStyle = TextStyle(

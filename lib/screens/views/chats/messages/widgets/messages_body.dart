@@ -6,15 +6,22 @@ import '../../../../../model/chat/message_model.dart';
 import '../../../../../model/pure_user_model.dart';
 import '../../../../../utils/app_utils.dart';
 import '../../../../widgets/grouped_list/grouped_list.dart';
-import '../../../connections/widgets/message_widget.dart';
 import 'date_separator_widget.dart';
+import 'empty_widget.dart';
 import 'load_more_widgets.dart';
 import 'message_widgets.dart';
 import 'new_message_widget.dart';
 
 class Messagesbody extends StatefulWidget {
   final String chatId;
-  const Messagesbody({Key? key, required this.chatId}) : super(key: key);
+  final String firstName;
+  final ValueChanged<MessageModel> onSentButtonPressed;
+  const Messagesbody(
+      {Key? key,
+      required this.chatId,
+      required this.firstName,
+      required this.onSentButtonPressed})
+      : super(key: key);
 
   @override
   _MessagesbodyState createState() => _MessagesbodyState();
@@ -88,13 +95,11 @@ class _MessagesbodyState extends State<Messagesbody> {
               if (state is MessagesLoaded) {
                 final messages = state.messagesModel.messages;
                 if (messages.isEmpty)
-                  return MessageDisplay(
-                    fontSize: 18.0,
-                    title: "No messages here yet...",
-                    description: "Send a message or tap on the greetings below",
-                    buttonTitle: "",
+                  return EmptyMessage(
+                    firstName: widget.firstName,
+                    onPressed: (String text) => sendMessage(text),
                   );
-                else
+                else {
                   return GroupedListView(
                     controller: _controller,
                     elements: messages,
@@ -145,6 +150,7 @@ class _MessagesbodyState extends State<Messagesbody> {
                       }
                     },
                   );
+                }
               }
               return Offstage();
             },
@@ -238,5 +244,13 @@ class _MessagesbodyState extends State<Messagesbody> {
       }
     }
     return false;
+  }
+
+  void sendMessage(String text) {
+    final message = MessageModel.newMessage(
+      text,
+      CurrentUser.currentUserId,
+    );
+    widget.onSentButtonPressed.call(message);
   }
 }
