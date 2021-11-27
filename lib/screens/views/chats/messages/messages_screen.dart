@@ -39,7 +39,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
               CurrentUser.currentUserId,
             ),
         ),
-        BlocProvider(create: (_) => RealTimeMessageCubit(MessageServiceImp())),
+        BlocProvider(create: (_) => NewMessagesCubit(MessageServiceImp())),
         BlocProvider(create: (_) => LoadMoreMessageCubit(MessageServiceImp())),
         if (!widget.hasPresenceActivated)
           BlocProvider(
@@ -133,11 +133,9 @@ class _MessageBody extends StatelessWidget {
     return BlocListener<MessageCubit, MessageState>(
       listenWhen: (prev, current) =>
           current is MessagesLoaded && current.isListening == false,
-      listener: (context, state) =>
-          context.read<RealTimeMessageCubit>().fetchMessages(
-                chatId,
-                CurrentUser.currentUserId,
-              ),
+      listener: (context, state) => context
+          .read<NewMessagesCubit>()
+          .updateOnNewMessages(chatId, CurrentUser.currentUserId),
       child: Column(
         children: [
           // Messages

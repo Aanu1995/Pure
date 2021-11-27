@@ -204,7 +204,8 @@ class FailedToDeliverMessageWidget extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(4, 2, 8, 10),
             child: Icon(Icons.refresh),
           ),
-          onTap: () => context.read<MessageCubit>().resendMessages(chatId),
+          onTap: () =>
+              context.read<MessageCubit>().resendFailedMessages(chatId),
         ),
       ],
     );

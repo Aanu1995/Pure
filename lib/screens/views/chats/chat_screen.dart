@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pure/services/chat/chat_service.dart';
 
 import '../../../blocs/bloc.dart';
 import '../../../model/pure_user_model.dart';
@@ -28,10 +29,13 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(elevation: 1, title: const Text('Chats')),
-      body: const ChatList(),
-      bottomNavigationBar: const BottomBar(),
+    return BlocProvider(
+      create: (_) => LoadMoreChatsCubit(ChatServiceImp()),
+      child: Scaffold(
+        appBar: AppBar(elevation: 1, title: const Text('Chats')),
+        body: const ChatList(),
+        bottomNavigationBar: const BottomBar(),
+      ),
     );
   }
 }

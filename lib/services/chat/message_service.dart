@@ -14,12 +14,12 @@ abstract class MessageService {
   Future<MessagesModel> getOfflineMessages(String chatId);
   Future<Map<String, dynamic>?> getOfflineLastDates(
       String chatId, String currentUserId);
-  Stream<MessagesModel?> getRealTimeMessage(String chatId,
+  Stream<MessagesModel?> getNewMessages(String chatId,
       {int limit = GlobalUtils.messagesLimit});
   Future<MessagesModel> loadMoreMessages(String chatId, DocumentSnapshot doc,
       {int limit = GlobalUtils.messagesLimit});
   Future<void> sendTextMessageOnly(String chatId, final MessageModel message);
-  Stream<MessagesModel?> getLastRemoteMessage(
+  Stream<MessagesModel?> getUnreadMessages(
       String chatId, DocumentSnapshot endDoc);
   Future<void> setCurrentUserLastReadMessageId(
       String chatId, String userId, String time);
@@ -84,7 +84,7 @@ class MessageServiceImp extends MessageService {
   }
 
   @override
-  Stream<MessagesModel?> getRealTimeMessage(String chatId,
+  Stream<MessagesModel?> getNewMessages(String chatId,
       {int limit = GlobalUtils.messagesLimit}) {
     try {
       return _chatCollection
@@ -116,7 +116,7 @@ class MessageServiceImp extends MessageService {
   }
 
   @override
-  Stream<MessagesModel?> getLastRemoteMessage(
+  Stream<MessagesModel?> getUnreadMessages(
       String chatId, DocumentSnapshot endDoc) {
     try {
       return _chatCollection

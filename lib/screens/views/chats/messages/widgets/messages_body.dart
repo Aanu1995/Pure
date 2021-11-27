@@ -78,7 +78,7 @@ class _MessagesbodyState extends State<Messagesbody> {
       children: [
         MultiBlocListener(
           listeners: [
-            BlocListener<RealTimeMessageCubit, MessageState>(
+            BlocListener<NewMessagesCubit, MessageState>(
               listener: realTimeMessageListener,
             ),
             BlocListener<LoadMoreMessageCubit, MessageState>(
@@ -179,14 +179,14 @@ class _MessagesbodyState extends State<Messagesbody> {
 
   void _updateLatestMessage(final MessagesLoaded state) {
     context.read<MessageCubit>().updateNewMessages(state);
-    context.read<RealTimeMessageCubit>().emptyMessages();
+    context.read<NewMessagesCubit>().emptyMessages();
     lastPos = 0.0;
     animateToBottom(0.0);
   }
 
   void _updateMessageOnScroll() {
     if (lastPos > 0) {
-      final state = context.read<RealTimeMessageCubit>().state;
+      final state = context.read<NewMessagesCubit>().state;
       if (state is MessagesLoaded && state.messagesModel.messages.isNotEmpty)
         _updateLatestMessage(state);
     }

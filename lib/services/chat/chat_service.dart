@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -16,6 +17,8 @@ abstract class ChatService {
   Stream<ChatsModel?> getLastRemoteMessage(
       String userId, DocumentSnapshot endDoc);
   Future<int> getUnReadMessageCount(String chatId, String userId);
+  Future<ChatsModel> loadMoreChats(String userId, DocumentSnapshot doc,
+      {int limit = GlobalUtils.messagesLimit});
 }
 
 class ChatServiceImp extends ChatService {
@@ -139,6 +142,40 @@ class ChatServiceImp extends ChatService {
       return data?[userId]["unreadCount"] as int? ?? 0;
     } catch (e) {
       return 0;
+    }
+  }
+
+  @override
+  Future<ChatsModel> loadMoreChats(String userId, DocumentSnapshot doc,
+      {int limit = GlobalUtils.messagesLimit}) async {
+    List<ChatModel> chats = [];
+    DocumentSnapshot? lastDoc;
+
+    try {
+      final querySnapshot = await _chatCollection
+              .where("members", arrayContains: userId)
+              .orderBy("updateDate", descending: true)
+              .startAfterDocument(doc)
+              .limit(limit)
+              .get()
+              .timeout(GlobalUtils.timeOutInDuration)
+          as QuerySnapshot<Map<String, dynamic>?>;
+
+      if (querySnapshot.docs.isNotEmpty) {
+        lastDoc = querySnapshot.docs.last;
+
+        for (final result in querySnapshot.docs) {
+          final data = result.data();
+          if (data != null) {
+            chats.add(ChatModel.fromMap(data));
+          }
+        }
+      }
+      return ChatsModel(chats: chats, lastDoc: lastDoc);
+    } on TimeoutException catch (_) {
+      throw ServerException(message: ErrorMessages.timeoutMessage);
+    } catch (e) {
+      throw ServerException(message: ErrorMessages.generalMessage2);
     }
   }
 }

@@ -21,9 +21,9 @@ class ChatCubit extends Cubit<ChatState> {
       final result = await chatService.getOfflineChats(userId);
       emit(ChatsLoaded(chatsModel: result));
       if (result.firstDoc != null) {
-        _fetchRemoteChats(userId, result.firstDoc!);
+        _getAllNewChats(userId, result.firstDoc!);
       } else {
-        _fetchRealTimeChats(userId);
+        _updateOnNewChat(userId);
       }
     } catch (e) {
       emit(ChatsLoaded(chatsModel: ChatsModel(chats: [])));
@@ -34,8 +34,7 @@ class ChatCubit extends Cubit<ChatState> {
   StreamSubscription<ChatsModel?>? _realTimeSubscription;
 
   // This is used to get recent chats to the first doc in the cache data
-  Future<void> _fetchRemoteChats(
-      String userId, DocumentSnapshot lastDoc) async {
+  Future<void> _getAllNewChats(String userId, DocumentSnapshot lastDoc) async {
     try {
       _subscription?.cancel();
       _subscription = chatService
@@ -43,11 +42,11 @@ class ChatCubit extends Cubit<ChatState> {
           .listen((chatsModel) {
         if (chatsModel != null) {
           // update chats to the latest in the remote server
-          _syncChats(chatsModel);
+          _updateUnreadChats(chatsModel);
           _subscription?.cancel();
           _subscription = null;
           // start listening to new chats in remote database
-          _fetchRealTimeChats(userId);
+          _updateOnNewChat(userId);
         }
       });
     } catch (e) {
@@ -55,13 +54,13 @@ class ChatCubit extends Cubit<ChatState> {
     }
   }
 
-  Future<void> _fetchRealTimeChats(final String userId) async {
+  Future<void> _updateOnNewChat(final String userId) async {
     try {
       _realTimeSubscription?.cancel();
       _realTimeSubscription =
           chatService.getRealTimeChats(userId).listen((chatsModel) {
         if (chatsModel != null) {
-          _updateChats(chatsModel);
+          _updateChatList(chatsModel);
         }
       });
     } catch (e) {
@@ -73,7 +72,8 @@ class ChatCubit extends Cubit<ChatState> {
   // #######################################################################
   // Helper Methods
 
-  void _syncChats(final ChatsModel newChatsModel) {
+  // This method updates the UI when unread chats is available
+  void _updateUnreadChats(final ChatsModel newChatsModel) {
     final currentState = state;
     if (currentState is ChatsLoaded) {
       if (newChatsModel.chats.length >= GlobalUtils.LastFetchedchatsLimit) {
@@ -95,7 +95,9 @@ class ChatCubit extends Cubit<ChatState> {
     }
   }
 
-  void _updateChats(final ChatsModel newChatsModel) {
+  // This method updates the UI when new chat is available or when chat
+  // last message is updated.
+  void _updateChatList(final ChatsModel newChatsModel) {
     final currentState = state;
     final newChats = newChatsModel.chats.toList();
 
@@ -114,6 +116,23 @@ class ChatCubit extends Cubit<ChatState> {
           hasMore: currentState.hasMore,
         ),
       );
+    }
+  }
+
+  // used to add old chats to existing list of chat
+  void addOldChats(final ChatsLoaded oldChatState) {
+    final currentState = state;
+    if (currentState is ChatsLoaded) {
+      final oldChats = oldChatState.chatsModel.chats.toList();
+      final currentChats = currentState.chatsModel.chats.toList();
+
+      final result = orderedSetForChats([...currentChats, ...oldChats]);
+      final chatsModel = ChatsModel(
+        chats: result,
+        lastDoc: oldChatState.chatsModel.lastDoc,
+      );
+
+      emit(ChatsLoaded(chatsModel: chatsModel, hasMore: oldChatState.hasMore));
     }
   }
 

@@ -62,7 +62,7 @@ class ChatModel extends Equatable {
 
   // only available to one to one chat
   // only available to get the other userId
-  String? getOtherMember(final String currentuserId) {
+  String? getReceipient(final String currentuserId) {
     if (type == ChatType.One_To_One) {
       final users = members.toList();
       users.remove(currentuserId);
