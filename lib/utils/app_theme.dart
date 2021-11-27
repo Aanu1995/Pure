@@ -23,6 +23,7 @@ class Palette {
     scaffoldBackground: const Color(0xFFFFFFFF),
     appBarBackground: const Color(0xFFFFFFFF),
     surface: const Color(0xFFFFFFFF),
+    dialogBackground: const Color(0xFFF0F0F0),
     colors: FlexSchemeColor.from(
       primary: Palette.tintColor,
       primaryVariant: const Color(0xFF000000),
@@ -36,6 +37,7 @@ class Palette {
     scaffoldBackground: const Color(0xFF0A0A0A),
     appBarBackground: const Color(0xFF0A0A0A),
     surface: const Color(0xFF0A0A0A),
+    dialogBackground: const Color(0xFF242424),
     colors: FlexSchemeColor.from(
       primary: Palette.tintColor,
       primaryVariant: const Color(0xFFFFFFFF),

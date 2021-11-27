@@ -7,7 +7,7 @@ import '../../../widgets/failure_widget.dart';
 import '../../../widgets/progress_indicator.dart';
 import '../../../widgets/shimmers/loading_shimmer.dart';
 import '../../../widgets/snackbars.dart';
-import '../widgets/message_widget.dart';
+import '../../../widgets/message_widget.dart';
 import 'widgets/search_user_profile.dart';
 
 class SearchAllConnectionResults extends StatefulWidget {

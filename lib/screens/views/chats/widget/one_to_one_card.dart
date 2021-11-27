@@ -141,9 +141,9 @@ class _OneToOneCardState extends State<OneToOneCard> {
                   ),
                 ),
                 if (widget.showSeparator)
-                  const Padding(
+                  Padding(
                     padding: const EdgeInsets.only(left: 88.0),
-                    child: Divider(height: 0.0, color: Colors.black26),
+                    child: const Divider(height: 0.0),
                   ),
               ],
             );

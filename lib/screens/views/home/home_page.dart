@@ -13,6 +13,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(elevation: 1, title: Text("Home")),
       body: Container(),
       bottomNavigationBar: const BottomBar(),
     );

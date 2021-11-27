@@ -1,9 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import '../../../../../model/pure_user_model.dart';
-import '../../../../widgets/avatar.dart';
 
+import '../../../../../model/pure_user_model.dart';
 import '../../../../../utils/image_utils.dart';
+import '../../../../widgets/avatar.dart';
 import 'connection_status_widget.dart';
 
 class ShortUserProfile extends StatelessWidget {
@@ -78,7 +78,9 @@ class DetailedUserProfile extends StatelessWidget {
           ),
         ),
       ),
-      trailing: ConnectionStatusWidget(viewer: viewer),
+      trailing: ConnectionStatusWidget(
+        viewer: viewer,
+      ),
     );
   }
 }

@@ -29,7 +29,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Chats')),
+      appBar: AppBar(elevation: 1, title: const Text('Chats')),
       body: const ChatList(),
       bottomNavigationBar: const BottomBar(),
     );

@@ -22,10 +22,10 @@ class RealTimeMessageCubit extends Cubit<MessageState> {
     try {
       _subscription?.cancel();
       _subscription = messageService
-          .getRealTimeMessage(chatId, limit: 5)
+          .getRealTimeMessage(chatId)
           .listen((messagesModel) async {
         if (messagesModel != null) {
-          _updateMessages(messagesModel.messages);
+          _updateMessages(messagesModel);
           // update the current user last message Id in the database
           await messageService.setCurrentUserLastReadMessageId(
             chatId,
@@ -53,18 +53,23 @@ class RealTimeMessageCubit extends Cubit<MessageState> {
   // #######################################################################
   // Helper Methods
 
-  void _updateMessages(final List<MessageModel> messages) {
+  void _updateMessages(final MessagesModel messagesModel) {
     final currentState = state;
     List<MessageModel> oldMessages = [];
+    final List<MessageModel> newMessages = messagesModel.messages.toList();
+    DocumentSnapshot? lastDoc = messagesModel.lastDoc;
 
     if (currentState is MessagesLoaded) {
       oldMessages = currentState.messagesModel.messages.toList();
+      lastDoc = getLastDoc(messagesModel, currentState.messagesModel);
     }
     final result = orderedSetForMessages(
-      [...messages.toList(), ...oldMessages],
+      [...newMessages, ...oldMessages],
     );
 
-    emit(MessagesLoaded(messagesModel: MessagesModel(messages: result)));
+    emit(MessagesLoaded(
+      messagesModel: MessagesModel(messages: result, lastDoc: lastDoc),
+    ));
   }
 }
 

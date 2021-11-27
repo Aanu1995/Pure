@@ -6,7 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../model/chat/message_model.dart';
 import '../../../services/chat/message_service.dart';
 import '../../../utils/app_utils.dart';
-import '../../../utils/global_utils.dart';
 import 'message_state.dart';
 
 class MessageCubit extends Cubit<MessageState> {
@@ -21,7 +20,12 @@ class MessageCubit extends Cubit<MessageState> {
       final result = await messageService.getOfflineMessages(chatId);
 
       updateReceipt(
-          result, receiptDate(data), data, true, result.firstDoc != null);
+        result,
+        receiptDate(data),
+        data,
+        true,
+        result.firstDoc != null,
+      );
       fetchReceipts(chatId, currentUserId);
       if (result.firstDoc != null)
         fetchRemoteMessages(chatId, result.firstDoc!);
@@ -74,9 +78,10 @@ class MessageCubit extends Cubit<MessageState> {
       final totalMessages =
           orderedSetForMessages([...newMessages, ...oldMessages]);
 
-      final lastDoc = oldMessages.length > newMessages.length
-          ? currentState.messagesModel.lastDoc
-          : newMessageState.messagesModel.lastDoc;
+      final lastDoc = getLastDoc(
+        newMessageState.messagesModel,
+        currentState.messagesModel,
+      );
 
       updateReceipt(
         MessagesModel(
@@ -177,7 +182,7 @@ class MessageCubit extends Cubit<MessageState> {
     final currentState = state;
     if (currentState is MessagesLoaded) {
       if (newMessagesModel.messages.length >=
-          GlobalUtils.LastFetchedMessagesLimit) {
+          currentState.messagesModel.messages.length) {
         updateReceipt(
           newMessagesModel,
           currentState.topMessageId,

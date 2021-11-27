@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pure/screens/views/chats/messages/messages_screen.dart';
+import 'package:pure/utils/navigate.dart';
 
 import '../../../../../blocs/bloc.dart';
 import '../../../../../model/app_enum.dart';
@@ -9,6 +11,7 @@ import '../../../../../utils/app_theme.dart';
 
 class ConnectionStatusWidget extends StatelessWidget {
   final PureUser viewer;
+
   const ConnectionStatusWidget({Key? key, required this.viewer})
       : super(key: key);
 
@@ -24,7 +27,7 @@ class ConnectionStatusWidget extends StatelessWidget {
           if (status == ConnectionAction.MESSAGE) {
             // connected
             return IconButton(
-              onPressed: () {},
+              onPressed: () => onMessageTapped(context, viewer),
               padding: EdgeInsets.only(left: 8.0, right: 4.0),
               icon: Icon(
                 Icons.chat_outlined,
@@ -67,5 +70,17 @@ class ConnectionStatusWidget extends StatelessWidget {
       BlocProvider.of<SendInvitationCubit>(context)
           .sendInvitation(data.toMap());
     }
+  }
+
+  void onMessageTapped(BuildContext context, PureUser user) {
+    // gets the chatId using the id of the two users
+    final chatId = InvitationModel.getInvitationId(
+      user.id,
+      CurrentUser.currentUserId,
+    );
+    push(
+      context: context,
+      page: MessagesScreen(chatId: chatId, receipient: user),
+    );
   }
 }

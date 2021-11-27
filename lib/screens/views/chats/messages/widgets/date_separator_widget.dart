@@ -18,7 +18,7 @@ class GroupDateSeparator extends StatelessWidget {
             horizontal: 16.0,
           ),
           decoration: BoxDecoration(
-            color: Color.fromRGBO(212, 234, 244, 1.0),
+            color: Theme.of(context).dialogBackgroundColor,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(

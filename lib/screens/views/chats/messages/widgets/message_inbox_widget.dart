@@ -4,14 +4,12 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:pure/utils/app_permission.dart';
-import 'package:pure/utils/app_theme.dart';
 
-import '../../../../../blocs/bloc.dart';
 import '../../../../../model/chat/message_model.dart';
 import '../../../../../model/pure_user_model.dart';
+import '../../../../../utils/app_permission.dart';
+import '../../../../../utils/app_theme.dart';
 import '../../../../../utils/file_utils.dart';
 import '../../../../../utils/global_utils.dart';
 import '../../../../../utils/image_utils.dart';
@@ -65,108 +63,97 @@ class _MessageInputBoxState extends State<MessageInputBox> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<MessageCubit, MessageState>(
-      listenWhen: (_, current) =>
-          current is MessagesLoaded &&
-          current.isListening == false &&
-          current.messagesModel.messages.isEmpty,
-      listener: (context, state) {
-        Future<void>.delayed(Duration(milliseconds: 400)).then((value) {
-          FocusScope.of(context).requestFocus(_focus);
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(0, 10, 0, 24),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.secondary,
-          border: Border(
-            top: BorderSide(
-              color:
-                  Theme.of(context).colorScheme.primaryVariant.withOpacity(0.2),
-            ),
+    return Container(
+      padding: const EdgeInsets.fromLTRB(0, 10, 0, 24),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.secondary,
+        border: Border(
+          top: BorderSide(
+            color:
+                Theme.of(context).colorScheme.primaryVariant.withOpacity(0.2),
           ),
         ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            InkWell(
-              onTap: () => _attachFile(context),
-              borderRadius: BorderRadius.circular(500),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8.0,
-                  vertical: 4.0,
-                ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          InkWell(
+            onTap: () => _attachFile(context),
+            borderRadius: BorderRadius.circular(500),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 8.0,
+                vertical: 4.0,
+              ),
+              child: CircleAvatar(
+                radius: 16.0,
                 child: CircleAvatar(
-                  radius: 16.0,
-                  child: CircleAvatar(
-                    radius: 15.0,
-                    backgroundColor: Colors.grey.shade200,
-                    child: const Icon(Icons.add_outlined),
+                  radius: 15.0,
+                  backgroundColor: Theme.of(context).dialogBackgroundColor,
+                  child: const Icon(Icons.add_outlined),
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: CupertinoTextField(
+              controller: _controller,
+              focusNode: _focus,
+              style: _textStyle.copyWith(
+                color: Theme.of(context).colorScheme.primaryVariant,
+              ),
+              minLines: 1,
+              maxLines: 5,
+              textInputAction: TextInputAction.newline,
+              placeholder: "Write a message...",
+              placeholderStyle: _textStyle.copyWith(
+                color: Colors.grey.shade600,
+              ),
+              padding: const EdgeInsets.all(10.0),
+            ),
+          ),
+          ValueListenableBuilder<bool>(
+            valueListenable: _isEmptyNotifier,
+            builder: (context, state, _) {
+              if (state)
+                return InkWell(
+                  onTap: () {},
+                  borderRadius: BorderRadius.circular(500),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8.0,
+                      vertical: 4.0,
+                    ),
+                    child: Icon(
+                      Icons.mic,
+                      color: Theme.of(context).colorScheme.secondaryVariant,
+                      size: 28.0,
+                    ),
                   ),
-                ),
-              ),
-            ),
-            Expanded(
-              child: CupertinoTextField(
-                controller: _controller,
-                focusNode: _focus,
-                style: _textStyle.copyWith(
-                  color: Theme.of(context).colorScheme.primaryVariant,
-                ),
-                minLines: 1,
-                maxLines: 5,
-                textInputAction: TextInputAction.newline,
-                placeholder: "Write a message...",
-                placeholderStyle: _textStyle.copyWith(
-                  color: Colors.grey.shade600,
-                ),
-                padding: const EdgeInsets.all(10.0),
-              ),
-            ),
-            ValueListenableBuilder<bool>(
-              valueListenable: _isEmptyNotifier,
-              builder: (context, state, _) {
-                if (state)
-                  return InkWell(
-                    onTap: () {},
-                    borderRadius: BorderRadius.circular(500),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8.0,
-                        vertical: 4.0,
-                      ),
+                );
+              else
+                return InkWell(
+                  onTap: () => sendMessage(),
+                  borderRadius: BorderRadius.circular(500),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8.0,
+                      vertical: 4.0,
+                    ),
+                    child: CircleAvatar(
+                      radius: 16.0,
+                      backgroundColor: Palette.tintColor,
                       child: Icon(
-                        Icons.mic,
-                        color: Colors.grey.shade700,
-                        size: 28.0,
+                        Icons.send,
+                        size: 20.0,
+                        color: Theme.of(context).colorScheme.surface,
                       ),
                     ),
-                  );
-                else
-                  return InkWell(
-                    onTap: () => sendMessage(),
-                    borderRadius: BorderRadius.circular(500),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8.0,
-                        vertical: 4.0,
-                      ),
-                      child: CircleAvatar(
-                        radius: 16.0,
-                        backgroundColor: Palette.tintColor,
-                        child: Icon(
-                          Icons.send,
-                          size: 20.0,
-                          color: Theme.of(context).colorScheme.surface,
-                        ),
-                      ),
-                    ),
-                  );
-              },
-            )
-          ],
-        ),
+                  ),
+                );
+            },
+          )
+        ],
       ),
     );
   }

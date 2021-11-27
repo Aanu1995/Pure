@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:uuid/uuid.dart';
@@ -64,4 +65,12 @@ List<ChatModel> orderedSetForChats(final List<ChatModel> chats) {
   final chatIds = Set<String>();
   result.retainWhere((x) => chatIds.add(x.chatId));
   return result.toList();
+}
+
+// gets lastDoc for messages
+
+DocumentSnapshot? getLastDoc(MessagesModel newMsg, MessagesModel oldMsg) {
+  return oldMsg.messages.length > newMsg.messages.length
+      ? oldMsg.lastDoc
+      : newMsg.lastDoc;
 }
