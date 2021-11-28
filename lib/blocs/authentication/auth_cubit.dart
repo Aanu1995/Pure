@@ -63,7 +63,9 @@ class AuthCubit extends Cubit<AuthState> {
       await firebaseAuth.signOut();
       await localStorage.clear();
       emit(UnAuthenticated());
-    } catch (_) {}
+    } catch (_) {
+      print(_);
+    }
   }
 
   void update(PureUser user) {

@@ -126,9 +126,10 @@ class _OneToOneCardState extends State<OneToOneCard> {
                                 badgeContent: Text(
                                   state.toString(),
                                   style: _style.copyWith(
-                                    color: Colors.white,
-                                    fontSize: 13.5,
-                                    fontWeight: FontWeight.w400,
+                                    color:
+                                        Theme.of(context).colorScheme.surface,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
                               );

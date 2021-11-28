@@ -16,6 +16,9 @@ class NewMessagesCubit extends Cubit<MessageState> {
   StreamSubscription<MessagesModel?>? _subscription;
 
   Future<void> updateOnNewMessages(String chatId, String userId) async {
+    chatId = chatId;
+    userId = userId;
+
     try {
       _subscription?.cancel();
       _subscription =
@@ -35,6 +38,10 @@ class NewMessagesCubit extends Cubit<MessageState> {
     } catch (e) {
       emptyMessages();
     }
+  }
+
+  void updateUnreadMessageCount(String chatId, String userId) {
+    messageService.setCurrentUserLastReadMessageId(chatId, userId, null);
   }
 
   void emptyMessages() {

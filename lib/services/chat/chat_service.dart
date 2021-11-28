@@ -16,7 +16,7 @@ abstract class ChatService {
       {int limit = GlobalUtils.messagesLimit});
   Stream<ChatsModel?> getLastRemoteMessage(
       String userId, DocumentSnapshot endDoc);
-  Future<int> getUnReadMessageCount(String chatId, String userId);
+  Stream<int> getUnReadMessageCount(String chatId, String userId);
   Future<ChatsModel> loadMoreChats(String userId, DocumentSnapshot doc,
       {int limit = GlobalUtils.messagesLimit});
 }
@@ -132,16 +132,15 @@ class ChatServiceImp extends ChatService {
     }
   }
 
-  Future<int> getUnReadMessageCount(String chatId, String userId) async {
+  @override
+  Stream<int> getUnReadMessageCount(String chatId, String userId) {
     try {
-      final result = await _receiptCollection
-          .doc(chatId)
-          .get()
-          .timeout(Duration(seconds: 4));
-      final data = result.data() as Map<String, dynamic>?;
-      return data?[userId]["unreadCount"] as int? ?? 0;
+      return _receiptCollection.doc(chatId).snapshots().asyncMap((querySnap) {
+        final data = querySnap.data() as Map<String, dynamic>?;
+        return data?[userId]["unreadCount"] as int? ?? 0;
+      });
     } catch (e) {
-      return 0;
+      return Stream.value(0);
     }
   }
 

@@ -51,7 +51,7 @@ class ViewProfilePhoto extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).dialogBackgroundColor,
+      backgroundColor: const Color(0xFF242424),
       body: Stack(
         children: [
           Center(

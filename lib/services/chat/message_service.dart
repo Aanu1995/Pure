@@ -22,7 +22,7 @@ abstract class MessageService {
   Stream<MessagesModel?> getUnreadMessages(
       String chatId, DocumentSnapshot endDoc);
   Future<void> setCurrentUserLastReadMessageId(
-      String chatId, String userId, String time);
+      String chatId, String userId, String? time);
   Stream<Map<String, dynamic>?> getLastDatebyUsers(
       String chatId, String currentUserId);
 }
@@ -198,9 +198,12 @@ class MessageServiceImp extends MessageService {
 
   @override
   Future<void> setCurrentUserLastReadMessageId(
-      String chatId, String userId, String time) async {
+      String chatId, String userId, String? time) async {
     try {
-      final data = {"lastSeen": time, "unreadCount": 0};
+      final data = time != null
+          ? {"lastSeen": time, "unreadCount": 0}
+          : {"unreadCount": 0};
+
       await _receiptCollection.doc(chatId).set(
         {userId: data},
         SetOptions(merge: true),

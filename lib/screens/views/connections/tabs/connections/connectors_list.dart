@@ -2,19 +2,18 @@ import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/src/provider.dart';
-import 'package:pure/screens/views/settings/profile/profile_screen.dart';
-import 'package:pure/utils/app_theme.dart';
 
 import '../../../../../blocs/bloc.dart';
-import '../../../../../blocs/user_profile/profile/profile_cubit.dart';
 import '../../../../../model/connection_model.dart';
 import '../../../../../model/pure_user_model.dart';
+import '../../../../../utils/app_theme.dart';
 import '../../../../../utils/app_utils.dart';
 import '../../../../../utils/navigate.dart';
 import '../../../../widgets/avatar.dart';
 import '../../../../widgets/shimmers/loading_shimmer.dart';
 import '../../../../widgets/user_profile_provider.dart';
 import '../../../chats/messages/messages_screen.dart';
+import '../../../settings/profile/profile_screen.dart';
 import '../../widgets/load_more.dart';
 
 class ConnectorList extends StatelessWidget {
@@ -120,9 +119,10 @@ class _ConnectorProfile extends StatelessWidget {
                     const SizedBox(height: 4.0),
                     Text(
                       "Connected ${getFormattedDate(connector.connectionDate!)}",
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12.0,
-                        fontWeight: FontWeight.w400,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey.shade700,
                       ),
                     ),
                   ],

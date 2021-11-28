@@ -261,7 +261,10 @@ class UserServiceImpl extends UserService {
 
     // connects
     try {
-      await _databaseReference.child(userId).update(onlineData);
+      await _databaseReference
+          .child(userId)
+          .update(onlineData)
+          .timeout(GlobalUtils.shortTimeOutInDuration);
     } catch (e) {
       log(e.toString());
     }
