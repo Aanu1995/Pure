@@ -121,7 +121,10 @@ class UserMessage extends StatelessWidget {
             ),
             // shows failed to deliver message
             if (message.receipt == Receipt.Failed)
-              FailedToDeliverMessageWidget(chatId: chatId)
+              FailedToDeliverMessageWidget(
+                chatId: chatId,
+                hasAttachments: message.attachments!.isNotEmpty,
+              )
           ],
         ),
       ),
@@ -176,7 +179,9 @@ class ReceipientMessage extends StatelessWidget {
 
 class FailedToDeliverMessageWidget extends StatelessWidget {
   final String chatId;
-  const FailedToDeliverMessageWidget({Key? key, required this.chatId})
+  final bool hasAttachments;
+  const FailedToDeliverMessageWidget(
+      {Key? key, required this.chatId, this.hasAttachments = false})
       : super(key: key);
 
   static final _style = const TextStyle(
@@ -198,15 +203,16 @@ class FailedToDeliverMessageWidget extends StatelessWidget {
         ),
 
         // Try again Button
-        InkWell(
-          borderRadius: BorderRadius.circular(500),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(4, 2, 8, 10),
-            child: Icon(Icons.refresh),
+        if (hasAttachments)
+          InkWell(
+            borderRadius: BorderRadius.circular(500),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(4, 2, 8, 10),
+              child: Icon(Icons.refresh),
+            ),
+            onTap: () =>
+                context.read<MessageCubit>().resendFailedMessages(chatId),
           ),
-          onTap: () =>
-              context.read<MessageCubit>().resendFailedMessages(chatId),
-        ),
       ],
     );
   }

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../../model/pure_user_model.dart';
 import '../../../widgets/avatar.dart';
+import '../../../widgets/page_transition.dart';
+import '../../photo_view_screen.dart';
 
 class MyProfileSection extends StatelessWidget {
   final PureUser user;
@@ -55,7 +57,11 @@ class ProfileSection extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Column(
         children: [
-          Avartar(size: 48.0, imageURL: user.photoURL),
+          InkWell(
+            borderRadius: BorderRadius.circular(500),
+            child: Avartar(size: 48.0, imageURL: user.photoURL),
+            onTap: () => viewProfilePhoto(context),
+          ),
           const SizedBox(height: 16.0),
           Text(
             user.fullName,
@@ -67,5 +73,16 @@ class ProfileSection extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void viewProfilePhoto(BuildContext context) {
+    if (user.photoURL.isNotEmpty) {
+      Navigator.of(context).push<void>(
+        PageTransition(
+          child: ViewProfilePhoto(imageURL: user.photoURL),
+          type: PageTransitionType.bottomToTop,
+        ),
+      );
+    }
   }
 }

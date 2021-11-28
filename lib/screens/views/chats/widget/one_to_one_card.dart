@@ -57,7 +57,7 @@ class _OneToOneCardState extends State<OneToOneCard> {
               children: [
                 ListTile(
                   horizontalTitleGap: 4,
-                  contentPadding: EdgeInsets.fromLTRB(6, 6, 14, 6),
+                  contentPadding: EdgeInsets.fromLTRB(6, 4, 14, 4),
                   onTap: () => pushToMessagesScreen(context, user),
                   leading: Avartar(
                     key: ValueKey(user.photoURL),

@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:pure/screens/views/settings/settings_screen.dart';
 
 import '../../../../../model/pure_user_model.dart';
 import '../../../../../utils/image_utils.dart';
@@ -16,7 +17,12 @@ class ShortUserProfile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       onTap: () {
-        if (!user.isMe) push(context: context, page: ProfileScreen(user: user));
+        push(
+          context: context,
+          page: user.isMe
+              ? SettingsScreen(hidBottomNav: true)
+              : ProfileScreen(user: user),
+        );
       },
       dense: true,
       contentPadding: const EdgeInsets.symmetric(horizontal: 4.0),

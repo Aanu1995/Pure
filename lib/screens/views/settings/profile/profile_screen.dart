@@ -1,27 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:pure/screens/views/settings/profile/mutual_connection_screen.dart';
-import 'package:pure/utils/app_theme.dart';
-import 'package:pure/utils/navigate.dart';
 
 import '../../../../blocs/bloc.dart';
 import '../../../../model/inviter_model.dart';
 import '../../../../model/pure_user_model.dart';
 import '../../../../services/invitation_service.dart';
 import '../../../../services/user_service.dart';
+import '../../../../utils/app_theme.dart';
 import '../../../../utils/app_utils.dart';
 import '../../../../utils/image_utils.dart';
+import '../../../../utils/navigate.dart';
 import '../../../widgets/failure_widget.dart';
 import '../../../widgets/progress_indicator.dart';
 import '../widgets/items.dart';
 import '../widgets/profile.dart';
+import 'mutual_connection_screen.dart';
 import 'widgets/connection_status_button.dart';
 
 class ProfileScreen extends StatefulWidget {
   final PureUser user;
   final Inviter? inviter;
-  const ProfileScreen({Key? key, required this.user, this.inviter})
+  final bool hideConnectionStatus;
+  const ProfileScreen(
+      {Key? key,
+      required this.user,
+      this.inviter,
+      this.hideConnectionStatus = false})
       : super(key: key);
 
   @override
@@ -61,7 +66,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               Container(
                 color: secondaryColor,
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 child: Column(
                   children: [
                     // profile
@@ -82,25 +87,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   count: state.extraData.totalConnection,
                                 ),
                               ),
-                              const SizedBox(width: 16.0),
                               Expanded(
                                 child: InkWell(
                                   splashColor: Palette.tintColor,
                                   child: _SpecialItem(
-                                    title: "Mutual",
+                                    title: "Mutual Connections",
                                     count: mutualConnList.length,
                                   ),
                                   onTap: () =>
                                       viewMutualConnections(mutualConnList),
                                 ),
                               ),
-                              const SizedBox(width: 16.0),
-                              Expanded(
-                                child: ConnectionStatusButton(
-                                  user: widget.user,
-                                  inviter: widget.inviter,
-                                ),
-                              )
                             ],
                           );
                         } else if (state is UserExtraFailure) {
@@ -111,9 +108,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           );
                         }
 
-                        return Center(child: CustomProgressIndicator());
+                        return Center(child: CustomProgressIndicator(size: 20));
                       },
-                    )
+                    ),
+
+                    if (!widget.hideConnectionStatus)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 20.0),
+                        child: ConnectionStatusButton(
+                          user: widget.user,
+                          inviter: widget.inviter,
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -136,7 +142,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               _Item(
                 title: "Joined ${_formattedDate(widget.user.joinedDate!)}",
                 image: ImageUtils.calendar,
-              )
+              ),
+              const SizedBox(height: 20.0),
             ],
           ),
         ),

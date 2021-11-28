@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pure/utils/app_theme.dart';
 
 import '../../../../blocs/bloc.dart';
 import '../../../../model/chat/message_model.dart';
 import '../../../../model/pure_user_model.dart';
 import '../../../../services/chat/message_service.dart';
 import '../../../../services/user_service.dart';
+import '../../../../utils/app_theme.dart';
+import '../../../../utils/navigate.dart';
 import '../../../widgets/avatar.dart';
+import '../../settings/profile/profile_screen.dart';
 import 'widgets/message_inbox_widget.dart';
 import 'widgets/messages_body.dart';
 
@@ -58,58 +60,61 @@ class _MessagesScreenState extends State<MessagesScreen> {
               color: Theme.of(context).colorScheme.primaryVariant,
             ),
           ),
-          title: Row(
-            children: [
-              Avartar(
-                size: 22,
-                ringSize: 0.8,
-                imageURL: widget.receipient.photoURL,
-              ),
-              const SizedBox(width: 10.0),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.receipient.fullName,
-                      maxLines: 1,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 17.5,
-                        fontFamily: Palette.sanFontFamily,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                    if (widget.hasPresenceActivated)
-                      BlocBuilder<UserPresenceCubit, UserPresenceState>(
-                        builder: (context, state) {
-                          final status = state is UserPresenceSuccess &&
-                              state.presence.isOnline;
-                          if (status)
-                            return Padding(
-                              padding: const EdgeInsets.only(top: 2.0),
-                              child: Text(
-                                "Online",
-                                maxLines: 1,
-                                style: TextStyle(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .primaryVariant
-                                      .withOpacity(0.6),
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 13.0,
-                                  fontFamily: Palette.sanFontFamily,
-                                  letterSpacing: 0.25,
-                                ),
-                              ),
-                            );
-                          return Offstage();
-                        },
-                      ),
-                  ],
+          title: InkWell(
+            onTap: () => viewFullProfile(context, widget.receipient),
+            child: Row(
+              children: [
+                Avartar(
+                  size: 22,
+                  ringSize: 0.8,
+                  imageURL: widget.receipient.photoURL,
                 ),
-              ),
-            ],
+                const SizedBox(width: 10.0),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.receipient.fullName,
+                        maxLines: 1,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 17.5,
+                          fontFamily: Palette.sanFontFamily,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      if (widget.hasPresenceActivated)
+                        BlocBuilder<UserPresenceCubit, UserPresenceState>(
+                          builder: (context, state) {
+                            final status = state is UserPresenceSuccess &&
+                                state.presence.isOnline;
+                            if (status)
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 2.0),
+                                child: Text(
+                                  "Online",
+                                  maxLines: 1,
+                                  style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .primaryVariant
+                                        .withOpacity(0.6),
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 13.0,
+                                    fontFamily: Palette.sanFontFamily,
+                                    letterSpacing: 0.25,
+                                  ),
+                                ),
+                              );
+                            return Offstage();
+                          },
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         body: _MessageBody(
@@ -117,6 +122,13 @@ class _MessagesScreenState extends State<MessagesScreen> {
           receipientName: widget.receipient.firstName,
         ),
       ),
+    );
+  }
+
+  void viewFullProfile(BuildContext context, PureUser user) {
+    push(
+      context: context,
+      page: ProfileScreen(user: user, hideConnectionStatus: true),
     );
   }
 }
