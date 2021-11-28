@@ -127,7 +127,7 @@ class _SearchAllConnectionResultsState
                             final user = users[index];
                             return DetailedUserProfile(
                               key: ObjectKey(user),
-                              viewer: user,
+                              user: user,
                             );
                           }
                         },

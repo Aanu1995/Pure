@@ -31,3 +31,5 @@ export 'user_profile/user_presence/user_presence_cubit.dart';
 export 'user_profile/user_presence/user_presence_state.dart';
 export 'user_profile/user_profile_cubit.dart';
 export 'user_profile/user_profile_state.dart';
+export 'user_profile/user_extra/user_extra_cubit.dart';
+export 'user_profile/user_extra/user_extra_state.dart';

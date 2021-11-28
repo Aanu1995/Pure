@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:stream_transform/stream_transform.dart';
 
+import '../model/pure_user_extra.dart';
 import '../model/pure_user_model.dart';
 import '../model/user_presence_model.dart';
 import '../repositories/connection.dart';
@@ -19,6 +20,7 @@ abstract class UserService {
   const UserService();
 
   Future<PureUser> getUser(String userId);
+  Future<PureUserExtraModel> getUserExtraData(String userId);
   Future<PureUser> getUserIfExistOrCreate(
       String userId, Map<String, dynamic> data);
   Future<void> createUser(String userId, Map<String, dynamic> data);
@@ -70,6 +72,18 @@ class UserServiceImpl extends UserService {
   Future<PureUser> getUser(String userId) async {
     try {
       return _getCurrentUserProfile(userId);
+    } on TimeoutException catch (_) {
+      throw ServerException(message: ErrorMessages.timeoutMessage);
+    } catch (e) {
+      throw ServerException(message: ErrorMessages.generalMessage2);
+    }
+  }
+
+  // This gets the user extra data such as connection list
+  Future<PureUserExtraModel> getUserExtraData(String userId) async {
+    try {
+      final docSnap = await _userExtCollection.doc(userId).get();
+      return PureUserExtraModel.fromMap(docSnap.data() as Map<String, dynamic>);
     } on TimeoutException catch (_) {
       throw ServerException(message: ErrorMessages.timeoutMessage);
     } catch (e) {

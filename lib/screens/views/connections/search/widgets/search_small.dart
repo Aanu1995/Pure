@@ -31,8 +31,8 @@ class SearchSmallConnection extends StatelessWidget {
                     shrinkWrap: true,
                     physics: NeverScrollableScrollPhysics(),
                     itemBuilder: (context, index) {
-                      final viewer = users[index];
-                      return ShortUserProfile(viewer: viewer);
+                      final user = users[index];
+                      return ShortUserProfile(user: user);
                     },
                   ),
                   Divider(height: 0.0),

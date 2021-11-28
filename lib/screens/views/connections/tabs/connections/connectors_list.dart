@@ -2,6 +2,7 @@ import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/src/provider.dart';
+import 'package:pure/screens/views/settings/profile/profile_screen.dart';
 import 'package:pure/utils/app_theme.dart';
 
 import '../../../../../blocs/bloc.dart';
@@ -148,7 +149,7 @@ class _ConnectorProfile extends StatelessWidget {
                       ),
                       IconButton(
                         onPressed: () =>
-                            onMessageTapped(context, connector, user),
+                            onProfileTapped(context, connector, user),
                         padding: const EdgeInsets.only(left: 4.0, right: 8.0),
                         icon: Icon(
                           Icons.chat_outlined,
@@ -169,7 +170,7 @@ class _ConnectorProfile extends StatelessWidget {
   }
 
   void viewFullProfile(BuildContext context, final PureUser user) {
-    // push(context: context, page: ProfilePublicView(viewer: user));
+    push(context: context, page: ProfileScreen(user: user));
   }
 
   Future<void> onRemovedConnectionPressed(
@@ -197,7 +198,7 @@ class _ConnectorProfile extends StatelessWidget {
     }
   }
 
-  void onMessageTapped(
+  void onProfileTapped(
     BuildContext context,
     Connector connector,
     PureUser user,

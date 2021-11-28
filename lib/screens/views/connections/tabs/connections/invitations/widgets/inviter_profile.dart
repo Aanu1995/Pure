@@ -1,14 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pure/utils/app_theme.dart';
 
 import '../../../../../../../blocs/bloc.dart';
 import '../../../../../../../model/inviter_model.dart';
 import '../../../../../../../model/pure_user_model.dart';
+import '../../../../../../../utils/app_theme.dart';
 import '../../../../../../../utils/app_utils.dart';
+import '../../../../../../../utils/navigate.dart';
 import '../../../../../../widgets/avatar.dart';
 import '../../../../../../widgets/shimmers/loading_shimmer.dart';
+import '../../../../../settings/profile/profile_screen.dart';
 
 class InviterProfile extends StatelessWidget {
   final Inviter inviter;
@@ -94,9 +96,7 @@ class InviterProfile extends StatelessWidget {
 
   void viewFullProfile(
       BuildContext context, final PureUser user, Inviter inviter) {
-    // push(
-    //     context: context,
-    //     page: ProfilePublicView(viewer: user, inviter: inviter));
+    push(context: context, page: ProfileScreen(user: user, inviter: inviter));
   }
 
   Future<void> onInvitationIgnored(

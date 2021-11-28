@@ -6,8 +6,10 @@ import '../../../../../../../blocs/bloc.dart';
 import '../../../../../../../model/invitee_model.dart';
 import '../../../../../../../model/pure_user_model.dart';
 import '../../../../../../../utils/app_utils.dart';
+import '../../../../../../../utils/navigate.dart';
 import '../../../../../../widgets/avatar.dart';
 import '../../../../../../widgets/shimmers/loading_shimmer.dart';
+import '../../../../../settings/profile/profile_screen.dart';
 
 class InviteeProfile extends StatelessWidget {
   final Invitee invitee;
@@ -83,7 +85,7 @@ class InviteeProfile extends StatelessWidget {
   }
 
   void viewFullProfile(BuildContext context, final PureUser user) {
-    // push(context: context, page: ProfilePublicView(viewer: user));
+    push(context: context, page: ProfileScreen(user: user));
   }
 
   Future<void> onWithDrawPressed(BuildContext context, int inviteeIndex,

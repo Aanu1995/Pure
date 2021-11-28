@@ -48,6 +48,9 @@ class ImageUtils implements ImageMethods {
   static const String home = 'assets/images/home.png';
   static const String emptyMessageLight = 'assets/images/emptyMessageLight.png';
   static const String emptyMessageDark = 'assets/images/emptyMessageDark.png';
+  static const String username = 'assets/images/username.png';
+  static const String location = 'assets/images/location.png';
+  static const String calendar = 'assets/images/calendar.png';
 
   @override
   Future<File?> pickImage(

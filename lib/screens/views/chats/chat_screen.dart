@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pure/services/chat/chat_service.dart';
 
 import '../../../blocs/bloc.dart';
 import '../../../model/pure_user_model.dart';
+import '../../../services/chat/chat_service.dart';
 import '../../widgets/bottom_bar.dart';
 import 'widget/chat_list_widget.dart';
 
