@@ -41,7 +41,6 @@ class _Body extends StatelessWidget {
 
   void signOutListener(BuildContext context, AuthState authState) {
     if (authState is UnAuthenticated) {
-      print("Hello");
       pushAndRemoveUntil(context: context, page: const RootWidget());
     }
   }

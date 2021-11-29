@@ -49,12 +49,10 @@ class MessageServiceImp extends MessageService {
           .doc(chatId)
           .collection(GlobalUtils.messageCollection)
           .orderBy("sentDate", descending: true)
-          // .limit(GlobalUtils.cachedMessagesLimit)
           .get(GetOptions(source: Source.cache));
 
       final docSnap = await _receiptCollection.doc(chatId).get();
       final data = docSnap.data() as Map<String, dynamic>?;
-      data?.remove(currentUserId);
 
       if (querySnapshot.docs.isNotEmpty) {
         lastDoc = querySnapshot.docs.last;
@@ -64,8 +62,7 @@ class MessageServiceImp extends MessageService {
       return MessagesModel(
         messages: messages,
         lastDoc: lastDoc,
-        topMessageDate: _getTopReadMessageDate(data),
-        messageDates: data,
+        topMessageDate: _getTopReadMessageDate(data, currentUserId),
       );
     } catch (e) {
       return MessagesModel(messages: []);
@@ -74,10 +71,10 @@ class MessageServiceImp extends MessageService {
 
   // this fetches new messages for a user on every receipt update using the
   // user last seen message time
+  String? topMessageDate;
+
   @override
   Stream<MessagesModel?> getNewMessages(String chatId, String currentUserId) {
-    String? topMessageDate;
-
     try {
       return _receiptCollection
           .doc(chatId)
@@ -90,17 +87,13 @@ class MessageServiceImp extends MessageService {
           final lastSeenMessageDate =
               data[currentUserId]["lastSeen"] as String?;
 
-          String? newTopMessageDate = _getTopReadMessageDate(data);
-          // required to prevent unnecessary fetching of messages since receipts
-          // updates for every user
-          bool shouldFetch =
-              newTopMessageDate != null && newTopMessageDate != topMessageDate;
+          String? newTopMessageDate =
+              _getTopReadMessageDate(data, currentUserId);
 
-          if (lastSeenMessageDate != null && shouldFetch) {
+          if (lastSeenMessageDate != null && newTopMessageDate != null) {
             final msgModelResult =
                 await _getNewMessagesFuture(chatId, lastSeenMessageDate);
             if (msgModelResult != null) {
-              data.remove(currentUserId);
               topMessageDate = newTopMessageDate;
               return _getMessageModel(msgModelResult, newTopMessageDate, data);
             }
@@ -119,7 +112,7 @@ class MessageServiceImp extends MessageService {
           .doc(chatId)
           .collection(GlobalUtils.messageCollection)
           .orderBy("sentDate", descending: true)
-          .limit(20)
+          .limit(GlobalUtils.messagesLimit)
           .get()
           .timeout(GlobalUtils.timeOutInDuration);
 
@@ -218,7 +211,6 @@ class MessageServiceImp extends MessageService {
     return MessagesModel(
       messages: msgModel.messages.toList(),
       topMessageDate: topMessageDate,
-      messageDates: data,
       lastDoc: msgModel.lastDoc,
     );
   }
@@ -255,7 +247,9 @@ class MessageServiceImp extends MessageService {
     }
   }
 
-  String? _getTopReadMessageDate(final Map<String, dynamic>? data) {
+  String? _getTopReadMessageDate(
+      final Map<String, dynamic>? data, String currentUserId) {
+    data?.remove(currentUserId);
     if (data != null) {
       List<String> dates = [];
       final newData = data.values.toList();

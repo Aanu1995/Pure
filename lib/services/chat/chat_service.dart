@@ -12,8 +12,7 @@ abstract class ChatService {
   const ChatService();
 
   Future<ChatsModel> getOfflineChats(String userId);
-  Stream<ChatsModel?> getRealTimeChats(String userId,
-      {int limit = GlobalUtils.messagesLimit});
+  Stream<ChatsModel?> getRealTimeChats(String userId);
   Stream<ChatsModel?> getLastRemoteMessage(
       String userId, DocumentSnapshot endDoc);
   Stream<int> getUnReadMessageCount(String chatId, String userId);
@@ -100,8 +99,7 @@ class ChatServiceImp extends ChatService {
   }
 
   @override
-  Stream<ChatsModel?> getRealTimeChats(String userId,
-      {int limit = GlobalUtils.messagesLimit}) {
+  Stream<ChatsModel?> getRealTimeChats(String userId) {
     try {
       return _chatCollection
           .where("members", arrayContains: userId)

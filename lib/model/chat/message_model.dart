@@ -11,17 +11,12 @@ class MessagesModel extends Equatable {
   final List<MessageModel> messages;
   final DocumentSnapshot? lastDoc;
   final String? topMessageDate;
-  final Map<String, dynamic>? messageDates;
 
-  const MessagesModel({
-    required this.messages,
-    this.lastDoc,
-    this.topMessageDate,
-    this.messageDates,
-  });
+  const MessagesModel(
+      {required this.messages, this.lastDoc, this.topMessageDate});
 
   @override
-  List<Object?> get props => [messages, lastDoc, topMessageDate, messageDates];
+  List<Object?> get props => [messages, lastDoc, topMessageDate];
 }
 
 class MessageModel extends Equatable {

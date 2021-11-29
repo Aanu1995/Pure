@@ -25,12 +25,8 @@ class NewMessagesCubit extends Cubit<MessageState> {
           // update the UI on new messages
           _update(messagesModel);
 
-          // update the time of the last message seen by the user
-          await messageService.setCurrentUserLastReadMessageId(
-            chatId,
-            userId,
-            messagesModel.messages.first.sentDate!.toUtc().toIso8601String(),
-          );
+          // Only updates if the prev date is not equal to current date
+          _updateTheLastMessageReceipt(chatId, userId, messagesModel);
         }
       });
     } catch (e) {}
@@ -44,7 +40,6 @@ class NewMessagesCubit extends Cubit<MessageState> {
           messagesModel: MessagesModel(
             messages: [],
             topMessageDate: currentState.messagesModel.topMessageDate,
-            messageDates: currentState.messagesModel.messageDates,
             lastDoc: currentState.messagesModel.lastDoc,
           ),
         ),
@@ -62,6 +57,15 @@ class NewMessagesCubit extends Cubit<MessageState> {
   // #######################################################################
   // Helper Methods
 
+  Future<void> _updateTheLastMessageReceipt(
+      String chatId, String userId, MessagesModel msgModel) async {
+    await messageService.setCurrentUserLastReadMessageId(
+      chatId,
+      userId,
+      msgModel.messages.first.sentDate!.toUtc().toIso8601String(),
+    );
+  }
+
   void _update(final MessagesModel messagesModel) {
     final currentState = state;
 
@@ -78,7 +82,6 @@ class NewMessagesCubit extends Cubit<MessageState> {
     final messageModel = MessagesModel(
       messages: result,
       topMessageDate: messagesModel.topMessageDate,
-      messageDates: messagesModel.messageDates,
       lastDoc: lastDoc,
     );
 

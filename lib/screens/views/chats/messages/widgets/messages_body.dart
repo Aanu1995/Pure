@@ -54,15 +54,11 @@ class _MessagesbodyState extends State<Messagesbody> {
   void newMessagesListener(BuildContext context, final MessageState state) {
     if (state is MessagesLoaded) {
       final hasBottomPadding = MediaQuery.of(context).viewInsets.bottom > 0;
-      // Occurs when the messages list is empty and the controller has not
-      // been attached to the listview builder for messages
-      if (_controller.hasClients == false) {
-        return _updateLatestMessage(state);
-      } else if (hasBottomPadding) {
+
+      if (hasBottomPadding) {
         // Occur if user keyboard is open, new messages should be autom
         _updateLatestMessage(state);
       } else {
-        lastPos = _controller.position.pixels;
         final minScroll = _controller.position.minScrollExtent;
         final currentScroll = _controller.offset;
         final isView = currentScroll - minScroll <= 300;
@@ -71,6 +67,7 @@ class _MessagesbodyState extends State<Messagesbody> {
           _updateLatestMessage(state);
         } else if (state.messagesModel.messages.length > 0) {
           showNewMessageAtIndex = (state.messagesModel.messages.length - 1);
+          lastPos = showNewMessageAtIndex * 35;
         }
       }
     }
@@ -84,6 +81,7 @@ class _MessagesbodyState extends State<Messagesbody> {
       listener: (context, state) {
         if (state is MessagesLoaded) {
           showNewMessageAtIndex = (state.messagesModel.messages.length - 1);
+          lastPos = showNewMessageAtIndex * 35;
         }
       },
       child: Stack(
@@ -181,9 +179,7 @@ class _MessagesbodyState extends State<Messagesbody> {
           // shows new message button
           NewMessageWidget(
             controller: _controller,
-            onNewMessagePressed: () => animateToBottom(
-              (_controller.position.pixels - lastPos),
-            ),
+            onNewMessagePressed: () => animateToBottom(0),
           ),
         ],
       ),
@@ -192,17 +188,14 @@ class _MessagesbodyState extends State<Messagesbody> {
 
   void animateToBottom(final double offset) {
     if (_controller.hasClients) {
-      _controller.animateTo(
-        offset,
-        curve: Curves.easeOut,
-        duration: const Duration(milliseconds: 300),
-      );
+      _controller.jumpTo(offset);
     }
   }
 
   void _updateLatestMessage(final MessagesLoaded state) {
     context.read<MessageCubit>().updateNewMessages(state);
     context.read<NewMessagesCubit>().emptyMessages();
+    animateToBottom(lastPos);
     lastPos = 0.0;
   }
 

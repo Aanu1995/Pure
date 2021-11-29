@@ -59,7 +59,6 @@ class MessageCubit extends Cubit<MessageState> {
         MessagesModel(
           messages: messages,
           topMessageDate: newMessageState.messagesModel.topMessageDate,
-          messageDates: newMessageState.messagesModel.messageDates,
           lastDoc: lastDoc,
         ),
         currentState.hasMore,
@@ -81,7 +80,6 @@ class MessageCubit extends Cubit<MessageState> {
         MessagesModel(
           messages: totalMessages,
           topMessageDate: currentState.messagesModel.topMessageDate,
-          messageDates: currentState.messagesModel.messageDates,
           lastDoc: oldMessageState.messagesModel.lastDoc,
         ),
         oldMessageState.hasMore,
@@ -136,7 +134,6 @@ class MessageCubit extends Cubit<MessageState> {
           messages: newMessages,
           lastDoc: currentState.messagesModel.lastDoc,
           topMessageDate: currentState.messagesModel.topMessageDate,
-          messageDates: currentState.messagesModel.messageDates,
         ),
         currentState.hasMore,
       );
@@ -159,7 +156,6 @@ class MessageCubit extends Cubit<MessageState> {
             messages: messages,
             lastDoc: currentState.messagesModel.lastDoc,
             topMessageDate: currentState.messagesModel.topMessageDate,
-            messageDates: currentState.messagesModel.messageDates,
           ),
           hasMore: currentState.hasMore,
         ),
@@ -180,7 +176,6 @@ class MessageCubit extends Cubit<MessageState> {
             .toList(),
         lastDoc: msgsModel.lastDoc,
         topMessageDate: topMessageDate,
-        messageDates: msgsModel.messageDates,
       );
     }
 
