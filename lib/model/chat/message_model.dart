@@ -9,13 +9,19 @@ enum Receipt { Failed, Pending, Sent, Delivered, Read }
 
 class MessagesModel extends Equatable {
   final List<MessageModel> messages;
-  final DocumentSnapshot? firstDoc;
   final DocumentSnapshot? lastDoc;
+  final String? topMessageDate;
+  final Map<String, dynamic>? messageDates;
 
-  const MessagesModel({required this.messages, this.firstDoc, this.lastDoc});
+  const MessagesModel({
+    required this.messages,
+    this.lastDoc,
+    this.topMessageDate,
+    this.messageDates,
+  });
 
   @override
-  List<Object?> get props => [messages, lastDoc];
+  List<Object?> get props => [messages, lastDoc, topMessageDate, messageDates];
 }
 
 class MessageModel extends Equatable {

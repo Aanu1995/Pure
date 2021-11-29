@@ -29,7 +29,7 @@ class OneToOneCard extends StatefulWidget {
 
 class _OneToOneCardState extends State<OneToOneCard> {
   final _style = const TextStyle(
-    fontSize: 17.5,
+    fontSize: 17,
     fontWeight: FontWeight.w600,
     letterSpacing: 0.05,
   );
@@ -82,7 +82,7 @@ class _OneToOneCardState extends State<OneToOneCard> {
                             chatTime(widget.chat.updateDate),
                             key: ObjectKey(widget.chat.updateDate),
                             style: _style.copyWith(
-                              fontSize: 15,
+                              fontSize: 14,
                               fontWeight: FontWeight.w400,
                               color: unreadState > 0
                                   ? Theme.of(context).primaryColor
@@ -106,7 +106,7 @@ class _OneToOneCardState extends State<OneToOneCard> {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: _style.copyWith(
-                              fontSize: 14.5,
+                              fontSize: 14,
                               fontWeight: FontWeight.w400,
                               color: secondVarColor,
                             ),

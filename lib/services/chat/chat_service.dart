@@ -44,7 +44,7 @@ class ChatServiceImp extends ChatService {
       final querySnapshot = await _chatCollection
               .where("members", arrayContains: userId)
               .orderBy("updateDate", descending: true)
-              .limit(GlobalUtils.cachedChatsLimit)
+              //   .limit(GlobalUtils.cachedChatsLimit)
               .get(GetOptions(source: Source.cache))
           as QuerySnapshot<Map<String, dynamic>?>;
 

@@ -16,13 +16,11 @@ class NewMessagesCubit extends Cubit<MessageState> {
   StreamSubscription<MessagesModel?>? _subscription;
 
   Future<void> updateOnNewMessages(String chatId, String userId) async {
-    chatId = chatId;
-    userId = userId;
-
     try {
       _subscription?.cancel();
-      _subscription =
-          messageService.getNewMessages(chatId).listen((messagesModel) async {
+      _subscription = messageService
+          .getNewMessages(chatId, userId)
+          .listen((messagesModel) async {
         if (messagesModel != null) {
           // update the UI on new messages
           _update(messagesModel);
@@ -35,17 +33,23 @@ class NewMessagesCubit extends Cubit<MessageState> {
           );
         }
       });
-    } catch (e) {
-      emptyMessages();
-    }
-  }
-
-  void updateUnreadMessageCount(String chatId, String userId) {
-    messageService.setCurrentUserLastReadMessageId(chatId, userId, null);
+    } catch (e) {}
   }
 
   void emptyMessages() {
-    emit(MessagesLoaded(messagesModel: MessagesModel(messages: [])));
+    final currentState = state;
+    if (currentState is MessagesLoaded) {
+      emit(
+        MessagesLoaded(
+          messagesModel: MessagesModel(
+            messages: [],
+            topMessageDate: currentState.messagesModel.topMessageDate,
+            messageDates: currentState.messagesModel.messageDates,
+            lastDoc: currentState.messagesModel.lastDoc,
+          ),
+        ),
+      );
+    }
   }
 
   @override
@@ -71,7 +75,12 @@ class NewMessagesCubit extends Cubit<MessageState> {
     }
 
     final result = orderedSetForMessages([...newMessages, ...oldMessages]);
-    final messageModel = MessagesModel(messages: result, lastDoc: lastDoc);
+    final messageModel = MessagesModel(
+      messages: result,
+      topMessageDate: messagesModel.topMessageDate,
+      messageDates: messagesModel.messageDates,
+      lastDoc: lastDoc,
+    );
 
     emit(MessagesLoaded(messagesModel: messageModel));
   }

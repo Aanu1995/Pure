@@ -57,36 +57,24 @@ class _MessagesScreenExtension extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        updateUnReadMessageCount(context);
-        return true;
-      },
-      child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        appBar: AppBar(
-          leadingWidth: 40.0,
-          elevation: 1.0,
-          leading: Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: BackButton(
-              color: Theme.of(context).colorScheme.primaryVariant,
-            ),
-          ),
-          title: MessageAppBarTitle(
-            chatId: chatId,
-            receipient: receipient,
-            hasPresenceActivated: hasPresenceActivated,
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+        leadingWidth: 40.0,
+        elevation: 1.0,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: BackButton(
+            color: Theme.of(context).colorScheme.primaryVariant,
           ),
         ),
-        body: MessageBody(chatId: chatId, receipientName: receipient.firstName),
+        title: MessageAppBarTitle(
+          chatId: chatId,
+          receipient: receipient,
+          hasPresenceActivated: hasPresenceActivated,
+        ),
       ),
+      body: MessageBody(chatId: chatId, receipientName: receipient.firstName),
     );
-  }
-
-  void updateUnReadMessageCount(BuildContext context) {
-    context
-        .read<NewMessagesCubit>()
-        .updateUnreadMessageCount(chatId, CurrentUser.currentUserId);
   }
 }

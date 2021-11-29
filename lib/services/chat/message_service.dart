@@ -11,20 +11,14 @@ import '../../utils/request_messages.dart';
 abstract class MessageService {
   const MessageService();
 
-  Future<MessagesModel> getOfflineMessages(String chatId);
-  Future<Map<String, dynamic>?> getOfflineLastDates(
-      String chatId, String currentUserId);
-  Stream<MessagesModel?> getNewMessages(String chatId,
-      {int limit = GlobalUtils.messagesLimit});
+  Future<MessagesModel> getOfflineMessages(String chatId, String currentUserId);
+  Stream<MessagesModel?> getNewMessages(String chatId, String currentUserId);
+  Future<MessagesModel> getRecentMessages(String chatId);
   Future<MessagesModel> loadMoreMessages(String chatId, DocumentSnapshot doc,
       {int limit = GlobalUtils.messagesLimit});
   Future<void> sendTextMessageOnly(String chatId, final MessageModel message);
-  Stream<MessagesModel?> getUnreadMessages(
-      String chatId, DocumentSnapshot endDoc);
   Future<void> setCurrentUserLastReadMessageId(
-      String chatId, String userId, String? time);
-  Stream<Map<String, dynamic>?> getLastDatebyUsers(
-      String chatId, String currentUserId);
+      String chatId, String userId, String time);
 }
 
 class MessageServiceImp extends MessageService {
@@ -45,9 +39,9 @@ class MessageServiceImp extends MessageService {
   late CollectionReference _receiptCollection;
 
   @override
-  Future<MessagesModel> getOfflineMessages(String chatId) async {
+  Future<MessagesModel> getOfflineMessages(
+      String chatId, String currentUserId) async {
     List<MessageModel> messages = [];
-    DocumentSnapshot? firstDoc;
     DocumentSnapshot? lastDoc;
 
     try {
@@ -55,94 +49,96 @@ class MessageServiceImp extends MessageService {
           .doc(chatId)
           .collection(GlobalUtils.messageCollection)
           .orderBy("sentDate", descending: true)
-          .limit(GlobalUtils.cachedMessagesLimit)
+          // .limit(GlobalUtils.cachedMessagesLimit)
           .get(GetOptions(source: Source.cache));
 
+      final docSnap = await _receiptCollection.doc(chatId).get();
+      final data = docSnap.data() as Map<String, dynamic>?;
+      data?.remove(currentUserId);
+
       if (querySnapshot.docs.isNotEmpty) {
-        firstDoc = querySnapshot.docs.first;
         lastDoc = querySnapshot.docs.last;
         for (final data in querySnapshot.docs)
           messages.add(MessageModel.fromMap(data.data()));
       }
       return MessagesModel(
         messages: messages,
-        firstDoc: firstDoc,
         lastDoc: lastDoc,
+        topMessageDate: _getTopReadMessageDate(data),
+        messageDates: data,
       );
     } catch (e) {
-      throw ServerException(message: ErrorMessages.generalMessage2);
+      return MessagesModel(messages: []);
     }
   }
 
+  // this fetches new messages for a user on every receipt update using the
+  // user last seen message time
   @override
-  Future<Map<String, dynamic>?> getOfflineLastDates(
-      String chatId, String currentUserId) async {
-    final docSnap = await _receiptCollection.doc(chatId).get();
-    final data = docSnap.data() as Map<String, dynamic>?;
-    data?.remove(currentUserId);
-    return (data == null || data.isEmpty) ? null : data;
-  }
+  Stream<MessagesModel?> getNewMessages(String chatId, String currentUserId) {
+    String? topMessageDate;
 
-  @override
-  Stream<MessagesModel?> getNewMessages(String chatId,
-      {int limit = GlobalUtils.messagesLimit}) {
     try {
-      return _chatCollection
+      return _receiptCollection
           .doc(chatId)
-          .collection(GlobalUtils.messageCollection)
-          .orderBy("sentDate", descending: true)
-          .limit(limit)
           .snapshots()
-          .asyncMap((querySnapshot) async {
-        List<MessageModel> messages = [];
-        DocumentSnapshot? lastDoc;
+          .asyncMap((docSnapshot) async {
+        final data = docSnapshot.data() as Map<String, dynamic>?;
+        if (data != null) {
+          // this will be null if user just connected with another user
+          // or if the user just joined
+          final lastSeenMessageDate =
+              data[currentUserId]["lastSeen"] as String?;
 
-        if (querySnapshot.docs.isNotEmpty) {
-          lastDoc = querySnapshot.docs.last;
-          for (final data in querySnapshot.docs) {
-            try {
-              messages.add(MessageModel.fromMap(data.data()));
-            } catch (e) {
-              log(e.toString());
+          String? newTopMessageDate = _getTopReadMessageDate(data);
+          // required to prevent unnecessary fetching of messages since receipts
+          // updates for every user
+          bool shouldFetch =
+              newTopMessageDate != null && newTopMessageDate != topMessageDate;
+
+          if (lastSeenMessageDate != null && shouldFetch) {
+            final msgModelResult =
+                await _getNewMessagesFuture(chatId, lastSeenMessageDate);
+            if (msgModelResult != null) {
+              data.remove(currentUserId);
+              topMessageDate = newTopMessageDate;
+              return _getMessageModel(msgModelResult, newTopMessageDate, data);
             }
           }
         }
-
-        return MessagesModel(messages: messages, lastDoc: lastDoc);
+        return null;
       });
     } catch (e) {
       return Stream.value(null);
     }
   }
 
-  @override
-  Stream<MessagesModel?> getUnreadMessages(
-      String chatId, DocumentSnapshot endDoc) {
+  Future<MessagesModel> getRecentMessages(String chatId) async {
     try {
-      return _chatCollection
+      final colref = await _chatCollection
           .doc(chatId)
           .collection(GlobalUtils.messageCollection)
           .orderBy("sentDate", descending: true)
-          .limit(GlobalUtils.LastFetchedMessagesLimit)
-          .endBeforeDocument(endDoc)
-          .snapshots()
-          .asyncMap((querySnapshot) async {
-        List<MessageModel> messages = [];
+          .limit(20)
+          .get()
+          .timeout(GlobalUtils.timeOutInDuration);
 
-        if (querySnapshot.docs.isNotEmpty) {
-          for (final data in querySnapshot.docs) {
-            try {
-              messages.add(MessageModel.fromMap(data.data()));
-            } catch (e) {
-              log(e.toString());
-            }
+      List<MessageModel> messages = [];
+      DocumentSnapshot? lastDoc;
+
+      if (colref.docs.isNotEmpty) {
+        lastDoc = colref.docs.last;
+        for (final data in colref.docs) {
+          try {
+            messages.add(MessageModel.fromMap(data.data()));
+          } catch (e) {
+            log(e.toString());
           }
         }
-
-        return MessagesModel(messages: messages);
-      });
+      }
+      return MessagesModel(messages: messages, lastDoc: lastDoc);
     } catch (e) {
-      return Stream.value(null);
+      return MessagesModel(messages: []);
     }
   }
 
@@ -198,11 +194,9 @@ class MessageServiceImp extends MessageService {
 
   @override
   Future<void> setCurrentUserLastReadMessageId(
-      String chatId, String userId, String? time) async {
+      String chatId, String userId, String time) async {
     try {
-      final data = time != null
-          ? {"lastSeen": time, "unreadCount": 0}
-          : {"unreadCount": 0};
+      final data = {"lastSeen": time, "unreadCount": 0};
 
       await _receiptCollection.doc(chatId).set(
         {userId: data},
@@ -215,20 +209,65 @@ class MessageServiceImp extends MessageService {
     }
   }
 
-  @override
-  Stream<Map<String, dynamic>?> getLastDatebyUsers(
-      String chatId, String currentUserId) {
+  ///  Helper Methods
+  /// ##################################################################
+  ///
+
+  MessagesModel _getMessageModel(final MessagesModel msgModel,
+      String topMessageDate, final Map<String, dynamic>? data) {
+    return MessagesModel(
+      messages: msgModel.messages.toList(),
+      topMessageDate: topMessageDate,
+      messageDates: data,
+      lastDoc: msgModel.lastDoc,
+    );
+  }
+
+  Future<MessagesModel?> _getNewMessagesFuture(
+      String chatId, String lastSeenMsgDate,
+      {int limit = GlobalUtils.messagesLimit}) async {
     try {
-      return _receiptCollection
+      final colref = await _chatCollection
           .doc(chatId)
-          .snapshots()
-          .asyncMap((docSnapshot) async {
-        final data = docSnapshot.data() as Map<String, dynamic>?;
-        data?.remove(currentUserId);
-        return (data == null || data.isEmpty) ? null : data;
-      });
+          .collection(GlobalUtils.messageCollection)
+          .where('sentDate', isGreaterThan: lastSeenMsgDate)
+          .orderBy("sentDate", descending: true)
+          .limit(limit)
+          .get()
+          .timeout(GlobalUtils.timeOutInDuration);
+
+      List<MessageModel> messages = [];
+      DocumentSnapshot? lastDoc;
+
+      if (colref.docs.isNotEmpty) {
+        lastDoc = colref.docs.last;
+        for (final data in colref.docs) {
+          try {
+            messages.add(MessageModel.fromMap(data.data()));
+          } catch (e) {
+            log(e.toString());
+          }
+        }
+      }
+      return MessagesModel(messages: messages, lastDoc: lastDoc);
     } catch (e) {
-      return Stream.value(null);
+      return null;
     }
+  }
+
+  String? _getTopReadMessageDate(final Map<String, dynamic>? data) {
+    if (data != null) {
+      List<String> dates = [];
+      final newData = data.values.toList();
+
+      for (final map in newData) {
+        dates.add(map["lastSeen"] as String);
+      }
+
+      dates.sort();
+      final topDate = dates.last;
+      return topDate;
+    }
+    return null;
   }
 }

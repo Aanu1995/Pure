@@ -101,7 +101,7 @@ class MessageBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<MessageCubit, MessageState>(
       listenWhen: (prev, current) =>
-          current is MessagesLoaded && current.isListening == false,
+          prev is MessageInitial && current is MessagesLoaded,
       listener: (context, state) => context
           .read<NewMessagesCubit>()
           .updateOnNewMessages(chatId, CurrentUser.currentUserId),
