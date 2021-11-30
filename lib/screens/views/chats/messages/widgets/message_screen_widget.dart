@@ -142,29 +142,49 @@ class MessageBody extends StatelessWidget {
 }
 
 class FileWidget extends StatelessWidget {
-  final Attachment attachment;
-  const FileWidget({Key? key, required this.attachment}) : super(key: key);
+  final List<Attachment> attachments;
+  const FileWidget({Key? key, required this.attachments}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    if (attachment is ImageAttachment) {
-      final newAttachment = attachment as ImageAttachment;
-      if (attachment.localFile != null)
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(4.0),
-          child: Image.file(
-            newAttachment.localFile!,
-            width: newAttachment.width.toDouble(),
-          ),
-        );
-      else
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(4.0),
-          child: CachedNetworkImage(
-            imageUrl: newAttachment.fileURL!,
-            width: newAttachment.width.toDouble(),
-          ),
-        );
+    if (attachments.first is ImageAttachment) {
+      if (attachments.length <= 1) {
+        final newAttachment = attachments.first as ImageAttachment;
+        if (newAttachment.localFile != null)
+          return ClipRRect(
+            borderRadius: BorderRadius.circular(4.0),
+            child: Image.file(
+              newAttachment.localFile!,
+              width: newAttachment.width.toDouble(),
+            ),
+          );
+        else
+          return ClipRRect(
+            borderRadius: BorderRadius.circular(4.0),
+            child: CachedNetworkImage(
+              imageUrl: newAttachment.fileURL!,
+              width: newAttachment.width.toDouble(),
+              placeholder: (context, _) {
+                return AspectRatio(
+                  aspectRatio: newAttachment.width.toDouble() /
+                      newAttachment.height.toDouble(),
+                  child: Container(
+                    color: Theme.of(context).colorScheme.secondaryVariant,
+                  ),
+                );
+              },
+              errorWidget: (context, url, dynamic _) {
+                return AspectRatio(
+                  aspectRatio: newAttachment.width.toDouble() /
+                      newAttachment.height.toDouble(),
+                  child: Container(
+                    color: Theme.of(context).colorScheme.secondaryVariant,
+                  ),
+                );
+              },
+            ),
+          );
+      }
     }
     return Offstage();
   }

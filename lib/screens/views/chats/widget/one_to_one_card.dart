@@ -101,15 +101,30 @@ class _OneToOneCardState extends State<OneToOneCard> {
                         Expanded(
                           key: ValueKey(
                               "${widget.chat.chatId}${widget.chat.lastMessage}"),
-                          child: Text(
-                            widget.chat.lastMessage,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: _style.copyWith(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                              color: secondVarColor,
-                            ),
+                          child: Row(
+                            children: [
+                              if (widget.chat.lastMessage.isEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 4.0),
+                                  child: Icon(
+                                    Icons.attachment,
+                                    size: 20.0,
+                                    color: secondVarColor,
+                                  ),
+                                ),
+                              Text(
+                                widget.chat.lastMessage.isEmpty
+                                    ? "Attachments"
+                                    : widget.chat.lastMessage,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: _style.copyWith(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                  color: secondVarColor,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         const SizedBox(width: 20.0),
