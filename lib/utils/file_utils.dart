@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
 import 'package:path/path.dart';
+import 'package:pure/model/chat/attachment_model.dart';
 
 abstract class FileUtils {
   Future<PlatformFile?> pickFile();
@@ -41,6 +43,12 @@ extension FileExtension on File {
   String get getFileExtension => extension(this.path, 1);
 }
 
+extension FileExtention on FileSystemEntity {
+  String? get name {
+    return this.path.split("/").last;
+  }
+}
+
 String getStadardFileSize(int sizeInByte) {
   int divider = 1024;
   if (sizeInByte < divider * divider && sizeInByte % divider == 0) {
@@ -55,4 +63,24 @@ String getStadardFileSize(int sizeInByte) {
   } else {
     return sizeInByte.toString();
   }
+}
+
+Future<List<ImageAttachment>> getImageAttachments(List<File> imageFiles) async {
+  List<ImageAttachment> attachments = [];
+
+  for (File file in imageFiles) {
+    final int fileSize = await file.length();
+    var decodedImage = await decodeImageFromList(file.readAsBytesSync());
+    attachments.add(
+      ImageAttachment(
+        name: file.name ?? "",
+        localFile: file,
+        size: fileSize,
+        fileExtension: file.getFileExtension,
+        height: decodedImage.height,
+        width: decodedImage.width,
+      ),
+    );
+  }
+  return attachments;
 }

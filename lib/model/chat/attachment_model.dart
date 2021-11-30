@@ -21,6 +21,8 @@ abstract class Attachment extends Equatable {
 
   Map<String, dynamic> toMap();
 
+  Attachment copyWith(String name);
+
   static Attachment? getAttachment(Map<String, dynamic> data) {
     final String attachMentType = data["type"] as String;
     if (attachMentType == AttachmentType.image.getString) {
@@ -75,6 +77,19 @@ class ImageAttachment extends Attachment {
   }
 
   @override
+  ImageAttachment copyWith(String imageURL) {
+    return ImageAttachment(
+      name: name,
+      fileURL: imageURL,
+      size: size,
+      type: type,
+      fileExtension: fileExtension,
+      height: height,
+      width: width,
+    );
+  }
+
+  @override
   List<Object?> get props =>
       [fileURL, name, size, type, fileExtension, width, height];
 }
@@ -108,6 +123,17 @@ class DocumentAttachment extends Attachment {
       "type": this.type ?? AttachmentType.document.getString,
       "fileExtension": this.fileExtension,
     };
+  }
+
+  @override
+  DocumentAttachment copyWith(String docURL) {
+    return DocumentAttachment(
+      name: name,
+      fileURL: docURL,
+      size: size,
+      type: type,
+      fileExtension: fileExtension,
+    );
   }
 }
 

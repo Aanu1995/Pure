@@ -1,5 +1,7 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pure/model/chat/attachment_model.dart';
 
 import '../../../../../blocs/bloc.dart';
 import '../../../../../model/chat/message_model.dart';
@@ -136,5 +138,34 @@ class MessageBody extends StatelessWidget {
 
   void sendMessage(final BuildContext context, final MessageModel message) {
     context.read<MessageCubit>().sendTextMessageOnly(chatId, message);
+  }
+}
+
+class FileWidget extends StatelessWidget {
+  final Attachment attachment;
+  const FileWidget({Key? key, required this.attachment}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    if (attachment is ImageAttachment) {
+      final newAttachment = attachment as ImageAttachment;
+      if (attachment.localFile != null)
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(4.0),
+          child: Image.file(
+            newAttachment.localFile!,
+            width: newAttachment.width.toDouble(),
+          ),
+        );
+      else
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(4.0),
+          child: CachedNetworkImage(
+            imageUrl: newAttachment.fileURL!,
+            width: newAttachment.width.toDouble(),
+          ),
+        );
+    }
+    return Offstage();
   }
 }

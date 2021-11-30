@@ -14,6 +14,10 @@ String generateDatabaseId() {
   return const Uuid().v1();
 }
 
+String generateRandomId() {
+  return const Uuid().v1();
+}
+
 // updates the user fcm token in the remote database
 Future<void> updateUserFCMToken(String userId) async {
   final notification = PushNotificationImpl();

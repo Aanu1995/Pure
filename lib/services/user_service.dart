@@ -40,14 +40,14 @@ class UserServiceImpl extends UserService {
   final FirebaseDatabase? firebaseDatabase;
   final LocalStorage? localStorage;
   final ConnectionRepo? connection;
-  RemoteStorageImpl? remoteStorageImpl;
+  RemoteStorage? remoteStorage;
 
   UserServiceImpl({
     this.firestore,
     this.firebaseDatabase,
     this.localStorage,
     this.connection,
-    this.remoteStorageImpl,
+    this.remoteStorage,
   }) {
     _userCollection = (firestore ?? FirebaseFirestore.instance)
         .collection(GlobalUtils.userCollection);
@@ -58,7 +58,7 @@ class UserServiceImpl extends UserService {
         .child(GlobalUtils.userCollection);
     _connection = connection ?? ConnectionRepoImpl();
     _localStorage = localStorage ?? LocalStorageImpl();
-    _remoteStorage = remoteStorageImpl ?? RemoteStorageImpl();
+    _remoteStorage = remoteStorage ?? RemoteStorageImpl();
   }
 
   late CollectionReference _userCollection;
@@ -66,7 +66,7 @@ class UserServiceImpl extends UserService {
   late DatabaseReference _databaseReference;
   late ConnectionRepo _connection;
   late LocalStorage _localStorage;
-  late RemoteStorageImpl _remoteStorage;
+  late RemoteStorage _remoteStorage;
 
   @override
   Future<PureUser> getUser(String userId) async {

@@ -133,7 +133,7 @@ class _MessageInputBoxState extends State<MessageInputBox> {
                 );
               else
                 return InkWell(
-                  onTap: () => sendMessage(),
+                  onTap: () => sendMessageOnly(),
                   borderRadius: BorderRadius.circular(500),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
@@ -158,7 +158,7 @@ class _MessageInputBoxState extends State<MessageInputBox> {
     );
   }
 
-  void sendMessage() {
+  void sendMessageOnly() {
     if (_controller.text.trim().isNotEmpty) {
       final message = MessageModel.newMessage(
         _controller.text,
@@ -226,7 +226,7 @@ class _MessageInputBoxState extends State<MessageInputBox> {
   }
 
   Future<void> _showImagePreviewScreen(File imageFile) async {
-    final result = await Navigator.of(context).push<bool?>(
+    final result = await Navigator.of(context).push<List<File>?>(
       PageTransition(
         child: ChatImagePreviewScreen(
           imageFile: imageFile,
@@ -235,6 +235,20 @@ class _MessageInputBoxState extends State<MessageInputBox> {
         type: PageTransitionType.bottomToTop,
       ),
     );
-    print(result);
+
+    if (result != null) sendMessageWithImage(result);
+  }
+
+  void sendMessageWithImage(List<File> imageFiles) async {
+    final attachments = await getImageAttachments(imageFiles);
+
+    final message = MessageModel.newMessageWithAttachment(
+      _controller.text,
+      CurrentUser.currentUserId,
+      attachments,
+    );
+
+    widget.onSentButtonPressed.call(message);
+    _controller.clear();
   }
 }

@@ -195,7 +195,7 @@ class _MessagesbodyState extends State<Messagesbody> {
   void _updateLatestMessage(final MessagesLoaded state) {
     context.read<MessageCubit>().updateNewMessages(state);
     context.read<NewMessagesCubit>().emptyMessages();
-    animateToBottom(lastPos);
+    // animateToBottom(lastPos);
     lastPos = 0.0;
   }
 

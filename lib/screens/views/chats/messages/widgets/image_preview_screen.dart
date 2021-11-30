@@ -4,18 +4,31 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 
-class ChatImagePreviewScreen extends StatelessWidget {
+class ChatImagePreviewScreen extends StatefulWidget {
   final File imageFile;
   final TextEditingController controller;
   const ChatImagePreviewScreen(
       {Key? key, required this.imageFile, required this.controller})
       : super(key: key);
 
-  static const _textStyle = TextStyle(
+  @override
+  State<ChatImagePreviewScreen> createState() => _ChatImagePreviewScreenState();
+}
+
+class _ChatImagePreviewScreenState extends State<ChatImagePreviewScreen> {
+  List<File> imageFiles = [];
+
+  final _textStyle = const TextStyle(
     fontSize: 17,
     fontWeight: FontWeight.w400,
     letterSpacing: 0.05,
   );
+
+  @override
+  void initState() {
+    super.initState();
+    imageFiles.add(widget.imageFile);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +45,7 @@ class ChatImagePreviewScreen extends StatelessWidget {
             child: PhotoView(
               backgroundDecoration: BoxDecoration(color: Colors.black),
               filterQuality: FilterQuality.high,
-              imageProvider: FileImage(imageFile),
+              imageProvider: FileImage(imageFiles.last),
             ),
           ),
           Positioned(
@@ -61,7 +74,7 @@ class ChatImagePreviewScreen extends StatelessWidget {
                 children: [
                   Expanded(
                     child: CupertinoTextField(
-                      controller: controller,
+                      controller: widget.controller,
                       style: _textStyle,
                       minLines: 1,
                       maxLines: 5,
@@ -77,7 +90,7 @@ class ChatImagePreviewScreen extends StatelessWidget {
                     ),
                   ),
                   InkWell(
-                    onTap: () => Navigator.of(context).pop(true),
+                    onTap: () => Navigator.of(context).pop(imageFiles),
                     borderRadius: BorderRadius.circular(500),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(

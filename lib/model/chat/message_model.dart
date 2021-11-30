@@ -83,6 +83,17 @@ class MessageModel extends Equatable {
     );
   }
 
+  MessageModel copyWithAttachments(List<Attachment> attachs) {
+    return MessageModel(
+      messageId: messageId,
+      senderId: senderId,
+      text: text,
+      sentDate: sentDate,
+      receipt: receipt,
+      attachments: attachs,
+    );
+  }
+
   static MessageModel newMessage(final String text, final String senderId) {
     return MessageModel(
       messageId: generateDatabaseId(),
@@ -93,12 +104,24 @@ class MessageModel extends Equatable {
     );
   }
 
+  static MessageModel newMessageWithAttachment(
+      final String text, final String senderId, List<Attachment> attachments) {
+    return MessageModel(
+      messageId: generateDatabaseId(),
+      senderId: senderId,
+      text: text,
+      sentDate: DateTime.now(),
+      receipt: Receipt.Pending,
+      attachments: attachments,
+    );
+  }
+
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       "messageId": messageId,
-      "senderId": this.senderId,
-      "text": this.text,
-      "sentDate": DateTime.now().toUtc().toIso8601String(),
+      "senderId": senderId,
+      "text": text,
+      "sentDate": sentDate!.toUtc().toIso8601String(),
       "status": 1,
       "attachments": attachments?.map((e) => e.toMap()).toList(),
     };

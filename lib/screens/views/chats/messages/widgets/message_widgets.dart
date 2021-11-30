@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../blocs/chats/messages/message_cubit.dart';
 import '../../../../../model/chat/message_model.dart';
+import 'message_screen_widget.dart';
 
 class TrailingText extends StatelessWidget {
   final String time;
@@ -19,7 +20,7 @@ class TrailingText extends StatelessWidget {
   Widget build(BuildContext context) {
     return FittedBox(
       child: Padding(
-        padding: const EdgeInsets.only(left: 16.0),
+        padding: const EdgeInsets.only(left: 16.0, right: 2.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -61,7 +62,7 @@ class TextWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     if (text.isEmpty) return Offstage();
     return Padding(
-      padding: const EdgeInsets.only(bottom: 2.0),
+      padding: const EdgeInsets.fromLTRB(2, 4, 2, 4),
       child: Text(
         text,
         style: TextStyle(
@@ -97,27 +98,60 @@ class UserMessage extends StatelessWidget {
             Bubble(
               elevation: 0.0,
               margin: BubbleEdges.only(right: hideNip ? 8.0 : 0.0),
-              padding: const BubbleEdges.fromLTRB(8, 6, 8, 4),
+              padding: const BubbleEdges.all(3.0),
               stick: true,
               nip: hideNip ? null : BubbleNip.rightTop,
               color: Theme.of(context).primaryColor,
-              child: Wrap(
-                alignment: WrapAlignment.end,
-                crossAxisAlignment: WrapCrossAlignment.end,
-                children: [
-                  TextWidget(
-                    key: ValueKey("${message.messageId}${message.text}"),
-                    text: message.text,
-                  ),
-                  TrailingText(
-                    key: ValueKey("${message.messageId}${message.receipt}"),
-                    time: message.time,
-                    receipt: message.receipt,
-                    color:
-                        Theme.of(context).colorScheme.surface.withOpacity(0.6),
-                  )
-                ],
-              ),
+              child: message.text.isEmpty
+                  ? Stack(
+                      alignment: Alignment.bottomRight,
+                      children: [
+                        FileWidget(
+                          attachment: message.attachments!.first,
+                        ),
+                        TrailingText(
+                          key: ValueKey(
+                              "${message.messageId}${message.receipt}"),
+                          time: message.time,
+                          receipt: message.receipt,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .surface
+                              .withOpacity(0.6),
+                        )
+                      ],
+                    )
+                  : Wrap(
+                      alignment: WrapAlignment.end,
+                      crossAxisAlignment: WrapCrossAlignment.end,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (message.attachments != null &&
+                                message.attachments!.isNotEmpty)
+                              FileWidget(
+                                attachment: message.attachments!.first,
+                              ),
+                            TextWidget(
+                              key: ValueKey(
+                                  "${message.messageId}${message.text}"),
+                              text: message.text,
+                            ),
+                          ],
+                        ),
+                        TrailingText(
+                          key: ValueKey(
+                              "${message.messageId}${message.receipt}"),
+                          time: message.time,
+                          receipt: message.receipt,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .surface
+                              .withOpacity(0.6),
+                        )
+                      ],
+                    ),
             ),
             // shows failed to deliver message
             if (message.receipt == Receipt.Failed)
@@ -147,30 +181,58 @@ class ReceipientMessage extends StatelessWidget {
         child: Bubble(
           elevation: 0.0,
           margin: BubbleEdges.only(left: hideNip ? 8.0 : 0.0),
-          padding: const BubbleEdges.fromLTRB(8, 6, 8, 4),
+          padding: const BubbleEdges.all(3.0),
           stick: true,
           nip: hideNip ? null : BubbleNip.leftTop,
           color: Theme.of(context).colorScheme.secondary,
-          child: Wrap(
-            alignment: WrapAlignment.end,
-            crossAxisAlignment: WrapCrossAlignment.end,
-            children: [
-              TextWidget(
-                key: ValueKey("${message.messageId}${message.text}"),
-                text: message.text,
-                color: Theme.of(context).colorScheme.primaryVariant,
-              ),
-              TrailingText(
-                key: ValueKey("${message.messageId}${message.receipt}"),
-                width: 64.0,
-                time: message.time,
-                color: Theme.of(context)
-                    .colorScheme
-                    .primaryVariant
-                    .withOpacity(0.6),
-              )
-            ],
-          ),
+          child: message.text.isEmpty
+              ? Stack(
+                  alignment: Alignment.bottomRight,
+                  children: [
+                    FileWidget(
+                      attachment: message.attachments!.first,
+                    ),
+                    TrailingText(
+                      key: ValueKey("${message.messageId}${message.receipt}"),
+                      width: 64.0,
+                      time: message.time,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primaryVariant
+                          .withOpacity(0.6),
+                    )
+                  ],
+                )
+              : Wrap(
+                  alignment: WrapAlignment.end,
+                  crossAxisAlignment: WrapCrossAlignment.end,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (message.attachments != null &&
+                            message.attachments!.isNotEmpty)
+                          FileWidget(
+                            attachment: message.attachments!.first,
+                          ),
+                        TextWidget(
+                          key: ValueKey("${message.messageId}${message.text}"),
+                          text: message.text,
+                          color: Theme.of(context).colorScheme.primaryVariant,
+                        ),
+                      ],
+                    ),
+                    TrailingText(
+                      key: ValueKey("${message.messageId}${message.receipt}"),
+                      width: 64.0,
+                      time: message.time,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primaryVariant
+                          .withOpacity(0.6),
+                    )
+                  ],
+                ),
         ),
       ),
     );

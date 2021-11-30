@@ -2,11 +2,13 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:pure/model/chat/attachment_model.dart';
 
 import '../../model/chat/message_model.dart';
 import '../../utils/exception.dart';
 import '../../utils/global_utils.dart';
 import '../../utils/request_messages.dart';
+import '../remote_storage_service.dart';
 
 abstract class MessageService {
   const MessageService();
@@ -16,27 +18,34 @@ abstract class MessageService {
   Future<MessagesModel> getRecentMessages(String chatId);
   Future<MessagesModel> loadMoreMessages(String chatId, DocumentSnapshot doc,
       {int limit = GlobalUtils.messagesLimit});
-  Future<void> sendTextMessageOnly(String chatId, final MessageModel message);
+  Future<void> sendMessage(String chatId, final MessageModel message);
   Future<void> setCurrentUserLastReadMessageId(
       String chatId, String userId, String time);
 }
 
 class MessageServiceImp extends MessageService {
   final FirebaseFirestore? firestore;
+  final RemoteStorage? remoteStorageImpl;
 
-  MessageServiceImp({this.firestore, bool isPersistentEnabled = true}) {
+  MessageServiceImp({
+    this.firestore,
+    this.remoteStorageImpl,
+    bool isPersistentEnabled = true,
+  }) {
     _firestore = firestore ?? FirebaseFirestore.instance;
     _firestore.settings = Settings(persistenceEnabled: isPersistentEnabled);
     _chatCollection = _firestore.collection(GlobalUtils.chatCollection);
     _receiptCollection = _firestore.collection(GlobalUtils.receiptCollection);
     _firestoreNoPersistence = FirebaseFirestore.instance;
     _firestoreNoPersistence.settings = Settings(persistenceEnabled: false);
+    _remoteStorage = remoteStorageImpl ?? RemoteStorageImpl();
   }
 
   late FirebaseFirestore _firestore;
   late FirebaseFirestore _firestoreNoPersistence;
   late CollectionReference _chatCollection;
   late CollectionReference _receiptCollection;
+  late RemoteStorage _remoteStorage;
 
   @override
   Future<MessagesModel> getOfflineMessages(
@@ -168,16 +177,24 @@ class MessageServiceImp extends MessageService {
 
   // send text message only
   @override
-  Future<void> sendTextMessageOnly(
-      String chatId, final MessageModel message) async {
+  Future<void> sendMessage(String chatId, final MessageModel message) async {
     try {
-      await _firestoreNoPersistence
-          .collection(GlobalUtils.chatCollection)
-          .doc(chatId)
-          .collection(GlobalUtils.messageCollection)
-          .doc(message.messageId)
-          .set(message.toMap())
-          .timeout(GlobalUtils.updateTimeOutInDuration);
+      if (message.attachments != null) {
+        List<Attachment> attachments = [];
+
+        for (final attachment in message.attachments!) {
+          final photoURL = await _remoteStorage.uploadChatFile(
+            chatId,
+            attachment.localFile!,
+            attachment.fileExtension,
+          );
+
+          if (photoURL != null) attachments.add(attachment.copyWith(photoURL));
+        }
+        await _sendMessage(chatId, message.copyWithAttachments(attachments));
+      } else {
+        await _sendMessage(chatId, message);
+      }
     } on TimeoutException catch (_) {
       throw ServerException(message: ErrorMessages.timeoutMessage);
     } catch (e) {
@@ -205,6 +222,16 @@ class MessageServiceImp extends MessageService {
   ///  Helper Methods
   /// ##################################################################
   ///
+
+  Future<void> _sendMessage(String chatId, final MessageModel message) async {
+    await _firestoreNoPersistence
+        .collection(GlobalUtils.chatCollection)
+        .doc(chatId)
+        .collection(GlobalUtils.messageCollection)
+        .doc(message.messageId)
+        .set(message.toMap())
+        .timeout(GlobalUtils.updateTimeOutInDuration);
+  }
 
   MessagesModel _getMessageModel(final MessagesModel msgModel,
       String topMessageDate, final Map<String, dynamic>? data) {

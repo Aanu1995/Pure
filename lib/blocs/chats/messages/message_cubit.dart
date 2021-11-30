@@ -34,7 +34,7 @@ class MessageCubit extends Cubit<MessageState> {
       _updateMessage(message);
     }
     try {
-      await messageService.sendTextMessageOnly(chatId, message);
+      await messageService.sendMessage(chatId, message);
     } catch (e) {
       _onMessageFailed(message);
     }
