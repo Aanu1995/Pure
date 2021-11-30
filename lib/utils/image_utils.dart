@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -71,9 +72,13 @@ class ImageUtils implements ImageMethods {
     if (pickedFile != null) {
       final rawPickedFile = File(pickedFile.path);
       // return raw file if cropping is not required
-      if (crop == false) return rawPickedFile;
+      if (crop == false) {
+        // compress image
+        final compressedFile = await _compressImage(rawPickedFile);
+        return compressedFile;
+      }
 
-      final file = await cropImage(
+      final file = await _cropImage(
         rawPickedFile,
         cancelTitle: cancelTitle,
         doneTitle: doneTitle,
@@ -85,7 +90,7 @@ class ImageUtils implements ImageMethods {
   }
 
   // this method is called to crop an image picked
-  Future<File?> cropImage(File imageFile,
+  Future<File?> _cropImage(File imageFile,
       {String? cancelTitle, String? doneTitle}) async {
     final croppedFile = await ImageCropper.cropImage(
       sourcePath: imageFile.path,
@@ -111,5 +116,22 @@ class ImageUtils implements ImageMethods {
       ),
     );
     return croppedFile;
+  }
+
+  Future<File?> _compressImage(File file) async {
+    final filePath = file.absolute.path;
+
+    // Create output file path
+    final lastIndex = filePath.lastIndexOf(new RegExp(r'.jp'));
+    final splitted = filePath.substring(0, (lastIndex));
+    final targetPath = "${splitted}_out${filePath.substring(lastIndex)}";
+
+    final result = await FlutterImageCompress.compressAndGetFile(
+      filePath,
+      targetPath,
+      quality: 45,
+    );
+
+    return result;
   }
 }

@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
-import 'package:pure/model/pure_user_model.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:uuid/uuid.dart';
 
 import '../model/chat/chat_model.dart';
 import '../model/chat/message_model.dart';
+import '../model/pure_user_model.dart';
 import '../repositories/push_notification.dart';
 import '../services/user_service.dart';
 
