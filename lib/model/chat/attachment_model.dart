@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 
 abstract class Attachment extends Equatable {
   final String? fileURL;
@@ -39,6 +40,7 @@ abstract class Attachment extends Equatable {
 class ImageAttachment extends Attachment {
   final int width;
   final int height;
+  final Color? color;
 
   const ImageAttachment({
     String? fileURL,
@@ -49,9 +51,16 @@ class ImageAttachment extends Attachment {
     required String fileExtension,
     required this.height,
     required this.width,
+    required this.color,
   }) : super(fileURL, localFile, name, size, type, fileExtension);
 
   factory ImageAttachment.fromMap(Map<String, dynamic> data) {
+    Color color = Color(0xFF242424);
+    final colorInt = data["color"] as int?;
+    if (colorInt != null) {
+      color = Color(colorInt);
+    }
+
     return ImageAttachment(
       fileURL: data["fileURL"] as String?,
       name: data["name"] as String,
@@ -60,6 +69,7 @@ class ImageAttachment extends Attachment {
       fileExtension: data["fileExtension"] as String,
       height: data["height"] as int,
       width: data["width"] as int,
+      color: color,
     );
   }
 
@@ -73,6 +83,7 @@ class ImageAttachment extends Attachment {
       "fileExtension": this.fileExtension,
       "width": this.width,
       "height": this.height,
+      "color": this.color?.value,
     };
   }
 
@@ -86,6 +97,7 @@ class ImageAttachment extends Attachment {
       fileExtension: fileExtension,
       height: height,
       width: width,
+      color: color,
     );
   }
 

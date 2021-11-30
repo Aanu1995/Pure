@@ -165,19 +165,17 @@ class MessageCubit extends Cubit<MessageState> {
 
   // update receipt
   void _updateMessagesReceipt(final MessagesModel msgsModel, bool hasMore) {
-    MessagesModel messagesModel = msgsModel;
-    final topMessageDate = msgsModel.topMessageDate;
+    final topMessageDate =
+        msgsModel.topMessageDate ?? DateTime(1970).toIso8601String();
 
-    if (topMessageDate != null) {
-      messagesModel = MessagesModel(
-        messages: msgsModel.messages
-            .toList()
-            .map((e) => e.copyWithUpdateReceipt(topMessageDate))
-            .toList(),
-        lastDoc: msgsModel.lastDoc,
-        topMessageDate: topMessageDate,
-      );
-    }
+    final messagesModel = MessagesModel(
+      messages: msgsModel.messages
+          .toList()
+          .map((e) => e.copyWithUpdateReceipt(topMessageDate))
+          .toList(),
+      lastDoc: msgsModel.lastDoc,
+      topMessageDate: topMessageDate,
+    );
 
     emit(MessagesLoaded(messagesModel: messagesModel, hasMore: hasMore));
   }

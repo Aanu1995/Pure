@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:palette_generator/palette_generator.dart';
 import 'package:photo_view/photo_view.dart';
 
 class ChatImagePreviewScreen extends StatefulWidget {
@@ -17,6 +18,7 @@ class ChatImagePreviewScreen extends StatefulWidget {
 
 class _ChatImagePreviewScreenState extends State<ChatImagePreviewScreen> {
   List<File> imageFiles = [];
+  List<Color?> colors = [];
 
   final _textStyle = const TextStyle(
     fontSize: 17,
@@ -27,13 +29,23 @@ class _ChatImagePreviewScreenState extends State<ChatImagePreviewScreen> {
   @override
   void initState() {
     super.initState();
+    getImageColor(widget.imageFile);
     imageFiles.add(widget.imageFile);
+  }
+
+  Future<void> getImageColor(File image) async {
+    PaletteGenerator generator = await PaletteGenerator.fromImageProvider(
+      FileImage(image),
+      size: Size(200, 200),
+    );
+    final color = generator.darkMutedColor?.color;
+    colors.add(color);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: const Color(0xFF242424),
       body: Stack(
         fit: StackFit.expand,
         children: [
@@ -43,7 +55,9 @@ class _ChatImagePreviewScreenState extends State<ChatImagePreviewScreen> {
               bottom: MediaQuery.of(context).viewInsets.bottom * 0.1,
             ),
             child: PhotoView(
-              backgroundDecoration: BoxDecoration(color: Colors.black),
+              backgroundDecoration: BoxDecoration(
+                color: const Color(0xFF242424),
+              ),
               filterQuality: FilterQuality.high,
               imageProvider: FileImage(imageFiles.last),
             ),
@@ -75,7 +89,9 @@ class _ChatImagePreviewScreenState extends State<ChatImagePreviewScreen> {
                   Expanded(
                     child: CupertinoTextField(
                       controller: widget.controller,
-                      style: _textStyle,
+                      style: _textStyle.copyWith(
+                        color: Theme.of(context).colorScheme.primaryVariant,
+                      ),
                       minLines: 1,
                       maxLines: 5,
                       textInputAction: TextInputAction.newline,
@@ -90,7 +106,10 @@ class _ChatImagePreviewScreenState extends State<ChatImagePreviewScreen> {
                     ),
                   ),
                   InkWell(
-                    onTap: () => Navigator.of(context).pop(imageFiles),
+                    onTap: () {
+                      final data = {"files": imageFiles, "colors": colors};
+                      Navigator.of(context).pop(data);
+                    },
                     borderRadius: BorderRadius.circular(500),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(

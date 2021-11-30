@@ -37,6 +37,7 @@ dependencies:
   uuid: ^3.0.4
   bubble: ^1.2.1
   badges: ^2.0.1
+  palette_generator: ^0.3.2
   
   # Authentication
   sign_in_with_apple: ^3.2.0

@@ -65,10 +65,12 @@ String getStadardFileSize(int sizeInByte) {
   }
 }
 
-Future<List<ImageAttachment>> getImageAttachments(List<File> imageFiles) async {
+Future<List<ImageAttachment>> getImageAttachments(
+    List<File> imageFiles, List<Color?> colors) async {
   List<ImageAttachment> attachments = [];
 
-  for (File file in imageFiles) {
+  for (int index = 0; index < imageFiles.length; index++) {
+    final file = imageFiles[index];
     final int fileSize = await file.length();
     var decodedImage = await decodeImageFromList(file.readAsBytesSync());
     attachments.add(
@@ -79,6 +81,7 @@ Future<List<ImageAttachment>> getImageAttachments(List<File> imageFiles) async {
         fileExtension: file.getFileExtension,
         height: decodedImage.height,
         width: decodedImage.width,
+        color: colors[index] ?? Color(0xFF242424),
       ),
     );
   }

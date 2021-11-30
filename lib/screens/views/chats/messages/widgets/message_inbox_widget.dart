@@ -226,7 +226,7 @@ class _MessageInputBoxState extends State<MessageInputBox> {
   }
 
   Future<void> _showImagePreviewScreen(File imageFile) async {
-    final result = await Navigator.of(context).push<List<File>?>(
+    final result = await Navigator.of(context).push<Map<String, dynamic>?>(
       PageTransition(
         child: ChatImagePreviewScreen(
           imageFile: imageFile,
@@ -239,8 +239,10 @@ class _MessageInputBoxState extends State<MessageInputBox> {
     if (result != null) sendMessageWithImage(result);
   }
 
-  void sendMessageWithImage(List<File> imageFiles) async {
-    final attachments = await getImageAttachments(imageFiles);
+  void sendMessageWithImage(final Map<String, dynamic> data) async {
+    final imageFiles = data["files"] as List<File>;
+    final colors = data["colors"] as List<Color?>;
+    final attachments = await getImageAttachments(imageFiles, colors);
 
     final message = MessageModel.newMessageWithAttachment(
       _controller.text,
