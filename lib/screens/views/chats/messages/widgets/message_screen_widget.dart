@@ -1,15 +1,12 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../blocs/bloc.dart';
-import '../../../../../model/chat/attachment_model.dart';
 import '../../../../../model/chat/message_model.dart';
 import '../../../../../model/pure_user_model.dart';
 import '../../../../../utils/app_theme.dart';
 import '../../../../../utils/navigate.dart';
 import '../../../../widgets/avatar.dart';
-import '../../../photo_view_screen.dart';
 import '../../../settings/profile/profile_screen.dart';
 import 'message_inbox_widget.dart';
 import 'messages_body.dart';
@@ -139,63 +136,5 @@ class MessageBody extends StatelessWidget {
 
   void sendMessage(final BuildContext context, final MessageModel message) {
     context.read<MessageCubit>().sendTextMessageOnly(chatId, message);
-  }
-}
-
-class FileWidget extends StatelessWidget {
-  final List<Attachment> attachments;
-  const FileWidget({Key? key, required this.attachments}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    if (attachments.first is ImageAttachment) {
-      if (attachments.length <= 1) {
-        final newAttachment = attachments.first as ImageAttachment;
-        if (newAttachment.localFile != null)
-          return ClipRRect(
-            borderRadius: BorderRadius.circular(4.0),
-            child: Image.file(
-              newAttachment.localFile!,
-              width: newAttachment.width.toDouble(),
-            ),
-          );
-        else
-          return Hero(
-            tag: newAttachment.fileURL!,
-            child: InkWell(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(4.0),
-                child: CachedNetworkImage(
-                  imageUrl: newAttachment.fileURL!,
-                  width: newAttachment.width.toDouble(),
-                  placeholder: (context, _) {
-                    return AspectRatio(
-                      aspectRatio: newAttachment.width.toDouble() /
-                          newAttachment.height.toDouble(),
-                      child: Container(color: newAttachment.color),
-                    );
-                  },
-                  errorWidget: (context, url, dynamic _) {
-                    return AspectRatio(
-                      aspectRatio: newAttachment.width.toDouble() /
-                          newAttachment.height.toDouble(),
-                      child: Container(color: newAttachment.color),
-                    );
-                  },
-                ),
-              ),
-              onTap: () => push(
-                context: context,
-                page: ViewFullPhoto(
-                  tag: newAttachment.fileURL!,
-                  color: newAttachment.color,
-                  imageURL: newAttachment.fileURL!,
-                ),
-              ),
-            ),
-          );
-      }
-    }
-    return Offstage();
   }
 }

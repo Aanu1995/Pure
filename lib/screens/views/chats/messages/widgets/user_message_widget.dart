@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../model/chat/message_model.dart';
-import 'message_screen_widget.dart';
+import 'file_widget.dart';
 import 'message_widgets.dart';
 
 class UserMessage extends StatelessWidget {

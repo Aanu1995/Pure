@@ -5,6 +5,10 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
+import 'exception.dart';
+import 'file_utils.dart';
+import 'global_utils.dart';
+
 abstract class ImageMethods {
   Future<File?> pickImage(
     ImagePicker imagePicker,
@@ -15,6 +19,8 @@ abstract class ImageMethods {
     String? doneTitle,
     bool crop,
   });
+  Future<List<File>?> pickMultiImage(ImagePicker imagePicker,
+      {int? imageQuality = 100});
 }
 
 class ImageUtils implements ImageMethods {
@@ -72,18 +78,57 @@ class ImageUtils implements ImageMethods {
     if (pickedFile != null) {
       final rawPickedFile = File(pickedFile.path);
       // return raw file if cropping is not required
-      if (crop == false) {
-        // compress image
-        final compressedFile = await _compressImage(rawPickedFile);
-        return compressedFile;
-      }
 
-      final file = await _cropImage(
-        rawPickedFile,
-        cancelTitle: cancelTitle,
-        doneTitle: doneTitle,
-      );
-      return file;
+      // check if image does not exceed the maximum upload size
+      final isExceeded = await isImageUploadSizeExceeded(rawPickedFile);
+      if (isExceeded == false) {
+        if (crop == false) {
+          // compress image
+          final compressedFile = await _compressImage(rawPickedFile);
+          return compressedFile;
+        } else {
+          final file = await _cropImage(
+            rawPickedFile,
+            cancelTitle: cancelTitle,
+            doneTitle: doneTitle,
+          );
+          return file;
+        }
+      } else {
+        final standardSize =
+            getStadardFileSize(GlobalUtils.maxFileUploadSizeInByte);
+        final String message = "Maximum image upload size is $standardSize";
+        throw MaximumUploadExceededException(message: message);
+      }
+    } else {
+      return null;
+    }
+  }
+
+  @override
+  Future<List<File>?> pickMultiImage(ImagePicker imagePicker,
+      {int? imageQuality = 100}) async {
+    final pickedFiles =
+        await imagePicker.pickMultiImage(imageQuality: imageQuality);
+
+    if (pickedFiles != null) {
+      List<File> imageFiles = [];
+
+      for (final pickedFile in pickedFiles) {
+        final rawPickedFile = File(pickedFile.path);
+        // return raw file if cropping is not required
+
+        // check if image does not exceed the maximum upload size
+        final isExceeded = await isImageUploadSizeExceeded(rawPickedFile);
+        if (isExceeded == false) {
+          // compress image
+          final compressedFile = await _compressImage(rawPickedFile);
+          if (compressedFile != null) {
+            imageFiles.add(compressedFile);
+          }
+        }
+      }
+      return imageFiles;
     } else {
       return null;
     }

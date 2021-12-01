@@ -26,7 +26,9 @@ class GlobalUtils {
   static Duration get imageUploadtimeOutInDuration =>
       const Duration(milliseconds: 30 * 1000);
 
-  static int get maxFileUploadSizeInByte => 5 * 1024 * 1024;
+  static int get maxImageUploadSizeInByte => 5 * 1024 * 1024;
+
+  static int get maxFileUploadSizeInByte => 10 * 1024 * 1024;
 
   // limit of invitee list to fetch at once from the server.
   static const int inviteeListLimit = 20;

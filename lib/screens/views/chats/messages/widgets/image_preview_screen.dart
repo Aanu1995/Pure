@@ -2,14 +2,23 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:palette_generator/palette_generator.dart';
-import 'package:photo_view/photo_view.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:image_picker/image_picker.dart';
+
+import '../../../../../utils/app_theme.dart';
+import '../../../../../utils/exception.dart';
+import '../../../../../utils/image_utils.dart';
+import '../../../../widgets/snackbars.dart';
 
 class ChatImagePreviewScreen extends StatefulWidget {
   final File imageFile;
   final TextEditingController controller;
+  final ImageSource source;
   const ChatImagePreviewScreen(
-      {Key? key, required this.imageFile, required this.controller})
+      {Key? key,
+      required this.imageFile,
+      required this.controller,
+      required this.source})
       : super(key: key);
 
   @override
@@ -17,8 +26,14 @@ class ChatImagePreviewScreen extends StatefulWidget {
 }
 
 class _ChatImagePreviewScreenState extends State<ChatImagePreviewScreen> {
+  final _imageMethods = ImageUtils();
+  final _imagePicker = ImagePicker();
   List<File> imageFiles = [];
-  List<Color?> colors = [];
+
+  PageController _controller = PageController();
+  ScrollController _scrollController = ScrollController();
+
+  int currentIndex = 0;
 
   final _textStyle = const TextStyle(
     fontSize: 17,
@@ -29,17 +44,22 @@ class _ChatImagePreviewScreenState extends State<ChatImagePreviewScreen> {
   @override
   void initState() {
     super.initState();
-    getImageColor(widget.imageFile);
     imageFiles.add(widget.imageFile);
   }
 
-  Future<void> getImageColor(File image) async {
-    PaletteGenerator generator = await PaletteGenerator.fromImageProvider(
-      FileImage(image),
-      size: Size(200, 200),
-    );
-    final color = generator.darkMutedColor?.color;
-    colors.add(color);
+  @override
+  void dispose() {
+    _controller.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void deleteImage() {
+    setState(() {
+      imageFiles.removeAt(currentIndex);
+      currentIndex =
+          imageFiles.length <= currentIndex ? currentIndex -= 1 : currentIndex;
+    });
   }
 
   @override
@@ -54,14 +74,16 @@ class _ChatImagePreviewScreenState extends State<ChatImagePreviewScreen> {
             padding: EdgeInsets.only(
               bottom: MediaQuery.of(context).viewInsets.bottom * 0.1,
             ),
-            child: PhotoView(
-              backgroundDecoration: BoxDecoration(
-                color: const Color(0xFF242424),
-              ),
-              filterQuality: FilterQuality.high,
-              imageProvider: FileImage(imageFiles.last),
+            child: PageView.builder(
+              controller: _controller,
+              itemCount: imageFiles.length,
+              onPageChanged: (index) => setState(() {
+                currentIndex = index;
+              }),
+              itemBuilder: (context, index) => Image.file(imageFiles[index]),
             ),
           ),
+          // Back Button
           Positioned(
             top: 50.0,
             left: 16.0,
@@ -79,54 +101,124 @@ class _ChatImagePreviewScreenState extends State<ChatImagePreviewScreen> {
               ),
             ),
           ),
+          // Delete Button
+          if (imageFiles.length > 1)
+            Positioned(
+              top: 50.0,
+              left: 1.sw * 0.5,
+              child: IconButton(
+                onPressed: () => deleteImage(),
+                icon: Icon(
+                  CupertinoIcons.delete,
+                  color: Colors.grey.shade200,
+                  size: 30,
+                ),
+              ),
+            ),
           Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(8.0, 16.0, 0, 40),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
+              padding: const EdgeInsets.fromLTRB(0, 16, 0, 24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Expanded(
-                    child: CupertinoTextField(
-                      controller: widget.controller,
-                      style: _textStyle.copyWith(
-                        color: Theme.of(context).colorScheme.primaryVariant,
-                      ),
-                      minLines: 1,
-                      maxLines: 5,
-                      textInputAction: TextInputAction.newline,
-                      placeholder: "Add a caption...",
-                      placeholderStyle: _textStyle.copyWith(
-                        color: Colors.grey.shade600,
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 13.0,
-                        horizontal: 10.0,
-                      ),
-                    ),
-                  ),
-                  InkWell(
-                    onTap: () {
-                      final data = {"files": imageFiles, "colors": colors};
-                      Navigator.of(context).pop(data);
-                    },
-                    borderRadius: BorderRadius.circular(500),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8.0,
-                        vertical: 4.0,
-                      ),
-                      child: CircleAvatar(
-                        radius: 20.0,
-                        backgroundColor: Theme.of(context).primaryColor,
-                        child: const Icon(
-                          Icons.send,
-                          size: 24.0,
-                          color: Colors.white,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      InkWell(
+                        onTap: () => _pickImage(),
+                        borderRadius: BorderRadius.circular(500),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: CircleAvatar(
+                            radius: 20.0,
+                            child: CircleAvatar(
+                              radius: 19.0,
+                              backgroundColor:
+                                  Theme.of(context).dialogBackgroundColor,
+                              child: const Icon(Icons.add_outlined),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                      Expanded(
+                        child: CupertinoTextField(
+                          controller: widget.controller,
+                          style: _textStyle.copyWith(
+                            color: Theme.of(context).colorScheme.primaryVariant,
+                          ),
+                          minLines: 1,
+                          maxLines: 5,
+                          textInputAction: TextInputAction.newline,
+                          placeholder: "Add a caption...",
+                          placeholderStyle: _textStyle.copyWith(
+                            color: Colors.grey.shade600,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 13.0,
+                            horizontal: 10.0,
+                          ),
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () => Navigator.of(context).pop(imageFiles),
+                        borderRadius: BorderRadius.circular(500),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8.0,
+                            vertical: 4.0,
+                          ),
+                          child: CircleAvatar(
+                            radius: 20.0,
+                            backgroundColor: Theme.of(context).primaryColor,
+                            child: const Icon(
+                              Icons.send,
+                              size: 24.0,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
+                  if (imageFiles.length > 1)
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: SizedBox(
+                        height: 100.0,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: imageFiles.length,
+                          itemBuilder: (context, index) => Padding(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 16.0,
+                              horizontal: 2.0,
+                            ),
+                            child: InkWell(
+                              child: Container(
+                                width: 85.0,
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: index == currentIndex
+                                        ? Palette.tintColor
+                                        : Colors.transparent,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: Image.file(
+                                  imageFiles[index],
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              onTap: () {
+                                _controller.jumpToPage(index);
+                                currentIndex = index;
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
                 ],
               ),
             ),
@@ -134,5 +226,39 @@ class _ChatImagePreviewScreenState extends State<ChatImagePreviewScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _pickImage() async {
+    try {
+      if (widget.source == ImageSource.camera) {
+        final file = await _imageMethods.pickImage(
+          _imagePicker,
+          widget.source,
+          crop: false,
+          preferredCameraDevice: CameraDevice.rear,
+          imageQuality: 50,
+        );
+        if (file != null) {
+          setState(() {
+            imageFiles.add(file);
+          });
+        }
+      } else {
+        final files =
+            await _imageMethods.pickMultiImage(_imagePicker, imageQuality: 50);
+        if (files != null) {
+          for (final file in files) {
+            if (imageFiles.contains(file) == false) imageFiles.add(file);
+          }
+
+          final activeIndex = imageFiles.length - 1;
+          currentIndex = activeIndex;
+          _controller.jumpToPage(activeIndex);
+          setState(() {});
+        }
+      }
+    } on MaximumUploadExceededException catch (e) {
+      showFailureFlash(context, e.message!);
+    }
   }
 }

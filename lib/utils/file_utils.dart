@@ -2,8 +2,11 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:palette_generator/palette_generator.dart';
 import 'package:path/path.dart';
 import 'package:pure/model/chat/attachment_model.dart';
+
+import 'global_utils.dart';
 
 abstract class FileUtils {
   Future<PlatformFile?> pickFile();
@@ -65,25 +68,39 @@ String getStadardFileSize(int sizeInByte) {
   }
 }
 
-Future<List<ImageAttachment>> getImageAttachments(
-    List<File> imageFiles, List<Color?> colors) async {
+Future<List<ImageAttachment>> getImageAttachments(List<File> imageFiles) async {
   List<ImageAttachment> attachments = [];
 
-  for (int index = 0; index < imageFiles.length; index++) {
-    final file = imageFiles[index];
-    final int fileSize = await file.length();
-    var decodedImage = await decodeImageFromList(file.readAsBytesSync());
+  for (final image in imageFiles) {
+    final int fileSize = await image.length();
+    var decodedImage = await decodeImageFromList(image.readAsBytesSync());
+    final color = await getImageColor(image) ?? Color(0xFF242424);
+
     attachments.add(
       ImageAttachment(
-        name: file.name ?? "",
-        localFile: file,
+        name: image.name ?? "",
+        localFile: image,
         size: fileSize,
-        fileExtension: file.getFileExtension,
+        fileExtension: image.getFileExtension,
         height: decodedImage.height,
         width: decodedImage.width,
-        color: colors[index] ?? Color(0xFF242424),
+        color: color,
       ),
     );
   }
   return attachments;
+}
+
+Future<bool> isImageUploadSizeExceeded(File file) async {
+  // get image file size
+  final int fileSize = await file.length();
+  return fileSize > GlobalUtils.maxImageUploadSizeInByte;
+}
+
+Future<Color?> getImageColor(File image) async {
+  PaletteGenerator generator = await PaletteGenerator.fromImageProvider(
+    FileImage(image),
+    size: Size(200, 200),
+  );
+  return generator.darkMutedColor?.color;
 }

@@ -10,6 +10,7 @@ import '../../../../../model/chat/message_model.dart';
 import '../../../../../model/pure_user_model.dart';
 import '../../../../../utils/app_permission.dart';
 import '../../../../../utils/app_theme.dart';
+import '../../../../../utils/exception.dart';
 import '../../../../../utils/file_utils.dart';
 import '../../../../../utils/global_utils.dart';
 import '../../../../../utils/image_utils.dart';
@@ -195,7 +196,7 @@ class _MessageInputBoxState extends State<MessageInputBox> {
         imageQuality: 50,
       );
       if (file != null) {
-        await _showImagePreviewScreen(file);
+        await _showImagePreviewScreen(file, source);
       }
     } on PlatformException catch (_) {
       if (source == ImageSource.gallery) {
@@ -205,6 +206,8 @@ class _MessageInputBoxState extends State<MessageInputBox> {
         // check for camera permission
         await AppPermission.checkCameraPermission(context);
       }
+    } on MaximumUploadExceededException catch (e) {
+      showFailureFlash(context, e.message!);
     }
   }
 
@@ -217,20 +220,22 @@ class _MessageInputBoxState extends State<MessageInputBox> {
       if (file.size < maxUploadSize) {
         // the file
       } else {
-        final int sizeInMegabyte = maxUploadSize ~/ (1024 * 1024);
-        final String message =
-            "Maximum file upload size is ${sizeInMegabyte}MB";
-        showErrorSnackBar(context, message);
+        final standardSize =
+            getStadardFileSize(GlobalUtils.maxFileUploadSizeInByte);
+        final String message = "Maximum file upload size is $standardSize";
+        showFailureFlash(context, message);
       }
     }
   }
 
-  Future<void> _showImagePreviewScreen(File imageFile) async {
-    final result = await Navigator.of(context).push<Map<String, dynamic>?>(
+  Future<void> _showImagePreviewScreen(
+      File imageFile, ImageSource source) async {
+    final result = await Navigator.of(context).push<List<File>?>(
       PageTransition(
         child: ChatImagePreviewScreen(
           imageFile: imageFile,
           controller: _controller,
+          source: source,
         ),
         type: PageTransitionType.bottomToTop,
       ),
@@ -239,10 +244,8 @@ class _MessageInputBoxState extends State<MessageInputBox> {
     if (result != null) sendMessageWithImage(result);
   }
 
-  void sendMessageWithImage(final Map<String, dynamic> data) async {
-    final imageFiles = data["files"] as List<File>;
-    final colors = data["colors"] as List<Color?>;
-    final attachments = await getImageAttachments(imageFiles, colors);
+  void sendMessageWithImage(final List<File> imageFiles) async {
+    final attachments = await getImageAttachments(imageFiles);
 
     final message = MessageModel.newMessageWithAttachment(
       _controller.text,
