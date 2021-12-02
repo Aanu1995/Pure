@@ -65,6 +65,7 @@ class _MessageBody extends StatelessWidget {
             // show attachments
             if (message.attachments!.first is DocumentAttachment)
               DocFilePreviewWidget(
+                key: ObjectKey(message.attachments),
                 message: message,
                 color: Theme.of(context).colorScheme.primaryVariant,
                 trailingColor: Theme.of(context)
@@ -79,7 +80,10 @@ class _MessageBody extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ImageView(attachments: message.attachments!),
+                  ImageView(
+                    key: ObjectKey(message.attachments),
+                    attachments: message.attachments!,
+                  ),
                   TextWidget(
                     key: ValueKey("${message.messageId}${message.text}"),
                     text: message.text,

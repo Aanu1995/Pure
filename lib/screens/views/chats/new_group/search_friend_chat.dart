@@ -1,23 +1,22 @@
-import 'package:flash/flash.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pure/model/pure_user_model.dart';
-import 'package:pure/utils/app_utils.dart';
 
 import '../../../../blocs/bloc.dart';
-import '../../../widgets/snackbars.dart';
-import '../tabs/connections/connectors_list.dart';
+import '../../../../model/pure_user_model.dart';
+import '../../../../utils/app_utils.dart';
 import '../../../widgets/message_widget.dart';
+import '../../../widgets/user_profile_provider.dart';
+import 'friend_profile.dart';
 
-class SearchFriends extends StatefulWidget {
-  const SearchFriends({Key? key}) : super(key: key);
+class SearchFriendChat extends StatefulWidget {
+  const SearchFriendChat({Key? key}) : super(key: key);
 
   @override
-  State<SearchFriends> createState() => _SearchFriendsState();
+  State<SearchFriendChat> createState() => _SearchFriendChatState();
 }
 
-class _SearchFriendsState extends State<SearchFriends> {
+class _SearchFriendChatState extends State<SearchFriendChat> {
   final _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   List<String> friendsUserId = [];
@@ -40,48 +39,11 @@ class _SearchFriendsState extends State<SearchFriends> {
     if (authState is Authenticated) {
       friendsUserId = getConnections(authState.user.connections!);
     }
-    addCurrentConnectors();
-  }
-
-  void addCurrentConnectors() {
-    final connectorState = BlocProvider.of<ConnectorCubit>(context).state;
-    if (connectorState is ConnectionsLoaded) {
-      context.read<SearchFriendBloc>().add(LoadAvailableFriends(
-          friends: connectorState.connectionModel.connectors));
-    }
-  }
-
-  void otherActionListener(BuildContext context, ConnectorState state) {
-    if (state is RemovingConnector) {
-      context.read<SearchFriendBloc>().add(DeleteFriend(index: state.index));
-    } else if (state is ConnectorRemoved) {
-      final authState = BlocProvider.of<AuthCubit>(context).state;
-      if (authState is Authenticated) {
-        final currentUser = authState.user.copyWith(
-          isRemovedConnection: true,
-          identifier: state.connectorId,
-        );
-        BlocProvider.of<AuthCubit>(context).update(currentUser);
-        context.read<ConnectorCubit>().deleteItemWithId(state.connectorId);
-      }
-    } else if (state is ConnectorRemovalFailed) {
-      showFailureFlash(
-        context,
-        "Failed to remove connection",
-        backgroundColor: Color(0xFF04192F),
-        position: FlashPosition.top,
-      );
-      context
-          .read<SearchFriendBloc>()
-          .add(AddFriend(index: state.index, friend: state.connector));
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<OtherActionsConnectionCubit, ConnectorState>(
-      listener: otherActionListener,
-      child: Scaffold(
+    return Scaffold(
         appBar: PreferredSize(
           preferredSize: Size(double.maxFinite, 60.0),
           child: SafeArea(
@@ -117,23 +79,20 @@ class _SearchFriendsState extends State<SearchFriends> {
         ),
         body: Column(
           children: [
-            Divider(height: 1.2, thickness: 1.2),
+            MemberProfile(),
+            Divider(),
             Expanded(
-              child: BlocConsumer<SearchFriendBloc, SearchFriendState>(
-                listener: (context, state) {
-                  if (state is SearchFriendSuccess && state.query.isEmpty)
-                    addCurrentConnectors();
-                },
+              child: BlocBuilder<SearchFriendBloc, SearchFriendState>(
                 builder: (context, state) {
-                  if (state is SearchFriendSuccess) {
+                  if (state is SearchFriendSuccess && state.query.isNotEmpty) {
                     final connectorList = state.friends;
                     if (connectorList.isEmpty)
                       return const MessageDisplay();
-                    else
-                      return ConnectorList(
-                        key: ObjectKey(connectorList),
-                        connectors: connectorList,
-                      );
+                    else {
+                      final friends =
+                          state.friends.map((e) => e.connectorId).toList();
+                      return _Connections(connections: friends);
+                    }
                   } else if (state is SearchFriendFailure) {
                     return MessageDisplay(
                       fontSize: 18.0,
@@ -141,14 +100,15 @@ class _SearchFriendsState extends State<SearchFriends> {
                       description: "Please check your internet connection",
                     );
                   }
-                  return Offstage();
+                  return _Connections(
+                    key: ObjectKey(friendsUserId),
+                    connections: friendsUserId,
+                  );
                 },
               ),
             ),
           ],
-        ),
-      ),
-    );
+        ));
   }
 
   void search(String query) {
@@ -159,5 +119,42 @@ class _SearchFriendsState extends State<SearchFriends> {
             currentUserId: CurrentUser.currentUserId,
           ),
         );
+  }
+}
+
+class _Connections extends StatelessWidget {
+  final List<String> connections;
+  const _Connections({Key? key, required this.connections}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.custom(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      physics: const AlwaysScrollableScrollPhysics(),
+      childrenDelegate: SliverChildBuilderDelegate(
+        (BuildContext context, int index) {
+          final friendId = connections[index];
+
+          return KeepAlive(
+            key: ValueKey<String>(friendId),
+            keepAlive: true,
+            child: ProfileProvider(
+              key: ValueKey(friendId),
+              userId: friendId,
+              child: ConnectionProfile(
+                key: ValueKey(friendId),
+                showSeparator: index < (connections.length - 1),
+              ),
+            ),
+          );
+        },
+        childCount: connections.length,
+        findChildIndexCallback: (Key key) {
+          final ValueKey<String> valueKey = key as ValueKey<String>;
+          final String data = valueKey.value;
+          return connections.indexOf(data);
+        },
+      ),
+    );
   }
 }
