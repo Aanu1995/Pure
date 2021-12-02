@@ -96,7 +96,7 @@ class ImageUtils implements ImageMethods {
         }
       } else {
         final standardSize =
-            getStadardFileSize(GlobalUtils.maxFileUploadSizeInByte);
+            getStadardFileSize(GlobalUtils.maxImageUploadSizeInByte);
         final String message = "Maximum image upload size is $standardSize";
         throw MaximumUploadExceededException(message: message);
       }

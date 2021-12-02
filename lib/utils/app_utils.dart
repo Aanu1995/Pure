@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -69,6 +71,14 @@ List<ChatModel> orderedSetForChats(final List<ChatModel> chats) {
   final result = chats.toList();
   final chatIds = Set<String>();
   result.retainWhere((x) => chatIds.add(x.chatId));
+  return result.toList();
+}
+
+// this method remove duplicate Files and still main order
+List<File> orderedSetForFiles(final List<File> files) {
+  final result = files.toList();
+  final chatIds = Set<int>();
+  result.retainWhere((x) => chatIds.add(x.lengthSync()));
   return result.toList();
 }
 

@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../../utils/app_theme.dart';
+import '../../../../../utils/app_utils.dart';
 import '../../../../../utils/exception.dart';
 import '../../../../../utils/image_utils.dart';
 import '../../../../widgets/snackbars.dart';
@@ -45,6 +46,9 @@ class _ChatImagePreviewScreenState extends State<ChatImagePreviewScreen> {
   void initState() {
     super.initState();
     imageFiles.add(widget.imageFile);
+    // _controller.addListener(() {
+    //   print(_controller.page);
+    // });
   }
 
   @override
@@ -77,9 +81,7 @@ class _ChatImagePreviewScreenState extends State<ChatImagePreviewScreen> {
             child: PageView.builder(
               controller: _controller,
               itemCount: imageFiles.length,
-              onPageChanged: (index) => setState(() {
-                currentIndex = index;
-              }),
+              onPageChanged: (index) => setState(() => currentIndex = index),
               itemBuilder: (context, index) => Image.file(imageFiles[index]),
             ),
           ),
@@ -129,7 +131,7 @@ class _ChatImagePreviewScreenState extends State<ChatImagePreviewScreen> {
                         onTap: () => _pickImage(),
                         borderRadius: BorderRadius.circular(500),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          padding: const EdgeInsets.only(left: 8.0),
                           child: CircleAvatar(
                             radius: 20.0,
                             child: CircleAvatar(
@@ -141,6 +143,7 @@ class _ChatImagePreviewScreenState extends State<ChatImagePreviewScreen> {
                           ),
                         ),
                       ),
+                      const SizedBox(width: 8.0),
                       Expanded(
                         child: CupertinoTextField(
                           controller: widget.controller,
@@ -187,36 +190,37 @@ class _ChatImagePreviewScreenState extends State<ChatImagePreviewScreen> {
                       child: SizedBox(
                         height: 100.0,
                         child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: imageFiles.length,
-                          itemBuilder: (context, index) => Padding(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 16.0,
-                              horizontal: 2.0,
-                            ),
-                            child: InkWell(
-                              child: Container(
-                                width: 85.0,
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: index == currentIndex
-                                        ? Palette.tintColor
-                                        : Colors.transparent,
-                                    width: 2,
+                            scrollDirection: Axis.horizontal,
+                            itemCount: imageFiles.length,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16.0,
+                                  horizontal: 2.0,
+                                ),
+                                child: InkWell(
+                                  child: Container(
+                                    width: 85.0,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: index == currentIndex
+                                            ? Palette.tintColor
+                                            : Colors.transparent,
+                                        width: 2,
+                                      ),
+                                    ),
+                                    child: Image.file(
+                                      imageFiles[index],
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
+                                  onTap: () {
+                                    _controller.jumpToPage(index);
+                                    currentIndex = index;
+                                  },
                                 ),
-                                child: Image.file(
-                                  imageFiles[index],
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              onTap: () {
-                                _controller.jumpToPage(index);
-                                currentIndex = index;
-                              },
-                            ),
-                          ),
-                        ),
+                              );
+                            }),
                       ),
                     )
                 ],
@@ -239,22 +243,22 @@ class _ChatImagePreviewScreenState extends State<ChatImagePreviewScreen> {
           imageQuality: 50,
         );
         if (file != null) {
-          setState(() {
-            imageFiles.add(file);
-          });
+          imageFiles.add(file);
+          currentIndex = imageFiles.length - 1;
+          _controller.jumpToPage(currentIndex);
+          setState(() {});
         }
       } else {
         final files =
             await _imageMethods.pickMultiImage(_imagePicker, imageQuality: 50);
         if (files != null) {
-          for (final file in files) {
-            if (imageFiles.contains(file) == false) imageFiles.add(file);
-          }
+          imageFiles.addAll(files);
+          imageFiles = orderedSetForFiles(imageFiles);
 
-          final activeIndex = imageFiles.length - 1;
-          currentIndex = activeIndex;
-          _controller.jumpToPage(activeIndex);
-          setState(() {});
+          setState(() => currentIndex = (imageFiles.length) - 1);
+          Future<void>.delayed(Duration(milliseconds: 500)).then(
+            (value) => _controller.jumpToPage(currentIndex),
+          );
         }
       }
     } on MaximumUploadExceededException catch (e) {

@@ -100,7 +100,7 @@ class MessageCubit extends Cubit<MessageState> {
           // get failed message
           final message = msg;
           final copiedMessage = message.copyWith(newRecept: Receipt.Pending);
-          _updateMessage(copiedMessage);
+          _updateMessage(copiedMessage, oldMsg: msg);
           failedMessages.add(copiedMessage);
         }
       }
@@ -121,13 +121,13 @@ class MessageCubit extends Cubit<MessageState> {
   // #######################################################################
   // Helper Methods
 
-  void _updateMessage(final MessageModel message) {
+  void _updateMessage(final MessageModel message, {MessageModel? oldMsg}) {
     final currentState = state;
     if (currentState is MessagesLoaded) {
-      final newMessages = <MessageModel>[
-        message,
-        ...currentState.messagesModel.messages.toList()
-      ];
+      final oldMessages = currentState.messagesModel.messages.toList();
+      if (oldMsg != null) oldMessages.remove(oldMsg);
+
+      final newMessages = <MessageModel>[message, ...oldMessages.toList()];
 
       _updateMessagesReceipt(
         MessagesModel(

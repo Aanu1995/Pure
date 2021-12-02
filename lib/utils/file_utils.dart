@@ -4,8 +4,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:palette_generator/palette_generator.dart';
 import 'package:path/path.dart';
-import 'package:pure/model/chat/attachment_model.dart';
+import 'package:path_provider/path_provider.dart';
 
+import '../model/chat/attachment_model.dart';
 import 'global_utils.dart';
 
 abstract class FileUtils {
@@ -32,6 +33,11 @@ class FileUtilsImpl implements FileUtils {
       return null;
     }
   }
+}
+
+Future<String> getFilePath() async {
+  Directory directory = await getTemporaryDirectory();
+  return directory.path;
 }
 
 extension FileSize on PlatformFile {
@@ -88,6 +94,20 @@ Future<List<ImageAttachment>> getImageAttachments(List<File> imageFiles) async {
       ),
     );
   }
+  return attachments;
+}
+
+List<DocumentAttachment> getDocAttachments(PlatformFile docFile) {
+  List<DocumentAttachment> attachments = [];
+
+  attachments.add(
+    DocumentAttachment(
+      localFile: File(docFile.path!),
+      name: docFile.name,
+      size: docFile.size,
+      fileExtension: docFile.extension!,
+    ),
+  );
   return attachments;
 }
 

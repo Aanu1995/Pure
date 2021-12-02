@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../blocs/bloc.dart';
+import '../../../../../model/chat/attachment_model.dart';
 import '../../../../../model/chat/message_model.dart';
+import '../../../../../utils/file_utils.dart';
 
 class TrailingText extends StatelessWidget {
   final String time;
@@ -17,7 +19,7 @@ class TrailingText extends StatelessWidget {
   Widget build(BuildContext context) {
     return FittedBox(
       child: Padding(
-        padding: const EdgeInsets.only(left: 16.0, right: 2.0),
+        padding: const EdgeInsets.only(left: 8.0, right: 2.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -44,6 +46,64 @@ class TrailingText extends StatelessWidget {
               ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class TrailingDocText extends StatelessWidget {
+  final String time;
+  final Receipt? receipt;
+  final double? width;
+  final Color? color;
+  final Attachment attachment;
+  const TrailingDocText({
+    Key? key,
+    required this.time,
+    this.width,
+    this.receipt,
+    this.color,
+    required this.attachment,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8.0, right: 2.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(
+            "${getStadardFileSize(attachment.size)} . ${attachment.fileExtension}",
+            maxLines: 1,
+            style: Theme.of(context)
+                .textTheme
+                .caption!
+                .copyWith(color: color, fontSize: 11.0),
+          ),
+          Spacer(),
+          Text(
+            time,
+            style: Theme.of(context)
+                .textTheme
+                .caption!
+                .copyWith(color: color, fontSize: 11.0),
+          ),
+          if (receipt != null) const SizedBox(width: 2.0),
+          if (receipt == Receipt.Pending)
+            Icon(Icons.query_builder_outlined, size: 14.0, color: color)
+          else if (receipt == Receipt.Sent)
+            Icon(Icons.done, size: 16.0, color: color)
+          else if (receipt == Receipt.Delivered)
+            Icon(Icons.done_all_outlined, size: 14.0, color: color)
+          else if (receipt == Receipt.Read)
+            Icon(
+              Icons.done_all_outlined,
+              size: 14.0,
+              color: Theme.of(context).colorScheme.surface,
+            ),
+        ],
       ),
     );
   }

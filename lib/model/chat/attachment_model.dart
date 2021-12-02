@@ -149,6 +149,49 @@ class DocumentAttachment extends Attachment {
   }
 }
 
+class VoiceAttachment extends Attachment {
+  const VoiceAttachment({
+    String? fileURL,
+    File? localFile,
+    required String name,
+    required int size,
+    String? type,
+    required String fileExtension,
+  }) : super(fileURL, localFile, name, size, type, fileExtension);
+
+  factory VoiceAttachment.fromMap(Map<String, dynamic> data) {
+    return VoiceAttachment(
+      fileURL: data["fileURL"] as String?,
+      name: data["name"] as String,
+      size: data["size"] as int,
+      type: data["type"] as String?,
+      fileExtension: data["fileExtension"] as String,
+    );
+  }
+
+  @override
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      "fileURL": this.fileURL,
+      "name": this.name,
+      "size": this.size,
+      "type": this.type ?? AttachmentType.document.getString,
+      "fileExtension": this.fileExtension,
+    };
+  }
+
+  @override
+  DocumentAttachment copyWith(String docURL) {
+    return DocumentAttachment(
+      name: name,
+      fileURL: docURL,
+      size: size,
+      type: type,
+      fileExtension: fileExtension,
+    );
+  }
+}
+
 enum AttachmentType { image, document }
 
 extension AttachmentTypeExtension on AttachmentType {
