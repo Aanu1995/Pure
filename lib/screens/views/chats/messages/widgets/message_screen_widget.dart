@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../blocs/bloc.dart';
+import '../../../../../model/chat/chat_model.dart';
 import '../../../../../model/chat/message_model.dart';
 import '../../../../../model/pure_user_model.dart';
 import '../../../../../utils/app_theme.dart';
@@ -90,11 +91,51 @@ class MessageAppBarTitle extends StatelessWidget {
   }
 }
 
+class GroupMessageAppBarTitle extends StatelessWidget {
+  final ChatModel chat;
+
+  const GroupMessageAppBarTitle({Key? key, required this.chat})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {},
+      child: Row(
+        children: [
+          Avartar(
+            size: 22,
+            ringSize: 0.8,
+            imageURL: chat.groupImage!,
+          ),
+          const SizedBox(width: 10.0),
+          Text(
+            chat.groupName!,
+            maxLines: 1,
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 17.5,
+              fontFamily: Palette.sanFontFamily,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void viewFullProfile(BuildContext context, PureUser user) {
+    push(
+      context: context,
+      page: ProfileScreen(user: user, hideConnectionStatus: true),
+    );
+  }
+}
+
 class MessageBody extends StatelessWidget {
   final String chatId;
-  final String receipientName;
-  const MessageBody(
-      {Key? key, required this.chatId, required this.receipientName})
+  final String? receipientName; // only for One-to-One Chat
+  const MessageBody({Key? key, required this.chatId, this.receipientName})
       : super(key: key);
 
   @override

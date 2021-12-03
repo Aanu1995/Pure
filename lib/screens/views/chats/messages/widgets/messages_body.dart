@@ -15,12 +15,12 @@ import 'user_message_widget.dart';
 
 class Messagesbody extends StatefulWidget {
   final String chatId;
-  final String firstName;
+  final String? firstName;
   final ValueChanged<MessageModel> onSentButtonPressed;
   const Messagesbody(
       {Key? key,
       required this.chatId,
-      required this.firstName,
+      this.firstName,
       required this.onSentButtonPressed})
       : super(key: key);
 
@@ -105,9 +105,9 @@ class _MessagesbodyState extends State<Messagesbody> {
               builder: (context, state) {
                 if (state is MessagesLoaded) {
                   final messages = state.messagesModel.messages;
-                  if (messages.isEmpty)
+                  if (messages.isEmpty && widget.firstName != null)
                     return EmptyMessage(
-                      firstName: widget.firstName,
+                      firstName: widget.firstName!,
                       onPressed: (String text) => sendMessage(text),
                     );
                   else {

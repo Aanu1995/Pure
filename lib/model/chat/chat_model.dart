@@ -20,6 +20,7 @@ class ChatModel extends Equatable {
   final String? groupName; // required for group chat
   final String? groupDescription; // required for group chat
   final String? groupImage; // required for group chat
+  final String? groupCreatedBy;
   final List<String> members;
   final DateTime creationDate;
   final DateTime updateDate;
@@ -31,6 +32,7 @@ class ChatModel extends Equatable {
     this.groupName,
     this.groupDescription,
     this.groupImage,
+    this.groupCreatedBy,
     required this.creationDate,
     required this.lastMessage,
     required this.members,
@@ -46,8 +48,27 @@ class ChatModel extends Equatable {
       type: getChatTpe(data["type"] as String),
       lastMessage: data["lastMessage"] as String,
       members: members,
+      groupName: data['groupName'] as String? ?? "",
+      groupDescription: data['groupDescription'] as String? ?? "",
+      groupImage: data['groupImage'] as String? ?? "",
+      groupCreatedBy: data['groupCreatedBy'] as String? ?? "",
       creationDate: DateTime.parse(data['creationDate'] as String).toLocal(),
       updateDate: DateTime.parse(data['updateDate'] as String).toLocal(),
+    );
+  }
+
+  ChatModel copyWith(String? groupImage) {
+    return ChatModel(
+      chatId: chatId,
+      type: type,
+      groupName: groupName,
+      groupDescription: groupDescription,
+      groupImage: groupImage,
+      groupCreatedBy: groupCreatedBy,
+      creationDate: creationDate,
+      lastMessage: lastMessage,
+      members: members,
+      updateDate: updateDate,
     );
   }
 
@@ -70,6 +91,21 @@ class ChatModel extends Equatable {
     }
   }
 
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      "chatId": chatId,
+      "type": "group",
+      "lastMessage": lastMessage,
+      "groupName": groupName,
+      "groupDescription": "",
+      "groupImage": groupImage,
+      "groupCreatedBy": groupCreatedBy,
+      "creationDate": creationDate.toUtc().toIso8601String(),
+      "updateDate": creationDate.toUtc().toIso8601String(),
+      "members": members,
+    };
+  }
+
   @override
   List<Object?> get props => [
         chatId,
@@ -77,6 +113,7 @@ class ChatModel extends Equatable {
         groupName,
         groupDescription,
         groupImage,
+        groupCreatedBy,
         creationDate,
         lastMessage,
         members,

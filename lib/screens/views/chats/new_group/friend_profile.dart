@@ -103,19 +103,20 @@ class MemberProfile extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final user = memberState.members[index];
                   return SizedBox(
-                    height: 100,
-                    width: 90,
+                    width: 80,
                     child: Stack(
+                      alignment: Alignment.center,
                       children: [
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 8, 8, 8),
+                          padding: const EdgeInsets.fromLTRB(0, 8, 4, 8),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Avartar(size: 30.0, imageURL: user.photoURL),
+                              Avartar2(size: 30.0, imageURL: user.photoURL),
                               const SizedBox(height: 8.0),
                               Text(
                                 user.fullName,
+                                textAlign: TextAlign.center,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
@@ -127,13 +128,23 @@ class MemberProfile extends StatelessWidget {
                           ),
                         ),
                         Positioned(
-                          top: 0.0,
-                          right: 8.0,
+                          top: -10.0,
+                          right: -4.0,
                           child: IconButton(
                             onPressed: () => context
                                 .read<CreateGroupCubit>()
                                 .removeMember(user),
-                            icon: Icon(Icons.cancel),
+                            icon: CircleAvatar(
+                              radius: 10,
+                              backgroundColor: Theme.of(context)
+                                  .colorScheme
+                                  .secondaryVariant,
+                              child: Icon(
+                                Icons.close,
+                                size: 14.0,
+                                color: Theme.of(context).colorScheme.surface,
+                              ),
+                            ),
                           ),
                         )
                       ],
@@ -142,6 +153,74 @@ class MemberProfile extends StatelessWidget {
                 },
               ),
             ),
+          );
+        }
+        return Offstage();
+      },
+    );
+  }
+}
+
+class AllMembers extends StatelessWidget {
+  const AllMembers({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<CreateGroupCubit, CreateGroupState>(
+      builder: (context, state) {
+        if (state is GroupMembers) {
+          return GridView.builder(
+            shrinkWrap: true,
+            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 75,
+              mainAxisSpacing: 4,
+              crossAxisSpacing: 4,
+            ),
+            itemCount: state.members.length,
+            itemBuilder: (context, index) {
+              final user = state.members[index];
+              return Stack(
+                alignment: Alignment.center,
+                fit: StackFit.expand,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
+                    child: Avartar2(imageURL: user.photoURL),
+                  ),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Text(
+                      user.fullName,
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        letterSpacing: 0.05,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: -14.0,
+                    right: -10.0,
+                    child: IconButton(
+                      onPressed: () =>
+                          context.read<CreateGroupCubit>().removeMember(user),
+                      icon: CircleAvatar(
+                        radius: 10,
+                        backgroundColor:
+                            Theme.of(context).colorScheme.secondaryVariant,
+                        child: Icon(
+                          Icons.close,
+                          size: 14.0,
+                          color: Theme.of(context).colorScheme.surface,
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              );
+            },
           );
         }
         return Offstage();

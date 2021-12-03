@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -7,10 +8,13 @@ import '../../model/chat/chat_model.dart';
 import '../../utils/exception.dart';
 import '../../utils/global_utils.dart';
 import '../../utils/request_messages.dart';
+import '../remote_storage_service.dart';
 
 abstract class ChatService {
   const ChatService();
 
+  Future<ChatModel> createGroupChat(final ChatModel chatModel,
+      {File? groupImage});
   Future<ChatsModel> getOfflineChats(String userId);
   Stream<ChatsModel?> getRealTimeChats(String userId);
   Stream<ChatsModel?> getLastRemoteMessage(
@@ -22,16 +26,40 @@ abstract class ChatService {
 
 class ChatServiceImp extends ChatService {
   final FirebaseFirestore? firestore;
+  final RemoteStorage? remoteStorageImpl;
 
-  ChatServiceImp({this.firestore}) {
+  ChatServiceImp({this.firestore, this.remoteStorageImpl}) {
     _firestore = firestore ?? FirebaseFirestore.instance;
     _chatCollection = _firestore.collection(GlobalUtils.chatCollection);
     _receiptCollection = _firestore.collection(GlobalUtils.receiptCollection);
+    _remoteStorage = remoteStorageImpl ?? RemoteStorageImpl();
   }
 
   late FirebaseFirestore _firestore;
   late CollectionReference _chatCollection;
   late CollectionReference _receiptCollection;
+  late RemoteStorage _remoteStorage;
+
+  Future<ChatModel> createGroupChat(final ChatModel chatModel,
+      {File? groupImage}) async {
+    String? groupImageURL;
+    try {
+      if (groupImage != null) {
+        // upload image to storage
+        groupImageURL = await _remoteStorage.uploadProfileImage(
+            chatModel.chatId, groupImage);
+      }
+
+      final groupChat = chatModel.copyWith(groupImageURL);
+
+      await _chatCollection.doc(chatModel.chatId).set(groupChat.toMap());
+      return groupChat;
+    } on TimeoutException catch (_) {
+      throw ServerException(message: ErrorMessages.timeoutMessage);
+    } catch (e) {
+      throw ServerException(message: ErrorMessages.generalMessage2);
+    }
+  }
 
   @override
   Future<ChatsModel> getOfflineChats(String userId) async {

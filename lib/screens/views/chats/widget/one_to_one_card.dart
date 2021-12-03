@@ -112,16 +112,18 @@ class _OneToOneCardState extends State<OneToOneCard> {
                                     color: secondVarColor,
                                   ),
                                 ),
-                              Text(
-                                widget.chat.lastMessage.isEmpty
-                                    ? "Attachments"
-                                    : widget.chat.lastMessage,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: _style.copyWith(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w400,
-                                  color: secondVarColor,
+                              Expanded(
+                                child: Text(
+                                  widget.chat.lastMessage.isEmpty
+                                      ? "Attachments"
+                                      : widget.chat.lastMessage,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: _style.copyWith(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                    color: secondVarColor,
+                                  ),
                                 ),
                               ),
                             ],

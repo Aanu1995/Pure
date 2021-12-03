@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pure/screens/views/chats/new_group/create_group_screen.dart';
+import 'package:pure/services/chat/chat_service.dart';
+import 'package:pure/utils/navigate.dart';
 
 import '../../../../blocs/bloc.dart';
 import '../../../../model/pure_user_model.dart';
@@ -72,7 +75,25 @@ class _SearchFriendChatState extends State<SearchFriendChat> {
                     onChanged: search,
                   ),
                 ),
-                const SizedBox(width: 16.0),
+                const SizedBox(width: 8.0),
+                BlocBuilder<CreateGroupCubit, CreateGroupState>(
+                  builder: (context, state) {
+                    return TextButton(
+                      onPressed:
+                          state is GroupMembers && state.members.isNotEmpty
+                              ? () => pushToCreateGroupScreen(context)
+                              : null,
+                      child: Text(
+                        "Next",
+                        style: TextStyle(
+                          fontSize: 17.0,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 0.05,
+                        ),
+                      ),
+                    );
+                  },
+                )
               ],
             ),
           ),
@@ -119,6 +140,19 @@ class _SearchFriendChatState extends State<SearchFriendChat> {
             currentUserId: CurrentUser.currentUserId,
           ),
         );
+  }
+
+  void pushToCreateGroupScreen(BuildContext context) {
+    push(
+      context: context,
+      page: BlocProvider(
+        create: (_) => GroupChatCubit(ChatServiceImp()),
+        child: BlocProvider<CreateGroupCubit>.value(
+          value: context.read<CreateGroupCubit>(),
+          child: CreateGroupScreen(),
+        ),
+      ),
+    );
   }
 }
 

@@ -7,6 +7,8 @@ export 'chats/chats/chat_cubit.dart';
 export 'chats/chats/chat_state.dart';
 export 'chats/chats/create_group/create_group_cubit.dart';
 export 'chats/chats/create_group/create_group_state.dart';
+export 'chats/chats/create_group/group_chat_cubit.dart';
+export 'chats/chats/create_group/group_chat_state.dart';
 export 'chats/chats/load_more_chats_cubit.dart';
 export 'chats/chats/unread_message_cubit.dart';
 export 'chats/messages/load_more_messages_cubit.dart';

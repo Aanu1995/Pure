@@ -7,6 +7,7 @@ import '../../../../model/pure_user_model.dart';
 import '../../../widgets/message_widget.dart';
 import '../../../widgets/progress_indicator.dart';
 import '../../../widgets/user_profile_provider.dart';
+import 'group_card.dart';
 import 'load_more_chats_widget.dart';
 import 'one_to_one_card.dart';
 import 'unread_message_provider.dart';
@@ -77,23 +78,36 @@ class _ChatListState extends State<ChatList> {
                       );
                     else {
                       final chat = chats[index];
-                      final userId = chat.getReceipient(currentUserId)!;
-
-                      return KeepAlive(
-                        key: ValueKey<String>(chat.chatId),
-                        keepAlive: true,
-                        child: ProfileProvider(
-                          userId: userId,
+                      if (chat.type == ChatType.Group) {
+                        return KeepAlive(
+                          key: ValueKey<String>(chat.chatId),
+                          keepAlive: true,
                           child: UnreadMessageProvider(
-                            child: OneToOneCard(
+                            child: GroupCard(
                               key: ValueKey(chat.chatId),
-                              userId: userId,
                               chat: chat,
                               showSeparator: index < (chats.length - 1),
                             ),
                           ),
-                        ),
-                      );
+                        );
+                      } else {
+                        final userId = chat.getReceipient(currentUserId)!;
+                        return KeepAlive(
+                          key: ValueKey<String>(chat.chatId),
+                          keepAlive: true,
+                          child: ProfileProvider(
+                            userId: userId,
+                            child: UnreadMessageProvider(
+                              child: OneToOneCard(
+                                key: ValueKey(chat.chatId),
+                                userId: userId,
+                                chat: chat,
+                                showSeparator: index < (chats.length - 1),
+                              ),
+                            ),
+                          ),
+                        );
+                      }
                     }
                   },
                   childCount: chats.length + 1,

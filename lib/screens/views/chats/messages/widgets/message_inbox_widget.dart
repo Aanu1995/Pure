@@ -43,9 +43,9 @@ class _MessageInputBoxState extends State<MessageInputBox> {
   final _isEmptyNotifier = ValueNotifier<bool>(true);
 
   static const _textStyle = TextStyle(
-    fontSize: 17.5,
+    fontSize: 17,
     fontWeight: FontWeight.w400,
-    letterSpacing: 0.25,
+    letterSpacing: 0.15,
   );
 
   PlatformFile? _docfile;
