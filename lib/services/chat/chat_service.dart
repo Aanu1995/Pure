@@ -23,6 +23,7 @@ abstract class ChatService {
   Stream<ChatsModel?> getLastRemoteMessage(
       String userId, DocumentSnapshot endDoc);
   Stream<int> getUnReadMessageCount(String chatId, String userId);
+  Stream<int?> getUnReadChatCount(String userId);
   Future<ChatsModel> loadMoreChats(String userId, DocumentSnapshot doc,
       {int limit = GlobalUtils.messagesLimit});
   Stream<List<PureUser>?> getGroupMembersProfile(List<String> userIds);
@@ -218,6 +219,18 @@ class ChatServiceImp extends ChatService {
           .getRange(1, userIds.length)
           .toList()
           .map((e) => _userService.getGroupMember(e)));
+    } catch (e) {
+      return Stream.value(null);
+    }
+  }
+
+  @override
+  Stream<int?> getUnReadChatCount(String userId) {
+    try {
+      return _receiptCollection
+          .where("$userId.unreadCount", isGreaterThan: 0)
+          .snapshots()
+          .map((querySnap) => querySnap.docs.length);
     } catch (e) {
       return Stream.value(null);
     }
