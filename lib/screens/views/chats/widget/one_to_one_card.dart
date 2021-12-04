@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../blocs/bloc.dart';
 import '../../../../model/chat/chat_model.dart';
 import '../../../../model/pure_user_model.dart';
+import '../../../../utils/app_theme.dart';
 import '../../../../utils/app_utils.dart';
 import '../../../../utils/navigate.dart';
 import '../../../widgets/avatar.dart';
@@ -80,7 +81,8 @@ class _OneToOneCardState extends State<OneToOneCard> {
                         builder: (context, unreadState) {
                           return Text(
                             chatTime(widget.chat.updateDate),
-                            key: ObjectKey(widget.chat.updateDate),
+                            key: ValueKey(
+                                widget.chat.updateDate.toIso8601String()),
                             style: _style.copyWith(
                               fontSize: 14,
                               fontWeight: FontWeight.w400,
@@ -93,68 +95,69 @@ class _OneToOneCardState extends State<OneToOneCard> {
                       )
                     ],
                   ),
-                  subtitle: Padding(
-                    padding: const EdgeInsets.only(top: 3.0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          key: ValueKey(
-                              "${widget.chat.chatId}${widget.chat.lastMessage}"),
-                          child: Row(
+                  subtitle: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        key: ValueKey(
+                            "${widget.chat.chatId}${widget.chat.lastMessage}"),
+                        child: RichText(
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          text: TextSpan(
+                            style: TextStyle(
+                              height: 1.35,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w400,
+                              color: secondVarColor,
+                              fontFamily: Palette.sanFontFamily,
+                            ),
                             children: [
                               if (widget.chat.lastMessage.isEmpty)
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 4.0),
-                                  child: Icon(
-                                    Icons.attachment,
-                                    size: 20.0,
-                                    color: secondVarColor,
+                                WidgetSpan(
+                                  alignment: PlaceholderAlignment.middle,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(right: 8.0),
+                                    child: Icon(
+                                      Icons.attachment,
+                                      size: 20.0,
+                                      color: secondVarColor,
+                                    ),
                                   ),
                                 ),
-                              Expanded(
-                                child: Text(
-                                  widget.chat.lastMessage.isEmpty
-                                      ? "Attachments"
-                                      : widget.chat.lastMessage,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: _style.copyWith(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w400,
-                                    color: secondVarColor,
-                                  ),
-                                ),
+                              TextSpan(
+                                text: widget.chat.lastMessage.isEmpty
+                                    ? "Attachments"
+                                    : widget.chat.lastMessage,
                               ),
                             ],
                           ),
                         ),
-                        const SizedBox(width: 20.0),
-                        BlocBuilder<UnreadMessageCubit, int>(
-                          builder: (context, state) {
-                            if (state > 0) {
-                              return Badge(
-                                badgeColor: Theme.of(context).primaryColor,
-                                elevation: 0.0,
-                                animationType: BadgeAnimationType.fade,
-                                animationDuration:
-                                    const Duration(milliseconds: 300),
-                                badgeContent: Text(
-                                  state.toString(),
-                                  style: _style.copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.surface,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                      ),
+                      const SizedBox(width: 20.0),
+                      BlocBuilder<UnreadMessageCubit, int>(
+                        builder: (context, state) {
+                          if (state > 0) {
+                            return Badge(
+                              badgeColor: Theme.of(context).primaryColor,
+                              elevation: 0.0,
+                              animationType: BadgeAnimationType.fade,
+                              animationDuration:
+                                  const Duration(milliseconds: 300),
+                              badgeContent: Text(
+                                state.toString(),
+                                style: _style.copyWith(
+                                  color: Theme.of(context).colorScheme.surface,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
                                 ),
-                              );
-                            }
-                            return Offstage();
-                          },
-                        )
-                      ],
-                    ),
+                              ),
+                            );
+                          }
+                          return Offstage();
+                        },
+                      )
+                    ],
                   ),
                 ),
                 if (widget.showSeparator)

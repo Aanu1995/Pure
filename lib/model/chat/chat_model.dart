@@ -25,6 +25,7 @@ class ChatModel extends Equatable {
   final DateTime creationDate;
   final DateTime updateDate;
   final String lastMessage;
+  final String? senderId;
 
   const ChatModel({
     required this.chatId,
@@ -35,6 +36,7 @@ class ChatModel extends Equatable {
     this.groupCreatedBy,
     required this.creationDate,
     required this.lastMessage,
+    this.senderId,
     required this.members,
     required this.updateDate,
   });
@@ -52,6 +54,7 @@ class ChatModel extends Equatable {
       groupDescription: data['groupDescription'] as String? ?? "",
       groupImage: data['groupImage'] as String? ?? "",
       groupCreatedBy: data['groupCreatedBy'] as String? ?? "",
+      senderId: data['senderId'] as String? ?? "",
       creationDate: DateTime.parse(data['creationDate'] as String).toLocal(),
       updateDate: DateTime.parse(data['updateDate'] as String).toLocal(),
     );
@@ -117,6 +120,7 @@ class ChatModel extends Equatable {
         creationDate,
         lastMessage,
         members,
-        updateDate
+        updateDate,
+        senderId,
       ];
 }

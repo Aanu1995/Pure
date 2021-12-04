@@ -82,11 +82,15 @@ class _ChatListState extends State<ChatList> {
                         return KeepAlive(
                           key: ValueKey<String>(chat.chatId),
                           keepAlive: true,
-                          child: UnreadMessageProvider(
-                            child: GroupCard(
-                              key: ValueKey(chat.chatId),
-                              chat: chat,
-                              showSeparator: index < (chats.length - 1),
+                          child: GroupMembersProvider(
+                            key: ValueKey(chat.members.length),
+                            members: chat.members,
+                            child: UnreadMessageProvider(
+                              child: GroupCard(
+                                key: ValueKey(chat.chatId),
+                                chat: chat,
+                                showSeparator: index < (chats.length - 1),
+                              ),
                             ),
                           ),
                         );

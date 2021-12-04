@@ -487,13 +487,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "5.0.0+2"
-  flutter_slidable:
-    dependency: "direct main"
-    description:
-      name: flutter_slidable
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.6.0"
   flutter_spinkit:
     dependency: transitive
     description:
@@ -826,6 +819,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.0.1+1"
+  random_color:
+    dependency: "direct main"
+    description:
+      name: random_color
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.6-nullsafety"
   rxdart:
     dependency: transitive
     description:

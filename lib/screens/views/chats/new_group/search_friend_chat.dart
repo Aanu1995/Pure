@@ -122,7 +122,7 @@ class _SearchFriendChatState extends State<SearchFriendChat> {
                     );
                   }
                   return _Connections(
-                    key: ObjectKey(friendsUserId),
+                    key: ValueKey(friendsUserId),
                     connections: friendsUserId,
                   );
                 },

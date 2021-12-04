@@ -80,7 +80,7 @@ class _ChatScreenState extends State<ChatScreen> {
       context: context,
       page: MultiBlocProvider(
         providers: [
-          BlocProvider(create: (_) => GroupCubit()),
+          BlocProvider(create: (_) => GroupCubit(ChatServiceImp())),
           BlocProvider(create: (_) => SearchFriendBloc(SearchServiceImpl())),
         ],
         child: SearchFriendChat(),

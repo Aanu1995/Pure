@@ -61,7 +61,7 @@ class _DocFilePreviewWidgetState extends State<DocFilePreviewWidget> {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
+            padding: EdgeInsets.symmetric(vertical: 4.0),
             decoration: BoxDecoration(
               color: Colors.white10,
               borderRadius: BorderRadius.circular(8.0),

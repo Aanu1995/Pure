@@ -33,6 +33,7 @@ abstract class UserService {
   Stream<UserPresenceModel?> getUserPresence(String userId);
   Future<void> setUserPresence(String userId);
   Future<void> setUserOfflineOnSignOut(String userId);
+  Stream<PureUser> getGroupMember(String userId);
 }
 
 class UserServiceImpl extends UserService {
@@ -120,6 +121,13 @@ class UserServiceImpl extends UserService {
     } catch (e) {
       return Stream.value(null);
     }
+  }
+
+  @override
+  Stream<PureUser> getGroupMember(String userId) {
+    return _userCollection.doc(userId).snapshots().map((docSnapshot) {
+      return PureUser.fromMap(docSnapshot.data() as Map<String, dynamic>);
+    });
   }
 
   // Listens to when user is offline or online

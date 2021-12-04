@@ -147,7 +147,7 @@ class _MessagesbodyState extends State<Messagesbody> {
                                   return const NewMessageSeparator();
                                 }),
                               Padding(
-                                key: ObjectKey(message),
+                                key: ValueKey(message),
                                 padding: EdgeInsets.only(
                                   bottom: spacing,
                                   left: 8.0,
@@ -155,15 +155,17 @@ class _MessagesbodyState extends State<Messagesbody> {
                                 ),
                                 child: isSelf
                                     ? UserMessage(
-                                        key: ObjectKey(message),
+                                        key: ValueKey(message),
                                         hideNip: hideNip(index, messages),
                                         chatId: widget.chatId,
                                         message: message,
                                       )
                                     : ReceipientMessage(
-                                        key: ObjectKey(message),
+                                        key: ValueKey(message),
                                         hideNip: hideNip(index, messages),
                                         message: message,
+                                        isGroupMessage:
+                                            widget.firstName == null,
                                       ),
                               ),
                             ],

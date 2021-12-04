@@ -46,9 +46,6 @@ class _ChatImagePreviewScreenState extends State<ChatImagePreviewScreen> {
   void initState() {
     super.initState();
     imageFiles.add(widget.imageFile);
-    // _controller.addListener(() {
-    //   print(_controller.page);
-    // });
   }
 
   @override

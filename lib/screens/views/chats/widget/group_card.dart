@@ -1,6 +1,7 @@
 import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../utils/app_theme.dart';
 
 import '../../../../blocs/bloc.dart';
 import '../../../../model/chat/chat_model.dart';
@@ -9,6 +10,7 @@ import '../../../../utils/app_utils.dart';
 import '../../../../utils/navigate.dart';
 import '../../../widgets/avatar.dart';
 import '../messages/group_chat_message_screen.dart';
+import 'package:collection/collection.dart';
 
 class GroupCard extends StatefulWidget {
   final ChatModel chat;
@@ -64,7 +66,7 @@ class _GroupCardState extends State<GroupCard> {
                 builder: (context, unreadState) {
                   return Text(
                     chatTime(widget.chat.updateDate),
-                    key: ObjectKey(widget.chat.updateDate),
+                    key: ValueKey(widget.chat.updateDate.toIso8601String()),
                     style: _style.copyWith(
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
@@ -77,66 +79,95 @@ class _GroupCardState extends State<GroupCard> {
               )
             ],
           ),
-          subtitle: Padding(
-            padding: const EdgeInsets.only(top: 3.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  key: ValueKey(
-                      "${widget.chat.chatId}${widget.chat.lastMessage}"),
-                  child: Row(
+          subtitle: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                key:
+                    ValueKey("${widget.chat.chatId}${widget.chat.lastMessage}"),
+                child: RichText(
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  text: TextSpan(
+                    style: TextStyle(
+                      height: 1.35,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w400,
+                      color: secondVarColor,
+                      fontFamily: Palette.sanFontFamily,
+                    ),
                     children: [
+                      WidgetSpan(
+                        alignment: PlaceholderAlignment.top,
+                        child: BlocBuilder<GroupCubit, GroupState>(
+                          builder: (context, state) {
+                            if (state is GroupMembers) {
+                              final _senderUser =
+                                  state.members.firstWhereOrNull(
+                                (member) => member.id == widget.chat.senderId,
+                              );
+                              if (_senderUser != null) {
+                                bool isYou =
+                                    _senderUser.id == CurrentUser.currentUserId;
+                                return Text(
+                                  isYou ? "You: " : "${_senderUser.fullName}: ",
+                                  style: _style.copyWith(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 0.25,
+                                    color: secondVarColor,
+                                  ),
+                                );
+                              }
+                            }
+                            return Offstage();
+                          },
+                        ),
+                      ),
                       if (widget.chat.lastMessage.isEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(right: 4.0),
-                          child: Icon(
-                            Icons.attachment,
-                            size: 20.0,
-                            color: secondVarColor,
+                        WidgetSpan(
+                          alignment: PlaceholderAlignment.middle,
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: Icon(
+                              Icons.attachment,
+                              size: 15.0,
+                              color: secondVarColor,
+                            ),
                           ),
                         ),
-                      Expanded(
-                        child: Text(
-                          widget.chat.lastMessage.isEmpty
-                              ? "Attachments"
-                              : widget.chat.lastMessage,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: _style.copyWith(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            color: secondVarColor,
-                          ),
-                        ),
+                      TextSpan(
+                        text: widget.chat.lastMessage.isEmpty
+                            ? "Attachments"
+                            : widget.chat.lastMessage,
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(width: 20.0),
-                BlocBuilder<UnreadMessageCubit, int>(
-                  builder: (context, state) {
-                    if (state > 0) {
-                      return Badge(
-                        badgeColor: Theme.of(context).primaryColor,
-                        elevation: 0.0,
-                        animationType: BadgeAnimationType.fade,
-                        animationDuration: const Duration(milliseconds: 300),
-                        badgeContent: Text(
-                          state.toString(),
-                          style: _style.copyWith(
-                            color: Theme.of(context).colorScheme.surface,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                          ),
+              ),
+              const SizedBox(width: 20.0),
+              BlocBuilder<UnreadMessageCubit, int>(
+                builder: (context, state) {
+                  if (state > 0) {
+                    return Badge(
+                      badgeColor: Theme.of(context).primaryColor,
+                      elevation: 0.0,
+                      animationType: BadgeAnimationType.fade,
+                      animationDuration: const Duration(milliseconds: 300),
+                      badgeContent: Text(
+                        state.toString(),
+                        style: _style.copyWith(
+                          color: Theme.of(context).colorScheme.surface,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
                         ),
-                      );
-                    }
-                    return Offstage();
-                  },
-                )
-              ],
-            ),
+                      ),
+                    );
+                  }
+                  return Offstage();
+                },
+              )
+            ],
           ),
         ),
         if (widget.showSeparator)
@@ -151,7 +182,10 @@ class _GroupCardState extends State<GroupCard> {
   void pushToMessagesScreen(BuildContext context) {
     push(
       context: context,
-      page: GroupChatMessageScreen(chatModel: widget.chat),
+      page: BlocProvider.value(
+        value: BlocProvider.of<GroupCubit>(context),
+        child: GroupChatMessageScreen(chatModel: widget.chat),
+      ),
     );
   }
 }

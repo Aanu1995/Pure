@@ -3,12 +3,15 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:stream_transform/stream_transform.dart';
 
 import '../../model/chat/chat_model.dart';
+import '../../model/pure_user_model.dart';
 import '../../utils/exception.dart';
 import '../../utils/global_utils.dart';
 import '../../utils/request_messages.dart';
 import '../remote_storage_service.dart';
+import '../user_service.dart';
 
 abstract class ChatService {
   const ChatService();
@@ -22,23 +25,27 @@ abstract class ChatService {
   Stream<int> getUnReadMessageCount(String chatId, String userId);
   Future<ChatsModel> loadMoreChats(String userId, DocumentSnapshot doc,
       {int limit = GlobalUtils.messagesLimit});
+  Stream<List<PureUser>?> getGroupMembersProfile(List<String> userIds);
 }
 
 class ChatServiceImp extends ChatService {
   final FirebaseFirestore? firestore;
   final RemoteStorage? remoteStorageImpl;
+  final UserService? userService;
 
-  ChatServiceImp({this.firestore, this.remoteStorageImpl}) {
+  ChatServiceImp({this.firestore, this.remoteStorageImpl, this.userService}) {
     _firestore = firestore ?? FirebaseFirestore.instance;
     _chatCollection = _firestore.collection(GlobalUtils.chatCollection);
     _receiptCollection = _firestore.collection(GlobalUtils.receiptCollection);
     _remoteStorage = remoteStorageImpl ?? RemoteStorageImpl();
+    _userService = userService ?? UserServiceImpl();
   }
 
   late FirebaseFirestore _firestore;
   late CollectionReference _chatCollection;
   late CollectionReference _receiptCollection;
   late RemoteStorage _remoteStorage;
+  late UserService _userService;
 
   Future<ChatModel> createGroupChat(final ChatModel chatModel,
       {File? groupImage}) async {
@@ -201,6 +208,18 @@ class ChatServiceImp extends ChatService {
       throw ServerException(message: ErrorMessages.timeoutMessage);
     } catch (e) {
       throw ServerException(message: ErrorMessages.generalMessage2);
+    }
+  }
+
+  @override
+  Stream<List<PureUser>?> getGroupMembersProfile(List<String> userIds) {
+    try {
+      return _userService.getGroupMember(userIds.first).combineLatestAll(userIds
+          .getRange(1, userIds.length)
+          .toList()
+          .map((e) => _userService.getGroupMember(e)));
+    } catch (e) {
+      return Stream.value(null);
     }
   }
 }
