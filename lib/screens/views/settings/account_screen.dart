@@ -79,7 +79,7 @@ class AccountScreen extends StatelessWidget {
                             onTap: () {},
                           ),
                           Item(
-                            title: "Who call me with video?",
+                            title: "Who can call me with video?",
                             trailingText: "No one",
                             icon: ImageUtils.video,
                             onTap: () {},

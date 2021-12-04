@@ -26,7 +26,9 @@ class GlobalUtils {
   static Duration get imageUploadtimeOutInDuration =>
       const Duration(milliseconds: 30 * 1000);
 
-  static int get maxFileUploadSizeInByte => 5 * 1024 * 1024;
+  static int get maxImageUploadSizeInByte => 5 * 1024 * 1024;
+
+  static int get maxFileUploadSizeInByte => 10 * 1024 * 1024;
 
   // limit of invitee list to fetch at once from the server.
   static const int inviteeListLimit = 20;
@@ -34,7 +36,7 @@ class GlobalUtils {
   static const int cachedMessagesLimit = 50;
   static const int cachedChatsLimit = 30;
   static const int chatsLimit = 20;
-  static const int LastFetchedchatsLimit = 70;
+  static const int LastFetchedchatsLimit = 30;
   static const int LastFetchedMessagesLimit = 500;
   static const int inviterListLimit = 20;
 

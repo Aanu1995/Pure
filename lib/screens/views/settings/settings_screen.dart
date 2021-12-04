@@ -18,7 +18,8 @@ import 'widgets/items.dart';
 import 'widgets/profile.dart';
 
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({Key? key}) : super(key: key);
+  final bool hidBottomNav;
+  const SettingsScreen({Key? key, this.hidBottomNav = false}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +31,7 @@ class SettingsScreen extends StatelessWidget {
           child: _Body(),
         ),
       ),
-      bottomNavigationBar: const BottomBar(),
+      bottomNavigationBar: hidBottomNav ? null : const BottomBar(),
     );
   }
 }

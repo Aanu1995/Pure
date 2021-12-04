@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pure/model/pure_user_model.dart';
+import 'package:pure/utils/app_utils.dart';
 
 import '../../../../blocs/bloc.dart';
 import '../../../widgets/snackbars.dart';
@@ -19,13 +20,12 @@ class SearchFriends extends StatefulWidget {
 class _SearchFriendsState extends State<SearchFriends> {
   final _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  final List<String> friendsUserId = [];
+  List<String> friendsUserId = [];
 
   @override
   void initState() {
     super.initState();
     initialize();
-    addCurrentConnectors();
   }
 
   @override
@@ -38,15 +38,7 @@ class _SearchFriendsState extends State<SearchFriends> {
   void initialize() {
     final authState = BlocProvider.of<AuthCubit>(context).state;
     if (authState is Authenticated) {
-      // gets all the user identifier of the users am connected with in a Map.
-      // The key is the userId while the value is the ConnectionStatus
-      // users am connected with has ConnectionStatus to be equal to Connected
-
-      for (final data in authState.user.connections!.entries) {
-        if (data.value == ConnectionStatus.Connected) {
-          friendsUserId.add(data.key);
-        }
-      }
+      friendsUserId = getConnections(authState.user.connections!);
     }
     addCurrentConnectors();
   }
@@ -110,9 +102,10 @@ class _SearchFriendsState extends State<SearchFriends> {
                     autofocus: true,
                     prefixInsets:
                         const EdgeInsetsDirectional.fromSTEB(6, 0, 8, 4),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w400,
+                      color: Theme.of(context).colorScheme.primaryVariant,
                     ),
                     onChanged: search,
                   ),

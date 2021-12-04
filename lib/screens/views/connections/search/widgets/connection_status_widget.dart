@@ -27,7 +27,7 @@ class ConnectionStatusWidget extends StatelessWidget {
           if (status == ConnectionAction.MESSAGE) {
             // connected
             return IconButton(
-              onPressed: () => onMessageTapped(context, viewer),
+              onPressed: () => onProfileTapped(context, viewer),
               padding: EdgeInsets.only(left: 8.0, right: 4.0),
               icon: Icon(
                 Icons.chat_outlined,
@@ -72,7 +72,7 @@ class ConnectionStatusWidget extends StatelessWidget {
     }
   }
 
-  void onMessageTapped(BuildContext context, PureUser user) {
+  void onProfileTapped(BuildContext context, PureUser user) {
     // gets the chatId using the id of the two users
     final chatId = InvitationModel.getInvitationId(
       user.id,

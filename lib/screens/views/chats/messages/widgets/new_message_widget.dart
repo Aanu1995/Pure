@@ -12,7 +12,7 @@ class NewMessageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<RealTimeMessageCubit, MessageState>(
+    return BlocBuilder<NewMessagesCubit, MessageState>(
       buildWhen: (prev, current) => current is MessagesLoaded,
       builder: (context, state) {
         if (messagesNotEmpty(state) && isOutOfMinScroll)

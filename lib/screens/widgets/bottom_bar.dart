@@ -50,7 +50,7 @@ class BottomBar extends StatelessWidget {
                   height: 24,
                   color: iconColor(context, state, 2),
                 ),
-                label: 'Messages',
+                label: 'Chats',
               ),
               BottomNavigationBarItem(
                 icon: Image.asset(

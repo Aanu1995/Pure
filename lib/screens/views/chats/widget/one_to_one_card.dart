@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../blocs/bloc.dart';
-import '../../../../blocs/chats/chats/unread_message_cubit.dart';
 import '../../../../model/chat/chat_model.dart';
 import '../../../../model/pure_user_model.dart';
+import '../../../../utils/app_theme.dart';
 import '../../../../utils/app_utils.dart';
 import '../../../../utils/navigate.dart';
 import '../../../widgets/avatar.dart';
@@ -30,7 +30,7 @@ class OneToOneCard extends StatefulWidget {
 
 class _OneToOneCardState extends State<OneToOneCard> {
   final _style = const TextStyle(
-    fontSize: 17.5,
+    fontSize: 17,
     fontWeight: FontWeight.w600,
     letterSpacing: 0.05,
   );
@@ -57,7 +57,7 @@ class _OneToOneCardState extends State<OneToOneCard> {
               children: [
                 ListTile(
                   horizontalTitleGap: 4,
-                  contentPadding: EdgeInsets.fromLTRB(6, 6, 14, 6),
+                  contentPadding: EdgeInsets.fromLTRB(6, 4, 14, 4),
                   onTap: () => pushToMessagesScreen(context, user),
                   leading: Avartar(
                     key: ValueKey(user.photoURL),
@@ -81,9 +81,10 @@ class _OneToOneCardState extends State<OneToOneCard> {
                         builder: (context, unreadState) {
                           return Text(
                             chatTime(widget.chat.updateDate),
-                            key: ObjectKey(widget.chat.updateDate),
+                            key: ValueKey(
+                                widget.chat.updateDate.toIso8601String()),
                             style: _style.copyWith(
-                              fontSize: 15,
+                              fontSize: 14,
                               fontWeight: FontWeight.w400,
                               color: unreadState > 0
                                   ? Theme.of(context).primaryColor
@@ -94,50 +95,69 @@ class _OneToOneCardState extends State<OneToOneCard> {
                       )
                     ],
                   ),
-                  subtitle: Padding(
-                    padding: const EdgeInsets.only(top: 3.0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          key: ValueKey(
-                              "${widget.chat.chatId}${widget.chat.lastMessage}"),
-                          child: Text(
-                            widget.chat.lastMessage,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: _style.copyWith(
-                              fontSize: 14.5,
+                  subtitle: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        key: ValueKey(
+                            "${widget.chat.chatId}${widget.chat.lastMessage}"),
+                        child: RichText(
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          text: TextSpan(
+                            style: TextStyle(
+                              height: 1.35,
+                              fontSize: 13,
                               fontWeight: FontWeight.w400,
                               color: secondVarColor,
+                              fontFamily: Palette.sanFontFamily,
                             ),
-                          ),
-                        ),
-                        const SizedBox(width: 20.0),
-                        BlocBuilder<UnreadMessageCubit, int>(
-                          builder: (context, state) {
-                            if (state > 0) {
-                              return Badge(
-                                badgeColor: Theme.of(context).primaryColor,
-                                elevation: 0.0,
-                                animationType: BadgeAnimationType.fade,
-                                animationDuration:
-                                    const Duration(milliseconds: 300),
-                                badgeContent: Text(
-                                  state.toString(),
-                                  style: _style.copyWith(
-                                    color: Colors.white,
-                                    fontSize: 13.5,
-                                    fontWeight: FontWeight.w400,
+                            children: [
+                              if (widget.chat.lastMessage.isEmpty)
+                                WidgetSpan(
+                                  alignment: PlaceholderAlignment.middle,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(right: 8.0),
+                                    child: Icon(
+                                      Icons.attachment,
+                                      size: 20.0,
+                                      color: secondVarColor,
+                                    ),
                                   ),
                                 ),
-                              );
-                            }
-                            return Offstage();
-                          },
-                        )
-                      ],
-                    ),
+                              TextSpan(
+                                text: widget.chat.lastMessage.isEmpty
+                                    ? "Attachments"
+                                    : widget.chat.lastMessage,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 20.0),
+                      BlocBuilder<UnreadMessageCubit, int>(
+                        builder: (context, state) {
+                          if (state > 0) {
+                            return Badge(
+                              badgeColor: Theme.of(context).primaryColor,
+                              elevation: 0.0,
+                              animationType: BadgeAnimationType.fade,
+                              animationDuration:
+                                  const Duration(milliseconds: 300),
+                              badgeContent: Text(
+                                state.toString(),
+                                style: _style.copyWith(
+                                  color: Theme.of(context).colorScheme.surface,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            );
+                          }
+                          return Offstage();
+                        },
+                      )
+                    ],
                   ),
                 ),
                 if (widget.showSeparator)

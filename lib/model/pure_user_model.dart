@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:random_color/random_color.dart';
 
 import 'app_enum.dart';
 
@@ -40,6 +42,7 @@ class PureUser extends Equatable {
   final int? receivedCounter; // for received invitations
   final int? connectionCounter; // for connections
   final DateTime? joinedDate;
+  final Color? color; // This color is for user to be identifier anywhere
 
   const PureUser({
     required this.id,
@@ -56,9 +59,16 @@ class PureUser extends Equatable {
     this.receivedCounter,
     this.sentCounter,
     this.joinedDate,
+    this.color,
   });
 
   factory PureUser.fromMap(Map<String, dynamic> data) {
+    Color color = Colors.green;
+    final colorInt = data["color"] as int?;
+    if (colorInt != null) {
+      color = Color(colorInt);
+    }
+
     Map<String, ConnectionStatus> connections = {};
 
     final connectionData = data['connections'] as Map<String, dynamic>?;
@@ -83,6 +93,7 @@ class PureUser extends Equatable {
       sentCounter: data["sentCounter"] as int? ?? 0,
       connectionCounter: data["connectionCounter"] as int? ?? 0,
       joinedDate: DateTime.parse(data['date'] as String).toLocal(),
+      color: color,
     );
   }
 
@@ -146,6 +157,8 @@ class PureUser extends Equatable {
   }
 
   static Map<String, dynamic> toMap(User user) {
+    RandomColor _randomColor = RandomColor();
+
     return <String, dynamic>{
       'userId': user.uid,
       'username': '',
@@ -156,6 +169,8 @@ class PureUser extends Equatable {
       'about': '',
       'photoURL': user.photoURL ?? '',
       'date': DateTime.now().toUtc().toIso8601String(),
+      "color":
+          _randomColor.randomColor(colorBrightness: ColorBrightness.dark).value,
     };
   }
 

@@ -1,21 +1,25 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:photo_view/photo_view.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:photo_view/photo_view.dart';
 
 class ViewFullPhoto extends StatelessWidget {
   final String imageURL;
   final String? tag;
-  const ViewFullPhoto({Key? key, required this.imageURL, this.tag})
+  final Color? color;
+  const ViewFullPhoto({Key? key, required this.imageURL, this.tag, this.color})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: color ?? const Color(0xFF242424),
       body: Stack(
         children: [
           PhotoView(
-            backgroundDecoration: BoxDecoration(color: Colors.grey.shade50),
+            backgroundDecoration: BoxDecoration(
+              color: color ?? const Color(0xFF242424),
+            ),
             heroAttributes:
                 tag != null ? PhotoViewHeroAttributes(tag: tag!) : null,
             filterQuality: FilterQuality.high,
@@ -51,7 +55,7 @@ class ViewProfilePhoto extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: const Color(0xFF242424),
       body: Stack(
         children: [
           Center(

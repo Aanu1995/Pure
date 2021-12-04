@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../model/chat/message_model.dart';
@@ -14,60 +13,34 @@ class MessageCubit extends Cubit<MessageState> {
   MessageCubit(this.messageService) : super(MessageInitial());
 
   Future<void> fetchMessages(String chatId, String currentUserId) async {
-    try {
-      final data =
-          await messageService.getOfflineLastDates(chatId, currentUserId);
-      final result = await messageService.getOfflineMessages(chatId);
+    final result = await messageService.getOfflineMessages(
+      chatId,
+      currentUserId,
+    );
 
-      updateReceipt(
-        result,
-        receiptDate(data),
-        data,
-        true,
-        result.firstDoc != null,
-      );
-      fetchReceipts(chatId, currentUserId);
-      if (result.firstDoc != null)
-        fetchRemoteMessages(chatId, result.firstDoc!);
-    } catch (e) {
-      fetchReceipts(chatId, currentUserId);
-      emit(MessagesLoaded(messagesModel: MessagesModel(messages: [])));
+    if (result.messages.isNotEmpty) {
+      _updateMessagesReceipt(result, true);
+    } else {
+      final result = await messageService.getRecentMessages(chatId);
+      _updateMessagesReceipt(result, true);
     }
   }
 
-  StreamSubscription<MessagesModel?>? _subscription;
-  // This is used to get recent messages to the last doc
-  Future<void> fetchRemoteMessages(
-      String chatId, DocumentSnapshot lastDoc) async {
-    try {
-      _subscription?.cancel();
-      _subscription = messageService
-          .getLastRemoteMessage(chatId, lastDoc)
-          .listen((messagesModel) {
-        if (messagesModel != null) {
-          _syncMessages(messagesModel);
-          _subscription?.cancel();
-          _subscription = null;
-        }
-      });
-    } catch (e) {
-      emit(MessagesLoaded(messagesModel: MessagesModel(messages: [])));
-    }
-  }
-
+  // send text messages
   Future<void> sendTextMessageOnly(
       final String chatId, final MessageModel message,
       {bool isOnline = false, bool update = true}) async {
     if (update) {
-      _updateMessage(message, null, null);
+      _updateMessage(message);
     }
     try {
-      await messageService.sendTextMessageOnly(chatId, message);
+      await messageService.sendMessage(chatId, message);
     } catch (e) {
       _onMessageFailed(message);
     }
   }
 
+  // used to add new messages to the existing list of messages
   void updateNewMessages(final MessagesLoaded newMessageState) {
     final currentState = state;
     if (currentState is MessagesLoaded) {
@@ -75,27 +48,26 @@ class MessageCubit extends Cubit<MessageState> {
       List<MessageModel> oldMessages =
           currentState.messagesModel.messages.toList();
 
-      final totalMessages =
-          orderedSetForMessages([...newMessages, ...oldMessages]);
+      final messages = orderedSetForMessages([...newMessages, ...oldMessages]);
 
       final lastDoc = getLastDoc(
         newMessageState.messagesModel,
         currentState.messagesModel,
       );
 
-      updateReceipt(
+      _updateMessagesReceipt(
         MessagesModel(
-          messages: totalMessages,
+          messages: messages,
+          topMessageDate: newMessageState.messagesModel.topMessageDate,
           lastDoc: lastDoc,
         ),
-        currentState.topMessageId,
-        currentState.messageIds,
         currentState.hasMore,
-        true,
       );
     }
   }
 
+  // used to add old messages to existing list of messages
+  // used precisely when loading old chat messages
   void updateOldMessages(final MessagesLoaded oldMessageState) {
     final currentState = state;
     if (currentState is MessagesLoaded) {
@@ -104,73 +76,44 @@ class MessageCubit extends Cubit<MessageState> {
 
       final totalMessages = [...currentMessages, ...oldMessages];
 
-      updateReceipt(
+      _updateMessagesReceipt(
         MessagesModel(
           messages: totalMessages,
+          topMessageDate: currentState.messagesModel.topMessageDate,
           lastDoc: oldMessageState.messagesModel.lastDoc,
         ),
-        currentState.topMessageId,
-        currentState.messageIds,
         oldMessageState.hasMore,
-        true,
       );
     }
   }
 
-  // This method retrieves all failed messages and try to send them again
-  void resendMessages(final String chatId) {
+  // This method retrieves all failed sent messages and try to send them again
+
+  void resendFailedMessages(final String chatId) {
     final currentState = state;
     if (currentState is MessagesLoaded) {
       List<MessageModel> failedMessages = [];
-      // get all failed messages
+
       final currentMessages = currentState.messagesModel.messages.toList();
       for (final msg in currentMessages.reversed.toList()) {
         if (msg.receipt == Receipt.Failed) {
+          // get failed message
           final message = msg;
           final copiedMessage = message.copyWith(newRecept: Receipt.Pending);
-          _updateMessage(
-            copiedMessage,
-            currentState.topMessageId,
-            currentState.messageIds,
-          );
+          _updateMessage(copiedMessage, oldMsg: msg);
           failedMessages.add(copiedMessage);
         }
       }
 
-      // start resending those messages
+      // start resending those failed messages
       for (final msg in failedMessages.toList()) {
         sendTextMessageOnly(chatId, msg, update: false);
       }
     }
   }
 
-  StreamSubscription<Map<String, dynamic>?>? _receiptSubscription;
-
-  // This is used to get the message Ids of the user
-  Future<void> fetchReceipts(String chatId, String currentUserId) async {
-    _receiptSubscription?.cancel();
-    _receiptSubscription =
-        messageService.getLastDatebyUsers(chatId, currentUserId).listen((data) {
-      if (data != null) {
-        // get state
-        final currentState = state;
-        if (currentState is MessagesLoaded) {
-          updateReceipt(
-            currentState.messagesModel,
-            receiptDate(data),
-            data,
-            currentState.hasMore,
-            currentState.isListening,
-          );
-        }
-      }
-    });
-  }
-
   @override
   Future<void> close() {
-    _receiptSubscription?.cancel();
-    _subscription?.cancel();
     return super.close();
   }
 
@@ -178,57 +121,21 @@ class MessageCubit extends Cubit<MessageState> {
   // #######################################################################
   // Helper Methods
 
-  void _syncMessages(final MessagesModel newMessagesModel) {
+  void _updateMessage(final MessageModel message, {MessageModel? oldMsg}) {
     final currentState = state;
     if (currentState is MessagesLoaded) {
-      if (newMessagesModel.messages.length >=
-          currentState.messagesModel.messages.length) {
-        updateReceipt(
-          newMessagesModel,
-          currentState.topMessageId,
-          currentState.messageIds,
-          currentState.hasMore,
-          false,
-        );
-      } else {
-        final newMessages = <MessageModel>[
-          ...newMessagesModel.messages.toList(),
-          ...currentState.messagesModel.messages.toList()
-        ];
+      final oldMessages = currentState.messagesModel.messages.toList();
+      if (oldMsg != null) oldMessages.remove(oldMsg);
 
-        final msgsModel = MessagesModel(
-          messages: newMessages,
-          lastDoc: currentState.messagesModel.lastDoc,
-        );
-        updateReceipt(
-          msgsModel,
-          currentState.topMessageId,
-          currentState.messageIds,
-          currentState.hasMore,
-          false,
-        );
-      }
-    }
-  }
+      final newMessages = <MessageModel>[message, ...oldMessages.toList()];
 
-  void _updateMessage(final MessageModel message, String? topMsgId,
-      Map<String, dynamic>? msgIds) {
-    final currentState = state;
-    if (currentState is MessagesLoaded) {
-      final newMessages = <MessageModel>[
-        message,
-        ...currentState.messagesModel.messages.toList()
-      ];
-
-      updateReceipt(
+      _updateMessagesReceipt(
         MessagesModel(
           messages: newMessages,
           lastDoc: currentState.messagesModel.lastDoc,
+          topMessageDate: currentState.messagesModel.topMessageDate,
         ),
-        topMsgId ?? currentState.topMessageId,
-        msgIds ?? currentState.messageIds,
         currentState.hasMore,
-        true,
       );
     }
   }
@@ -248,55 +155,28 @@ class MessageCubit extends Cubit<MessageState> {
           messagesModel: MessagesModel(
             messages: messages,
             lastDoc: currentState.messagesModel.lastDoc,
+            topMessageDate: currentState.messagesModel.topMessageDate,
           ),
-          topMessageId: currentState.topMessageId,
-          messageIds: currentState.messageIds,
           hasMore: currentState.hasMore,
         ),
       );
     }
   }
 
-  String? receiptDate(final Map<String, dynamic>? data) {
-    if (data != null) {
-      List<String> dates = [];
-      final newData = data.values.toList();
-
-      for (final map in newData) {
-        dates.add(map["lastSeen"] as String);
-      }
-
-      dates.sort();
-      final topDate = dates.last;
-      return topDate;
-    }
-    return null;
-  }
-
   // update receipt
-  void updateReceipt(final MessagesModel msgsModel, final String? topMessageId,
-      final Map<String, dynamic>? messageIds, bool hasMore, bool isListening) {
-    MessagesModel messagesModel = msgsModel;
+  void _updateMessagesReceipt(final MessagesModel msgsModel, bool hasMore) {
+    final topMessageDate =
+        msgsModel.topMessageDate ?? DateTime(1970).toIso8601String();
 
-    if (topMessageId != null) {
-      messagesModel = MessagesModel(
-        messages: msgsModel.messages
-            .toList()
-            .map((e) => e.copyWithUpdateReceipt(topMessageId))
-            .toList(),
-        firstDoc: msgsModel.firstDoc,
-        lastDoc: msgsModel.lastDoc,
-      );
-    }
-
-    emit(
-      MessagesLoaded(
-        messagesModel: messagesModel,
-        topMessageId: topMessageId,
-        messageIds: messageIds,
-        hasMore: hasMore,
-        isListening: isListening,
-      ),
+    final messagesModel = MessagesModel(
+      messages: msgsModel.messages
+          .toList()
+          .map((e) => e.copyWithUpdateReceipt(topMessageDate))
+          .toList(),
+      lastDoc: msgsModel.lastDoc,
+      topMessageDate: topMessageDate,
     );
+
+    emit(MessagesLoaded(messagesModel: messagesModel, hasMore: hasMore));
   }
 }
