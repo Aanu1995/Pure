@@ -48,7 +48,7 @@ class ConnectionProfile extends StatelessWidget {
                 ),
                 trailing: Transform.scale(
                   scale: 1.3,
-                  child: BlocBuilder<CreateGroupCubit, CreateGroupState>(
+                  child: BlocBuilder<GroupCubit, GroupState>(
                     builder: (context, groupState) {
                       if (groupState is GroupMembers) {
                         final isMember =
@@ -59,10 +59,8 @@ class ConnectionProfile extends StatelessWidget {
                           activeColor: Palette.tintColor,
                           shape: CircleBorder(),
                           onChanged: (active) => active!
-                              ? context.read<CreateGroupCubit>().addMember(user)
-                              : context
-                                  .read<CreateGroupCubit>()
-                                  .removeMember(user),
+                              ? context.read<GroupCubit>().addMember(user)
+                              : context.read<GroupCubit>().removeMember(user),
                         );
                       }
                       return Offstage();
@@ -89,7 +87,7 @@ class MemberProfile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CreateGroupCubit, CreateGroupState>(
+    return BlocBuilder<GroupCubit, GroupState>(
       builder: (context, memberState) {
         if (memberState is GroupMembers && memberState.members.isNotEmpty) {
           return Padding(
@@ -131,9 +129,8 @@ class MemberProfile extends StatelessWidget {
                           top: -10.0,
                           right: -4.0,
                           child: IconButton(
-                            onPressed: () => context
-                                .read<CreateGroupCubit>()
-                                .removeMember(user),
+                            onPressed: () =>
+                                context.read<GroupCubit>().removeMember(user),
                             icon: CircleAvatar(
                               radius: 10,
                               backgroundColor: Theme.of(context)
@@ -166,7 +163,7 @@ class AllMembers extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CreateGroupCubit, CreateGroupState>(
+    return BlocBuilder<GroupCubit, GroupState>(
       builder: (context, state) {
         if (state is GroupMembers) {
           return GridView.builder(
@@ -205,7 +202,7 @@ class AllMembers extends StatelessWidget {
                     right: -10.0,
                     child: IconButton(
                       onPressed: () =>
-                          context.read<CreateGroupCubit>().removeMember(user),
+                          context.read<GroupCubit>().removeMember(user),
                       icon: CircleAvatar(
                         radius: 10,
                         backgroundColor:

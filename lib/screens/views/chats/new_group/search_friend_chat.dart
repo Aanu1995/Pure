@@ -76,7 +76,7 @@ class _SearchFriendChatState extends State<SearchFriendChat> {
                   ),
                 ),
                 const SizedBox(width: 8.0),
-                BlocBuilder<CreateGroupCubit, CreateGroupState>(
+                BlocBuilder<GroupCubit, GroupState>(
                   builder: (context, state) {
                     return TextButton(
                       onPressed:
@@ -147,8 +147,8 @@ class _SearchFriendChatState extends State<SearchFriendChat> {
       context: context,
       page: BlocProvider(
         create: (_) => GroupChatCubit(ChatServiceImp()),
-        child: BlocProvider<CreateGroupCubit>.value(
-          value: context.read<CreateGroupCubit>(),
+        child: BlocProvider<GroupCubit>.value(
+          value: context.read<GroupCubit>(),
           child: CreateGroupScreen(),
         ),
       ),

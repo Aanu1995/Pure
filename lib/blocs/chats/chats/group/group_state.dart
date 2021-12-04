@@ -2,14 +2,14 @@ import 'package:equatable/equatable.dart';
 
 import '../../../../model/pure_user_model.dart';
 
-class CreateGroupState extends Equatable {
-  const CreateGroupState();
+class GroupState extends Equatable {
+  const GroupState();
 
   @override
   List<Object?> get props => [];
 }
 
-class GroupMembers extends CreateGroupState {
+class GroupMembers extends GroupState {
   final List<PureUser> members;
 
   const GroupMembers({required this.members});

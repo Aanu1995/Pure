@@ -204,7 +204,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
   }
 
   void createGroupChat() {
-    final currentState = context.read<CreateGroupCubit>().state;
+    final currentState = context.read<GroupCubit>().state;
     if (currentState is GroupMembers) {
       List<String> members = currentState.members.map((e) => e.id).toList();
       members.insert(0, CurrentUser.currentUserId);
