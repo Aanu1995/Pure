@@ -229,7 +229,8 @@ class _MessageInputBoxState extends State<MessageInputBox> {
 
   Future<void> _showImagePreviewScreen(
       File imageFile, ImageSource source) async {
-    final result = await Navigator.of(context).push<List<File>?>(
+    final navigator = Navigator.of(context);
+    final result = await navigator.push<List<File>?>(
       PageTransition(
         child: ChatImagePreviewScreen(
           imageFile: imageFile,

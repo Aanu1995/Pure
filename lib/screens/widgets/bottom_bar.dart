@@ -1,11 +1,11 @@
 import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pure/blocs/chats/chats/unread_chat.dart';
-import 'package:pure/utils/image_utils.dart';
 
 import '../../blocs/bloc.dart';
+import '../../blocs/chats/chats/unread_chat.dart';
 import '../../utils/app_theme.dart';
+import '../../utils/image_utils.dart';
 
 class BottomBar extends StatelessWidget {
   const BottomBar({Key? key}) : super(key: key);

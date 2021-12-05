@@ -121,7 +121,8 @@ class SocialSignInScreenExt extends StatelessWidget {
   }
 
   Future<void> goTosignInScreen(BuildContext context) async {
-    final result = await Navigator.of(context).push<AuthUserState?>(
+    final navigator = Navigator.of(context);
+    final result = await navigator.push<AuthUserState?>(
         MaterialPageRoute(builder: (context) => SignInScreen()));
     if (result != null) {
       Future<void>.delayed(Duration(milliseconds: 400))
@@ -130,7 +131,8 @@ class SocialSignInScreenExt extends StatelessWidget {
   }
 
   Future<void> goTosignUpScreen(BuildContext context) async {
-    final isSignedUp = await Navigator.of(context)
+    final navigator = Navigator.of(context);
+    final isSignedUp = await navigator
         .push<bool>(MaterialPageRoute(builder: (context) => SignUpScreen()));
     if (isSignedUp != null) {
       await goTosignInScreen(context);
