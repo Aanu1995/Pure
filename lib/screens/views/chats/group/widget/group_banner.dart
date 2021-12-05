@@ -100,6 +100,7 @@ class _GroupBannerState extends State<GroupBanner> {
           await imageMethods.pickImage(_imagePicker, source, crop: false);
       if (file != null) {
         setState(() => imageFile = file);
+        // upload profile picture
         context.read<GroupChatCubit>().uploadGroupImage(widget.chat, file);
       }
     } on PlatformException catch (_) {
