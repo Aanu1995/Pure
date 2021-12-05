@@ -5,6 +5,7 @@ import '../../../../../blocs/bloc.dart';
 import '../../../../../model/chat/chat_model.dart';
 import '../../../../../model/chat/message_model.dart';
 import '../../../../../model/pure_user_model.dart';
+import '../../../../../services/chat/chat_service.dart';
 import '../../../../../utils/app_theme.dart';
 import '../../../../../utils/navigate.dart';
 import '../../../../widgets/avatar.dart';
@@ -117,11 +118,7 @@ class _GroupMessageAppBarTitleState extends State<GroupMessageAppBarTitle> {
       onTap: () => viewGroupProfile(context),
       child: Row(
         children: [
-          Avartar(
-            size: 22,
-            ringSize: 0.8,
-            imageURL: chat.groupImage!,
-          ),
+          Avartar(size: 22, ringSize: 0.8, imageURL: chat.groupImage!),
           const SizedBox(width: 10.0),
           Text(
             chat.groupName!,
@@ -144,14 +141,18 @@ class _GroupMessageAppBarTitleState extends State<GroupMessageAppBarTitle> {
       final members = state.members.toList();
       members.sort((a, b) => a.fullName.compareTo(b.fullName));
 
-      final navigator = Navigator.of(context);
-      final result = await navigator.push<ChatModel?>(
+      Navigator.of(context).push<void>(
         MaterialPageRoute(builder: (context) {
-          return GroupInfoScreen(chat: chat, participants: members);
+          return BlocProvider(
+            create: (_) => GroupChatCubit(ChatServiceImp()),
+            child: GroupInfoScreen(
+              chat: chat,
+              participants: members,
+              onChatChanged: (newChat) => setState(() => chat = newChat),
+            ),
+          );
         }),
       );
-
-      if (result != null && result != chat) setState(() => chat = result);
     }
   }
 }

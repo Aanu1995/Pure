@@ -13,10 +13,23 @@ class GroupChatInitial extends GroupChatState {}
 
 class CreatingGroupChat extends GroupChatState {}
 
+class UpdatingGroupChat extends GroupChatState {}
+
+class UploadingGroupImage extends GroupChatState {}
+
 class GroupChatCreated extends GroupChatState {
   final ChatModel chatModel;
 
   const GroupChatCreated({required this.chatModel});
+
+  @override
+  List<Object?> get props => [chatModel];
+}
+
+class GroupChatUpdated extends GroupChatState {
+  final ChatModel chatModel;
+
+  const GroupChatUpdated({required this.chatModel});
 
   @override
   List<Object?> get props => [chatModel];

@@ -17,14 +17,14 @@ class GlobalUtils {
   static String get userExtCollection => 'UsersExt';
 
   static Duration get timeOutInDuration =>
-      const Duration(milliseconds: 20 * 1000);
+      const Duration(milliseconds: 15 * 1000);
   static Duration get updateTimeOutInDuration =>
       const Duration(milliseconds: 10 * 1000);
   static Duration get shortTimeOutInDuration =>
       const Duration(milliseconds: 5 * 1000);
 
   static Duration get imageUploadtimeOutInDuration =>
-      const Duration(milliseconds: 30 * 1000);
+      const Duration(milliseconds: 40 * 1000);
 
   static int get maxImageUploadSizeInByte => 5 * 1024 * 1024;
 

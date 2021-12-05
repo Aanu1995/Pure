@@ -20,14 +20,9 @@ class Participants extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Container(
+        Divider(height: 0.0),
+        Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.secondary,
-            border: Border.symmetric(
-              horizontal: BorderSide(color: Colors.grey.shade300),
-            ),
-          ),
           child: Text(
             "${participants.length} PARTICIPANTS",
             maxLines: 1,
@@ -39,6 +34,7 @@ class Participants extends StatelessWidget {
             ),
           ),
         ),
+        Divider(height: 0.0),
         ListView.separated(
           shrinkWrap: true,
           physics: NeverScrollableScrollPhysics(),

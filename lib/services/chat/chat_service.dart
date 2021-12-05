@@ -18,6 +18,8 @@ abstract class ChatService {
 
   Future<ChatModel> createGroupChat(final ChatModel chatModel,
       {File? groupImage});
+  Future<void> updateGroupChat(String chatId, Map<String, dynamic> data);
+  Future<String> updateGroupImage(String chatId, File file);
   Future<ChatsModel> getOfflineChats(String userId);
   Stream<ChatsModel?> getRealTimeChats(String userId);
   Stream<ChatsModel?> getLastRemoteMessage(
@@ -58,10 +60,44 @@ class ChatServiceImp extends ChatService {
             chatModel.chatId, groupImage);
       }
 
-      final groupChat = chatModel.copyWith(groupImageURL);
+      final groupChat = chatModel.copyWith(image: groupImageURL);
 
-      await _chatCollection.doc(chatModel.chatId).set(groupChat.toMap());
+      await _chatCollection
+          .doc(chatModel.chatId)
+          .set(groupChat.toMap())
+          .timeout(GlobalUtils.timeOutInDuration);
       return groupChat;
+    } on TimeoutException catch (_) {
+      throw ServerException(message: ErrorMessages.timeoutMessage);
+    } catch (e) {
+      throw ServerException(message: ErrorMessages.generalMessage2);
+    }
+  }
+
+  Future<void> updateGroupChat(String chatId, Map<String, dynamic> data) async {
+    try {
+      await _chatCollection
+          .doc(chatId)
+          .update(data)
+          .timeout(GlobalUtils.updateTimeOutInDuration);
+      ;
+    } on TimeoutException catch (_) {
+      throw ServerException(message: ErrorMessages.timeoutMessage);
+    } catch (e) {
+      throw ServerException(message: ErrorMessages.generalMessage2);
+    }
+  }
+
+  Future<String> updateGroupImage(String chatId, File file) async {
+    try {
+      final groupImageURL =
+          await _remoteStorage.uploadProfileImage(chatId, file);
+      if (groupImageURL != null) {
+        await updateGroupChat(chatId, ChatModel.toGroupImageMap(groupImageURL));
+        return groupImageURL;
+      } else {
+        throw ServerException(message: ErrorMessages.generalMessage2);
+      }
     } on TimeoutException catch (_) {
       throw ServerException(message: ErrorMessages.timeoutMessage);
     } catch (e) {

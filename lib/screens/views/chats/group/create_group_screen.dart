@@ -147,6 +147,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                           controller: _groupNameController,
                           style: _textStyle,
                           textInputAction: TextInputAction.next,
+                          maxLength: 25,
                           scrollPadding: const EdgeInsets.only(bottom: 250.0),
                           decoration: _decoration.copyWith(
                             fillColor: secondaryColor,
@@ -188,7 +189,8 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
 
   Future<void> _OnOptionSelected(ImageSource source) async {
     try {
-      final file = await imageMethods.pickImage(_imagePicker, source);
+      final file =
+          await imageMethods.pickImage(_imagePicker, source, crop: false);
       if (file != null) {
         setState(() => imageFile = file);
       }
