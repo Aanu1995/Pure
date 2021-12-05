@@ -9,6 +9,7 @@ import '../../../../../utils/app_theme.dart';
 import '../../../../../utils/navigate.dart';
 import '../../../../widgets/avatar.dart';
 import '../../../settings/profile/profile_screen.dart';
+import '../../group/group_info_screen.dart';
 import 'message_inbox_widget.dart';
 import 'messages_body.dart';
 
@@ -91,16 +92,29 @@ class MessageAppBarTitle extends StatelessWidget {
   }
 }
 
-class GroupMessageAppBarTitle extends StatelessWidget {
+class GroupMessageAppBarTitle extends StatefulWidget {
   final ChatModel chat;
-
   const GroupMessageAppBarTitle({Key? key, required this.chat})
       : super(key: key);
 
   @override
+  State<GroupMessageAppBarTitle> createState() =>
+      _GroupMessageAppBarTitleState();
+}
+
+class _GroupMessageAppBarTitleState extends State<GroupMessageAppBarTitle> {
+  late ChatModel chat;
+
+  @override
+  void initState() {
+    super.initState();
+    chat = widget.chat;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {},
+      onTap: () => viewGroupProfile(context),
       child: Row(
         children: [
           Avartar(
@@ -124,11 +138,21 @@ class GroupMessageAppBarTitle extends StatelessWidget {
     );
   }
 
-  void viewFullProfile(BuildContext context, PureUser user) {
-    push(
-      context: context,
-      page: ProfileScreen(user: user, hideConnectionStatus: true),
-    );
+  Future<void> viewGroupProfile(BuildContext context) async {
+    final state = BlocProvider.of<GroupCubit>(context).state;
+    if (state is GroupMembers) {
+      final members = state.members.toList();
+      members.sort((a, b) => a.fullName.compareTo(b.fullName));
+
+      final navigator = Navigator.of(context);
+      final result = await navigator.push<ChatModel?>(
+        MaterialPageRoute(builder: (context) {
+          return GroupInfoScreen(chat: chat, participants: members);
+        }),
+      );
+
+      if (result != null && result != chat) setState(() => chat = result);
+    }
   }
 }
 

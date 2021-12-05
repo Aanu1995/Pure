@@ -8,7 +8,7 @@ import '../../../services/chat/chat_service.dart';
 import '../../../services/search_service.dart';
 import '../../../utils/navigate.dart';
 import '../../widgets/bottom_bar.dart';
-import 'new_group/search_friend_chat.dart';
+import 'group/search_friend_chat.dart';
 import 'widget/chat_list_widget.dart';
 
 class ChatScreen extends StatefulWidget {

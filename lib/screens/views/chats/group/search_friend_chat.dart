@@ -1,15 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pure/screens/views/chats/new_group/create_group_screen.dart';
-import 'package:pure/services/chat/chat_service.dart';
-import 'package:pure/utils/navigate.dart';
 
 import '../../../../blocs/bloc.dart';
 import '../../../../model/pure_user_model.dart';
+import '../../../../services/chat/chat_service.dart';
 import '../../../../utils/app_utils.dart';
+import '../../../../utils/navigate.dart';
 import '../../../widgets/message_widget.dart';
 import '../../../widgets/user_profile_provider.dart';
+import 'create_group_screen.dart';
 import 'friend_profile.dart';
 
 class SearchFriendChat extends StatefulWidget {
