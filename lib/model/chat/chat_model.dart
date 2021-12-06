@@ -102,7 +102,7 @@ class ChatModel extends Equatable {
       "lastMessage": lastMessage,
       "groupName": groupName,
       "groupDescription": "",
-      "groupImage": groupImage,
+      "groupImage": groupImage ?? "",
       "groupCreatedBy": groupCreatedBy,
       "creationDate": creationDate.toUtc().toIso8601String(),
       "updateDate": creationDate.toUtc().toIso8601String(),

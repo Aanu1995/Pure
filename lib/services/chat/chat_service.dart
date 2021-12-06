@@ -19,6 +19,7 @@ abstract class ChatService {
   Future<ChatModel> createGroupChat(final ChatModel chatModel,
       {File? groupImage});
   Future<void> updateGroupChat(String chatId, Map<String, dynamic> data);
+  Future<void> addNewParticipants(String chatId, List<String> newMembers);
   Future<String> updateGroupImage(String chatId, File file);
   Future<ChatsModel> getOfflineChats(String userId);
   Stream<ChatsModel?> getRealTimeChats(String userId);
@@ -98,6 +99,22 @@ class ChatServiceImp extends ChatService {
       } else {
         throw ServerException(message: ErrorMessages.generalMessage2);
       }
+    } on TimeoutException catch (_) {
+      throw ServerException(message: ErrorMessages.timeoutMessage);
+    } catch (e) {
+      throw ServerException(message: ErrorMessages.generalMessage2);
+    }
+  }
+
+  @override
+  Future<void> addNewParticipants(
+      String chatId, List<String> newMembers) async {
+    try {
+      await _chatCollection
+          .doc(chatId)
+          .update({"members": FieldValue.arrayUnion(newMembers)}).timeout(
+              GlobalUtils.updateTimeOutInDuration);
+      ;
     } on TimeoutException catch (_) {
       throw ServerException(message: ErrorMessages.timeoutMessage);
     } catch (e) {

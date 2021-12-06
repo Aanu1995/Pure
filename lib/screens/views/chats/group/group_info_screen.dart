@@ -5,8 +5,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../blocs/bloc.dart';
 import '../../../../model/chat/chat_model.dart';
 import '../../../../model/pure_user_model.dart';
+import '../../../../services/chat/chat_service.dart';
+import '../../../../services/search_service.dart';
 import '../../../../utils/app_theme.dart';
 import '../../../../utils/navigate.dart';
+import 'add_participants_screen.dart';
 import 'edit_group_description_screen.dart';
 import 'edit_group_subject_screen.dart';
 import 'widget/group_banner.dart';
@@ -28,6 +31,7 @@ class GroupInfoScreen extends StatefulWidget {
 
 class _GroupInfoScreenState extends State<GroupInfoScreen> {
   late ChatModel chat;
+  List<PureUser> participants = [];
 
   final _style = const TextStyle(
     fontSize: 16,
@@ -38,6 +42,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
   @override
   void initState() {
     super.initState();
+    participants = widget.participants;
     chat = widget.chat;
   }
 
@@ -120,7 +125,11 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
 
                   const SizedBox(height: 30),
                   // Participants
-                  Participants(participants: widget.participants),
+                  Participants(
+                    chat: widget.chat,
+                    participants: participants,
+                    onAddNewParticipantstapped: () => addParticipant(context),
+                  ),
                 ],
               ),
             ),
@@ -147,6 +156,30 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
         value: context.read<GroupChatCubit>(),
         child: EditGroupDescription(chat: chat),
       ),
+    );
+  }
+
+  void addParticipant(BuildContext context) {
+    Navigator.of(context).push<void>(
+      MaterialPageRoute(builder: (context) {
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider(create: (_) => AddParticipantCubit(ChatServiceImp())),
+            BlocProvider(create: (_) => SearchFriendBloc(SearchServiceImpl())),
+            BlocProvider(create: (_) => NewParticipantCubit(ChatServiceImp())),
+          ],
+          child: AddNewParticipant(
+            chat: chat,
+            groupMembers: participants.map((e) => e.id).toList(),
+            onNewParticipantsAdded: (newMembers) {
+              setState(() {
+                participants.addAll(newMembers);
+                participants.sort((a, b) => a.fullName.compareTo(b.fullName));
+              });
+            },
+          ),
+        );
+      }),
     );
   }
 }
