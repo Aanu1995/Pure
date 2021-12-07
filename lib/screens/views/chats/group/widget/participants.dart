@@ -1,3 +1,4 @@
+import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../model/chat/chat_model.dart';
@@ -7,7 +8,7 @@ import '../../../../../utils/navigate.dart';
 import '../../../../widgets/avatar.dart';
 import '../../../settings/profile/profile_screen.dart';
 
-class Participants extends StatelessWidget {
+class Participants extends StatefulWidget {
   final ChatModel chat;
   final List<PureUser> participants;
   final Function()? onAddNewParticipantstapped;
@@ -18,6 +19,11 @@ class Participants extends StatelessWidget {
     this.onAddNewParticipantstapped,
   }) : super(key: key);
 
+  @override
+  State<Participants> createState() => _ParticipantsState();
+}
+
+class _ParticipantsState extends State<Participants> {
   final _style = const TextStyle(
     fontSize: 14,
     fontWeight: FontWeight.w600,
@@ -33,7 +39,7 @@ class Participants extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
           child: Text(
-            "${participants.length} PARTICIPANTS",
+            "${widget.participants.length} PARTICIPANTS",
             maxLines: 1,
             style: _style.copyWith(
               color: Theme.of(context).colorScheme.secondaryVariant,
@@ -51,7 +57,7 @@ class Participants extends StatelessWidget {
             _Item(
               title: "Add Participants",
               icon: Icons.add,
-              onTap: onAddNewParticipantstapped,
+              onTap: widget.onAddNewParticipantstapped,
             ),
             const Padding(
               padding: EdgeInsets.only(left: 60.0),
@@ -72,9 +78,9 @@ class Participants extends StatelessWidget {
             padding: const EdgeInsets.only(left: 74.0),
             child: Divider(height: 0.0),
           ),
-          itemCount: participants.length,
+          itemCount: widget.participants.length,
           itemBuilder: (context, index) {
-            final participant = participants[index];
+            final participant = widget.participants[index];
             return ListTile(
               dense: true,
               horizontalTitleGap: 12.0,
@@ -85,6 +91,16 @@ class Participants extends StatelessWidget {
                 maxLines: 1,
                 style: _style,
               ),
+              trailing: widget.chat.isAdmin(participant.id)
+                  ? Text(
+                      "Admin",
+                      style: const TextStyle(
+                        fontSize: 13.0,
+                        fontWeight: FontWeight.w400,
+                        letterSpacing: 0.25,
+                      ),
+                    )
+                  : Offstage(),
               subtitle: Padding(
                 padding: const EdgeInsets.only(right: 40.0),
                 child: Text(
@@ -105,9 +121,42 @@ class Participants extends StatelessWidget {
     );
   }
 
-  void viewFullProfile(BuildContext context, final PureUser user) {
+  void viewFullProfile(BuildContext context, final PureUser user) async {
     if (!user.isMe) {
-      push(context: context, page: ProfileScreen(user: user));
+      if (widget.chat.isAdmin(CurrentUser.currentUserId)) {
+        const infoButton = SheetAction(label: 'Info', key: 'info');
+        const makeButton = SheetAction(
+          label: 'Make Group Admin',
+          key: 'make',
+        );
+        const dismissButton = SheetAction(
+          label: 'Dismiss As Admin',
+          key: 'dismiss',
+          isDestructiveAction: true,
+        );
+        const removeButton = SheetAction(
+          label: 'Remove From Group',
+          key: 'remove',
+          isDestructiveAction: true,
+        );
+
+        final result = await showModalActionSheet<String>(
+          context: context,
+          title: user.fullName,
+          actions: [
+            infoButton,
+            widget.chat.isAdmin(user.id) ? dismissButton : makeButton,
+            removeButton,
+          ],
+        );
+
+        if (result == "info") {
+          push(context: context, page: ProfileScreen(user: user));
+        } else if (result == "make") {
+        } else if (result == "remove") {}
+      } else {
+        push(context: context, page: ProfileScreen(user: user));
+      }
     }
   }
 }

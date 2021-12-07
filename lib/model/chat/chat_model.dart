@@ -26,6 +26,7 @@ class ChatModel extends Equatable {
   final DateTime updateDate;
   final String lastMessage;
   final String? senderId;
+  final List<String>? admins;
 
   const ChatModel({
     required this.chatId,
@@ -39,11 +40,14 @@ class ChatModel extends Equatable {
     this.senderId,
     required this.members,
     required this.updateDate,
+    this.admins,
   });
 
   factory ChatModel.fromMap(Map<String, dynamic> data) {
     final members = <String>[];
+    final admins = <String>[];
     for (String userId in data['members']) members.add(userId);
+    for (String userId in data['admins'] ?? []) admins.add(userId);
 
     return ChatModel(
       chatId: data["chatId"] as String,
@@ -57,6 +61,7 @@ class ChatModel extends Equatable {
       senderId: data['senderId'] as String? ?? "",
       creationDate: DateTime.parse(data['creationDate'] as String).toLocal(),
       updateDate: DateTime.parse(data['updateDate'] as String).toLocal(),
+      admins: admins,
     );
   }
 
@@ -120,6 +125,10 @@ class ChatModel extends Equatable {
 
   static Map<String, dynamic> toGroupImageMap(String groupImageURL) {
     return <String, dynamic>{"groupImage": groupImageURL};
+  }
+
+  bool isAdmin(String userId) {
+    return admins!.contains(userId) || userId == senderId;
   }
 
   @override
