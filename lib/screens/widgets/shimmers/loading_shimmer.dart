@@ -10,8 +10,8 @@ class LoadingShimmer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
+      baseColor: Theme.of(context).dialogBackgroundColor,
+      highlightColor: Theme.of(context).colorScheme.secondaryVariant,
       child: ListView.builder(
         itemCount: itemCount ?? 3,
         shrinkWrap: true,
@@ -25,7 +25,7 @@ class LoadingShimmer extends StatelessWidget {
                   padding: const EdgeInsets.only(right: 16.0),
                   child: CircleAvatar(
                     radius: 40,
-                    backgroundColor: Colors.white,
+                    backgroundColor: Theme.of(context).colorScheme.surface,
                   ),
                 ),
               Column(
@@ -34,20 +34,24 @@ class LoadingShimmer extends StatelessWidget {
                   Container(
                     width: 150,
                     height: 16.0,
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.surface,
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 3.0),
                     child: Container(
                       width: 80,
                       height: 10.0,
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.surface,
                     ),
                   ),
                 ],
               ),
               const Spacer(),
-              Container(width: 60, height: 24.0, color: Colors.white),
+              Container(
+                width: 60,
+                height: 24.0,
+                color: Theme.of(context).colorScheme.surface,
+              ),
             ],
           ),
         ),
@@ -63,37 +67,45 @@ class SingleShimmer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: CircleAvatar(
-              radius: 40,
-              backgroundColor: Colors.white,
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 150,
-                height: 16.0,
-                color: Colors.white,
+      child: Shimmer.fromColors(
+        baseColor: Theme.of(context).dialogBackgroundColor,
+        highlightColor: Theme.of(context).colorScheme.secondaryVariant,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(right: 16.0),
+              child: CircleAvatar(
+                radius: 40,
+                backgroundColor: Theme.of(context).colorScheme.surface,
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 3.0),
-                child: Container(
-                  width: 80,
-                  height: 10.0,
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 150,
+                  height: 16.0,
                   color: Colors.white,
                 ),
-              ),
-            ],
-          ),
-          const Spacer(),
-          Container(width: 60, height: 24.0, color: Colors.white),
-        ],
+                Padding(
+                  padding: const EdgeInsets.only(top: 3.0),
+                  child: Container(
+                    width: 80,
+                    height: 10.0,
+                    color: Theme.of(context).colorScheme.surface,
+                  ),
+                ),
+              ],
+            ),
+            const Spacer(),
+            Container(
+              width: 60,
+              height: 24.0,
+              color: Theme.of(context).colorScheme.surface,
+            ),
+          ],
+        ),
       ),
     );
   }

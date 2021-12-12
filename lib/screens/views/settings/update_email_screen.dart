@@ -39,7 +39,7 @@ class _UpdateEmailScreenState extends State<UpdateEmailScreen> {
     enabledBorder: InputBorder.none,
     errorBorder: InputBorder.none,
     focusedErrorBorder: InputBorder.none,
-    contentPadding: const EdgeInsets.fromLTRB(10, 8, 10, 2),
+    contentPadding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
   );
 
   @override

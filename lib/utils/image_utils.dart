@@ -1,8 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+
+import 'exception.dart';
+import 'file_utils.dart';
+import 'global_utils.dart';
 
 abstract class ImageMethods {
   Future<File?> pickImage(
@@ -14,6 +19,8 @@ abstract class ImageMethods {
     String? doneTitle,
     bool crop,
   });
+  Future<List<File>?> pickMultiImage(ImagePicker imagePicker,
+      {int? imageQuality = 100});
 }
 
 class ImageUtils implements ImageMethods {
@@ -46,6 +53,11 @@ class ImageUtils implements ImageMethods {
   static const String video = 'assets/images/video.png';
   static const String settings = 'assets/images/settings.png';
   static const String home = 'assets/images/home.png';
+  static const String emptyMessageLight = 'assets/images/emptyMessageLight.png';
+  static const String emptyMessageDark = 'assets/images/emptyMessageDark.png';
+  static const String username = 'assets/images/username.png';
+  static const String location = 'assets/images/location.png';
+  static const String calendar = 'assets/images/calendar.png';
 
   @override
   Future<File?> pickImage(
@@ -66,21 +78,64 @@ class ImageUtils implements ImageMethods {
     if (pickedFile != null) {
       final rawPickedFile = File(pickedFile.path);
       // return raw file if cropping is not required
-      if (crop == false) return rawPickedFile;
 
-      final file = await cropImage(
-        rawPickedFile,
-        cancelTitle: cancelTitle,
-        doneTitle: doneTitle,
-      );
-      return file;
+      // check if image does not exceed the maximum upload size
+      final isExceeded = await isImageUploadSizeExceeded(rawPickedFile);
+      if (isExceeded == false) {
+        if (crop == false) {
+          // compress image
+          final compressedFile = await _compressImage(rawPickedFile);
+          return compressedFile;
+        } else {
+          final file = await _cropImage(
+            rawPickedFile,
+            cancelTitle: cancelTitle,
+            doneTitle: doneTitle,
+          );
+          return file;
+        }
+      } else {
+        final standardSize =
+            getStadardFileSize(GlobalUtils.maxImageUploadSizeInByte);
+        final String message = "Maximum image upload size is $standardSize";
+        throw MaximumUploadExceededException(message: message);
+      }
+    } else {
+      return null;
+    }
+  }
+
+  @override
+  Future<List<File>?> pickMultiImage(ImagePicker imagePicker,
+      {int? imageQuality = 100}) async {
+    final pickedFiles =
+        await imagePicker.pickMultiImage(imageQuality: imageQuality);
+
+    if (pickedFiles != null) {
+      List<File> imageFiles = [];
+
+      for (final pickedFile in pickedFiles) {
+        final rawPickedFile = File(pickedFile.path);
+        // return raw file if cropping is not required
+
+        // check if image does not exceed the maximum upload size
+        final isExceeded = await isImageUploadSizeExceeded(rawPickedFile);
+        if (isExceeded == false) {
+          // compress image
+          final compressedFile = await _compressImage(rawPickedFile);
+          if (compressedFile != null) {
+            imageFiles.add(compressedFile);
+          }
+        }
+      }
+      return imageFiles;
     } else {
       return null;
     }
   }
 
   // this method is called to crop an image picked
-  Future<File?> cropImage(File imageFile,
+  Future<File?> _cropImage(File imageFile,
       {String? cancelTitle, String? doneTitle}) async {
     final croppedFile = await ImageCropper.cropImage(
       sourcePath: imageFile.path,
@@ -106,5 +161,22 @@ class ImageUtils implements ImageMethods {
       ),
     );
     return croppedFile;
+  }
+
+  Future<File?> _compressImage(File file) async {
+    final filePath = file.absolute.path;
+
+    // Create output file path
+    final lastIndex = filePath.lastIndexOf(new RegExp(r'.jp'));
+    final splitted = filePath.substring(0, (lastIndex));
+    final targetPath = "${splitted}_out${filePath.substring(lastIndex)}";
+
+    final result = await FlutterImageCompress.compressAndGetFile(
+      filePath,
+      targetPath,
+      quality: 45,
+    );
+
+    return result;
   }
 }

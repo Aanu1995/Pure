@@ -1,35 +1,126 @@
+import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:stream_transform/stream_transform.dart';
 
 import '../../model/chat/chat_model.dart';
+import '../../model/pure_user_model.dart';
 import '../../utils/exception.dart';
 import '../../utils/global_utils.dart';
 import '../../utils/request_messages.dart';
+import '../remote_storage_service.dart';
+import '../user_service.dart';
 
 abstract class ChatService {
   const ChatService();
 
+  Future<ChatModel> createGroupChat(final ChatModel chatModel,
+      {File? groupImage});
+  Future<void> updateGroupChat(String chatId, Map<String, dynamic> data);
+  Future<void> addNewParticipants(String chatId, List<String> newMembers);
+  Future<String> updateGroupImage(String chatId, File file);
   Future<ChatsModel> getOfflineChats(String userId);
-  Stream<ChatsModel?> getRealTimeChats(String userId,
-      {int limit = GlobalUtils.messagesLimit});
+  Stream<ChatsModel?> getRealTimeChats(String userId);
   Stream<ChatsModel?> getLastRemoteMessage(
       String userId, DocumentSnapshot endDoc);
-  Future<int> getUnReadMessageCount(String chatId, String userId);
+  Stream<int> getUnReadMessageCount(String chatId, String userId);
+  Stream<int?> getUnReadChatCount(String userId);
+  Future<ChatsModel> loadMoreChats(String userId, DocumentSnapshot doc,
+      {int limit = GlobalUtils.messagesLimit});
+  Stream<List<PureUser>?> getGroupMembersProfile(List<String> userIds);
 }
 
 class ChatServiceImp extends ChatService {
   final FirebaseFirestore? firestore;
+  final RemoteStorage? remoteStorageImpl;
+  final UserService? userService;
 
-  ChatServiceImp({this.firestore}) {
+  ChatServiceImp({this.firestore, this.remoteStorageImpl, this.userService}) {
     _firestore = firestore ?? FirebaseFirestore.instance;
     _chatCollection = _firestore.collection(GlobalUtils.chatCollection);
     _receiptCollection = _firestore.collection(GlobalUtils.receiptCollection);
+    _remoteStorage = remoteStorageImpl ?? RemoteStorageImpl();
+    _userService = userService ?? UserServiceImpl();
   }
 
   late FirebaseFirestore _firestore;
   late CollectionReference _chatCollection;
   late CollectionReference _receiptCollection;
+  late RemoteStorage _remoteStorage;
+  late UserService _userService;
+
+  Future<ChatModel> createGroupChat(final ChatModel chatModel,
+      {File? groupImage}) async {
+    String? groupImageURL;
+    try {
+      if (groupImage != null) {
+        // upload image to storage
+        groupImageURL = await _remoteStorage.uploadProfileImage(
+            chatModel.chatId, groupImage);
+      }
+
+      final groupChat = chatModel.copyWith(image: groupImageURL);
+
+      await _chatCollection
+          .doc(chatModel.chatId)
+          .set(groupChat.toMap())
+          .timeout(GlobalUtils.timeOutInDuration);
+      return groupChat;
+    } on TimeoutException catch (_) {
+      throw ServerException(message: ErrorMessages.timeoutMessage);
+    } catch (e) {
+      throw ServerException(message: ErrorMessages.generalMessage2);
+    }
+  }
+
+  Future<void> updateGroupChat(String chatId, Map<String, dynamic> data) async {
+    try {
+      await _chatCollection
+          .doc(chatId)
+          .update(data)
+          .timeout(GlobalUtils.updateTimeOutInDuration);
+      ;
+    } on TimeoutException catch (_) {
+      throw ServerException(message: ErrorMessages.timeoutMessage);
+    } catch (e) {
+      throw ServerException(message: ErrorMessages.generalMessage2);
+    }
+  }
+
+  Future<String> updateGroupImage(String chatId, File file) async {
+    try {
+      final groupImageURL =
+          await _remoteStorage.uploadProfileImage(chatId, file);
+      if (groupImageURL != null) {
+        await updateGroupChat(chatId, ChatModel.toGroupImageMap(groupImageURL));
+        return groupImageURL;
+      } else {
+        throw ServerException(message: ErrorMessages.generalMessage2);
+      }
+    } on TimeoutException catch (_) {
+      throw ServerException(message: ErrorMessages.timeoutMessage);
+    } catch (e) {
+      throw ServerException(message: ErrorMessages.generalMessage2);
+    }
+  }
+
+  @override
+  Future<void> addNewParticipants(
+      String chatId, List<String> newMembers) async {
+    try {
+      await _chatCollection
+          .doc(chatId)
+          .update({"members": FieldValue.arrayUnion(newMembers)}).timeout(
+              GlobalUtils.updateTimeOutInDuration);
+      ;
+    } on TimeoutException catch (_) {
+      throw ServerException(message: ErrorMessages.timeoutMessage);
+    } catch (e) {
+      throw ServerException(message: ErrorMessages.generalMessage2);
+    }
+  }
 
   @override
   Future<ChatsModel> getOfflineChats(String userId) async {
@@ -41,7 +132,7 @@ class ChatServiceImp extends ChatService {
       final querySnapshot = await _chatCollection
               .where("members", arrayContains: userId)
               .orderBy("updateDate", descending: true)
-              .limit(GlobalUtils.cachedChatsLimit)
+              //   .limit(GlobalUtils.cachedChatsLimit)
               .get(GetOptions(source: Source.cache))
           as QuerySnapshot<Map<String, dynamic>?>;
 
@@ -97,8 +188,7 @@ class ChatServiceImp extends ChatService {
   }
 
   @override
-  Stream<ChatsModel?> getRealTimeChats(String userId,
-      {int limit = GlobalUtils.messagesLimit}) {
+  Stream<ChatsModel?> getRealTimeChats(String userId) {
     try {
       return _chatCollection
           .where("members", arrayContains: userId)
@@ -129,16 +219,73 @@ class ChatServiceImp extends ChatService {
     }
   }
 
-  Future<int> getUnReadMessageCount(String chatId, String userId) async {
+  @override
+  Stream<int> getUnReadMessageCount(String chatId, String userId) {
     try {
-      final result = await _receiptCollection
-          .doc(chatId)
-          .get()
-          .timeout(Duration(seconds: 4));
-      final data = result.data() as Map<String, dynamic>?;
-      return data?[userId]["unreadCount"] as int? ?? 0;
+      return _receiptCollection.doc(chatId).snapshots().asyncMap((querySnap) {
+        final data = querySnap.data() as Map<String, dynamic>?;
+        return data?[userId]["unreadCount"] as int? ?? 0;
+      });
     } catch (e) {
-      return 0;
+      return Stream.value(0);
+    }
+  }
+
+  @override
+  Future<ChatsModel> loadMoreChats(String userId, DocumentSnapshot doc,
+      {int limit = GlobalUtils.messagesLimit}) async {
+    List<ChatModel> chats = [];
+    DocumentSnapshot? lastDoc;
+
+    try {
+      final querySnapshot = await _chatCollection
+              .where("members", arrayContains: userId)
+              .orderBy("updateDate", descending: true)
+              .startAfterDocument(doc)
+              .limit(limit)
+              .get()
+              .timeout(GlobalUtils.timeOutInDuration)
+          as QuerySnapshot<Map<String, dynamic>?>;
+
+      if (querySnapshot.docs.isNotEmpty) {
+        lastDoc = querySnapshot.docs.last;
+
+        for (final result in querySnapshot.docs) {
+          final data = result.data();
+          if (data != null) {
+            chats.add(ChatModel.fromMap(data));
+          }
+        }
+      }
+      return ChatsModel(chats: chats, lastDoc: lastDoc);
+    } on TimeoutException catch (_) {
+      throw ServerException(message: ErrorMessages.timeoutMessage);
+    } catch (e) {
+      throw ServerException(message: ErrorMessages.generalMessage2);
+    }
+  }
+
+  @override
+  Stream<List<PureUser>?> getGroupMembersProfile(List<String> userIds) {
+    try {
+      return _userService.getGroupMember(userIds.first).combineLatestAll(userIds
+          .getRange(1, userIds.length)
+          .toList()
+          .map((e) => _userService.getGroupMember(e)));
+    } catch (e) {
+      return Stream.value(null);
+    }
+  }
+
+  @override
+  Stream<int?> getUnReadChatCount(String userId) {
+    try {
+      return _receiptCollection
+          .where("$userId.unreadCount", isGreaterThan: 0)
+          .snapshots()
+          .map((querySnap) => querySnap.docs.length);
+    } catch (e) {
+      return Stream.value(null);
     }
   }
 }

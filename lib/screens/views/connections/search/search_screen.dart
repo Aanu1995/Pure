@@ -83,9 +83,9 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Future<void> seeAllConnectionResults(BuildContext context) async {
     final query = _searchController.text.trim();
+    final navigator = Navigator.of(context);
 
-    await Navigator.of(context)
-        .push<bool>(MaterialPageRoute(builder: (context) {
+    await navigator.push<bool>(MaterialPageRoute(builder: (context) {
       return MultiBlocProvider(
         providers: [
           BlocProvider(

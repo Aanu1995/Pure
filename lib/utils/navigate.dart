@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 void push({required BuildContext context, required Widget page}) {
-  Navigator.of(context)
-      .push<void>(MaterialPageRoute(builder: (context) => page));
+  Navigator.of(context).push<void>(
+    MaterialPageRoute(builder: (context) => page),
+  );
 }
 
 void pushNamed({required BuildContext context, required String page}) {
