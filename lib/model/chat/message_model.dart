@@ -70,7 +70,7 @@ class MessageModel extends Equatable {
     );
   }
 
-  MessageModel copyWithUpdateReceipt(String lastViewDate) {
+  MessageModel copyWithUpdateReceipt(String lastViewDate, Receipt receipt) {
     return MessageModel(
       messageId: messageId,
       senderId: senderId,
@@ -78,7 +78,7 @@ class MessageModel extends Equatable {
       sentDate: sentDate,
       receipt: lastViewDate.compareTo(sentDate!.toUtc().toIso8601String()) >= 0
           ? Receipt.Read
-          : Receipt.Sent,
+          : receipt,
       attachments: attachments,
     );
   }

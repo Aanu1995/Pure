@@ -169,10 +169,10 @@ class MessageCubit extends Cubit<MessageState> {
         msgsModel.topMessageDate ?? DateTime(1970).toIso8601String();
 
     final messagesModel = MessagesModel(
-      messages: msgsModel.messages
-          .toList()
-          .map((e) => e.copyWithUpdateReceipt(topMessageDate))
-          .toList(),
+      messages: msgsModel.messages.toList().map((e) {
+        final receipt = e.attachments == null ? Receipt.Sent : e.receipt;
+        return e.copyWithUpdateReceipt(topMessageDate, receipt);
+      }).toList(),
       lastDoc: msgsModel.lastDoc,
       topMessageDate: topMessageDate,
     );

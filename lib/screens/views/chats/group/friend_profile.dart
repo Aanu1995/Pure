@@ -1,17 +1,17 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../blocs/bloc.dart';
 import '../../../../model/pure_user_model.dart';
-import '../../../../utils/app_theme.dart';
 import '../../../widgets/avatar.dart';
 import '../../../widgets/shimmers/loading_shimmer.dart';
 
 class ConnectionProfile extends StatelessWidget {
   final bool showSeparator;
-  const ConnectionProfile({Key? key, this.showSeparator = false})
+  final Widget Function(BuildContext, PureUser) builder;
+  const ConnectionProfile(
+      {Key? key, this.showSeparator = false, required this.builder})
       : super(key: key);
 
   @override
@@ -48,24 +48,7 @@ class ConnectionProfile extends StatelessWidget {
                 ),
                 trailing: Transform.scale(
                   scale: 1.3,
-                  child: BlocBuilder<GroupCubit, GroupState>(
-                    builder: (context, groupState) {
-                      if (groupState is GroupMembers) {
-                        final isMember =
-                            isUserAMember(groupState.members, user);
-
-                        return Checkbox(
-                          value: isMember,
-                          activeColor: Palette.tintColor,
-                          shape: CircleBorder(),
-                          onChanged: (active) => active!
-                              ? context.read<GroupCubit>().addMember(user)
-                              : context.read<GroupCubit>().removeMember(user),
-                        );
-                      }
-                      return Offstage();
-                    },
-                  ),
+                  child: builder(context, user),
                 ),
               ),
               if (showSeparator) const Divider(height: 0.0),
@@ -75,10 +58,6 @@ class ConnectionProfile extends StatelessWidget {
         return const SingleShimmer();
       },
     );
-  }
-
-  bool isUserAMember(List<PureUser> members, PureUser user) {
-    return members.firstWhereOrNull((element) => element.id == user.id) != null;
   }
 }
 

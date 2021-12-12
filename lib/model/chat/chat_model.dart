@@ -26,6 +26,7 @@ class ChatModel extends Equatable {
   final DateTime updateDate;
   final String lastMessage;
   final String? senderId;
+  final List<String>? admins;
 
   const ChatModel({
     required this.chatId,
@@ -39,11 +40,14 @@ class ChatModel extends Equatable {
     this.senderId,
     required this.members,
     required this.updateDate,
+    this.admins,
   });
 
   factory ChatModel.fromMap(Map<String, dynamic> data) {
     final members = <String>[];
+    final admins = <String>[];
     for (String userId in data['members']) members.add(userId);
+    for (String userId in data['admins'] ?? []) admins.add(userId);
 
     return ChatModel(
       chatId: data["chatId"] as String,
@@ -57,20 +61,22 @@ class ChatModel extends Equatable {
       senderId: data['senderId'] as String? ?? "",
       creationDate: DateTime.parse(data['creationDate'] as String).toLocal(),
       updateDate: DateTime.parse(data['updateDate'] as String).toLocal(),
+      admins: admins,
     );
   }
 
-  ChatModel copyWith(String? groupImage) {
+  ChatModel copyWith({String? image, String? subject, String? desc}) {
     return ChatModel(
       chatId: chatId,
       type: type,
-      groupName: groupName,
-      groupDescription: groupDescription,
-      groupImage: groupImage,
+      groupName: subject ?? groupName,
+      groupDescription: desc ?? groupDescription,
+      groupImage: image ?? groupImage,
       groupCreatedBy: groupCreatedBy,
       creationDate: creationDate,
       lastMessage: lastMessage,
       members: members,
+      senderId: senderId,
       updateDate: updateDate,
     );
   }
@@ -101,12 +107,28 @@ class ChatModel extends Equatable {
       "lastMessage": lastMessage,
       "groupName": groupName,
       "groupDescription": "",
-      "groupImage": groupImage,
+      "groupImage": groupImage ?? "",
       "groupCreatedBy": groupCreatedBy,
       "creationDate": creationDate.toUtc().toIso8601String(),
       "updateDate": creationDate.toUtc().toIso8601String(),
       "members": members,
     };
+  }
+
+  static Map<String, dynamic> toSubjectMap(String subject) {
+    return <String, dynamic>{"groupName": subject};
+  }
+
+  static Map<String, dynamic> toDescriptionMap(String description) {
+    return <String, dynamic>{"groupDescription": description};
+  }
+
+  static Map<String, dynamic> toGroupImageMap(String groupImageURL) {
+    return <String, dynamic>{"groupImage": groupImageURL};
+  }
+
+  bool isAdmin(String userId) {
+    return admins!.contains(userId) || userId == senderId;
   }
 
   @override

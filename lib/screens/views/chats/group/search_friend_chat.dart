@@ -1,15 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pure/screens/views/chats/new_group/create_group_screen.dart';
-import 'package:pure/services/chat/chat_service.dart';
-import 'package:pure/utils/navigate.dart';
+import 'package:collection/collection.dart';
+import 'package:pure/utils/app_theme.dart';
 
 import '../../../../blocs/bloc.dart';
 import '../../../../model/pure_user_model.dart';
+import '../../../../services/chat/chat_service.dart';
 import '../../../../utils/app_utils.dart';
+import '../../../../utils/navigate.dart';
 import '../../../widgets/message_widget.dart';
 import '../../../widgets/user_profile_provider.dart';
+import 'create_group_screen.dart';
 import 'friend_profile.dart';
 
 class SearchFriendChat extends StatefulWidget {
@@ -178,6 +180,26 @@ class _Connections extends StatelessWidget {
               child: ConnectionProfile(
                 key: ValueKey(friendId),
                 showSeparator: index < (connections.length - 1),
+                builder: (context, user) {
+                  return BlocBuilder<GroupCubit, GroupState>(
+                    builder: (context, groupState) {
+                      if (groupState is GroupMembers) {
+                        final isMember =
+                            isUserAMember(groupState.members, user);
+
+                        return Checkbox(
+                          value: isMember,
+                          activeColor: Palette.tintColor,
+                          shape: CircleBorder(),
+                          onChanged: (active) => active!
+                              ? context.read<GroupCubit>().addMember(user)
+                              : context.read<GroupCubit>().removeMember(user),
+                        );
+                      }
+                      return Offstage();
+                    },
+                  );
+                },
               ),
             ),
           );
@@ -190,5 +212,9 @@ class _Connections extends StatelessWidget {
         },
       ),
     );
+  }
+
+  bool isUserAMember(List<PureUser> members, PureUser user) {
+    return members.firstWhereOrNull((element) => element.id == user.id) != null;
   }
 }
