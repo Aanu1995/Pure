@@ -69,6 +69,7 @@ class Item extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       onTap: onTap,
+      horizontalTitleGap: 0,
       leading: Image.asset(
         icon,
         width: 24,

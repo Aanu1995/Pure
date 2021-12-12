@@ -13,7 +13,7 @@ import '../../../../../../widgets/shimmers/loading_shimmer.dart';
 import '../../../../../../widgets/snackbars.dart';
 import '../../../../../../widgets/user_profile_provider.dart';
 import '../../../../widgets/load_more.dart';
-import '../../../../widgets/message_widget.dart';
+import '../../../../../../widgets/message_widget.dart';
 import '../widgets/inviter_profile.dart';
 
 class ReceivedScreen extends StatefulWidget {

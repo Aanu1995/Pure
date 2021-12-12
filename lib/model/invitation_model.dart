@@ -71,7 +71,7 @@ class InvitationModel {
     return <String, dynamic>{"isAccepted": isAccepted};
   }
 
-  String getInvitationId(String senderId, String receiverId) {
+  static String getInvitationId(String senderId, String receiverId) {
     if (senderId.compareTo(receiverId) == -1) {
       return "${senderId}_${receiverId}";
     } else {

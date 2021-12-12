@@ -59,3 +59,29 @@ class Avartar extends StatelessWidget {
     );
   }
 }
+
+class Avartar2 extends StatelessWidget {
+  final String imageURL;
+  final String? localURL;
+  final double? size;
+
+  final bool hidePresence;
+  const Avartar2({
+    Key? key,
+    required this.imageURL,
+    this.size,
+    this.localURL,
+    this.hidePresence = true,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return CircleAvatar(
+      radius: size,
+      backgroundColor: Theme.of(context).colorScheme.secondary,
+      backgroundImage: AssetImage(localURL ?? ImageUtils.user),
+      foregroundImage:
+          imageURL.isEmpty ? null : CachedNetworkImageProvider(imageURL),
+    );
+  }
+}

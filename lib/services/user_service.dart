@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:stream_transform/stream_transform.dart';
 
+import '../model/pure_user_extra.dart';
 import '../model/pure_user_model.dart';
 import '../model/user_presence_model.dart';
 import '../repositories/connection.dart';
@@ -19,6 +20,7 @@ abstract class UserService {
   const UserService();
 
   Future<PureUser> getUser(String userId);
+  Future<PureUserExtraModel> getUserExtraData(String userId);
   Future<PureUser> getUserIfExistOrCreate(
       String userId, Map<String, dynamic> data);
   Future<void> createUser(String userId, Map<String, dynamic> data);
@@ -31,6 +33,7 @@ abstract class UserService {
   Stream<UserPresenceModel?> getUserPresence(String userId);
   Future<void> setUserPresence(String userId);
   Future<void> setUserOfflineOnSignOut(String userId);
+  Stream<PureUser> getGroupMember(String userId);
 }
 
 class UserServiceImpl extends UserService {
@@ -38,14 +41,14 @@ class UserServiceImpl extends UserService {
   final FirebaseDatabase? firebaseDatabase;
   final LocalStorage? localStorage;
   final ConnectionRepo? connection;
-  RemoteStorageImpl? remoteStorageImpl;
+  RemoteStorage? remoteStorage;
 
   UserServiceImpl({
     this.firestore,
     this.firebaseDatabase,
     this.localStorage,
     this.connection,
-    this.remoteStorageImpl,
+    this.remoteStorage,
   }) {
     _userCollection = (firestore ?? FirebaseFirestore.instance)
         .collection(GlobalUtils.userCollection);
@@ -56,7 +59,7 @@ class UserServiceImpl extends UserService {
         .child(GlobalUtils.userCollection);
     _connection = connection ?? ConnectionRepoImpl();
     _localStorage = localStorage ?? LocalStorageImpl();
-    _remoteStorage = remoteStorageImpl ?? RemoteStorageImpl();
+    _remoteStorage = remoteStorage ?? RemoteStorageImpl();
   }
 
   late CollectionReference _userCollection;
@@ -64,12 +67,24 @@ class UserServiceImpl extends UserService {
   late DatabaseReference _databaseReference;
   late ConnectionRepo _connection;
   late LocalStorage _localStorage;
-  late RemoteStorageImpl _remoteStorage;
+  late RemoteStorage _remoteStorage;
 
   @override
   Future<PureUser> getUser(String userId) async {
     try {
       return _getCurrentUserProfile(userId);
+    } on TimeoutException catch (_) {
+      throw ServerException(message: ErrorMessages.timeoutMessage);
+    } catch (e) {
+      throw ServerException(message: ErrorMessages.generalMessage2);
+    }
+  }
+
+  // This gets the user extra data such as connection list
+  Future<PureUserExtraModel> getUserExtraData(String userId) async {
+    try {
+      final docSnap = await _userExtCollection.doc(userId).get();
+      return PureUserExtraModel.fromMap(docSnap.data() as Map<String, dynamic>);
     } on TimeoutException catch (_) {
       throw ServerException(message: ErrorMessages.timeoutMessage);
     } catch (e) {
@@ -106,6 +121,13 @@ class UserServiceImpl extends UserService {
     } catch (e) {
       return Stream.value(null);
     }
+  }
+
+  @override
+  Stream<PureUser> getGroupMember(String userId) {
+    return _userCollection.doc(userId).snapshots().map((docSnapshot) {
+      return PureUser.fromMap(docSnapshot.data() as Map<String, dynamic>);
+    });
   }
 
   // Listens to when user is offline or online
@@ -247,7 +269,10 @@ class UserServiceImpl extends UserService {
 
     // connects
     try {
-      await _databaseReference.child(userId).update(onlineData);
+      await _databaseReference
+          .child(userId)
+          .update(onlineData)
+          .timeout(GlobalUtils.shortTimeOutInDuration);
     } catch (e) {
       log(e.toString());
     }

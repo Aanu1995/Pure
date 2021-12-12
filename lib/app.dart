@@ -30,11 +30,13 @@ class App extends StatelessWidget {
             child: MaterialApp(
               title: F.title,
               theme: Palette.lightTheme.copyWith(
+                primaryColorBrightness: Brightness.light,
                 appBarTheme: Palette.lightTheme.appBarTheme.copyWith(
                   titleTextStyle: Palette.appBarStyle(),
                 ),
               ),
               darkTheme: Palette.darkTheme.copyWith(
+                primaryColorBrightness: Brightness.dark,
                 appBarTheme: Palette.darkTheme.appBarTheme.copyWith(
                   titleTextStyle: Palette.appBarStyle(isLightMode: false),
                 ),

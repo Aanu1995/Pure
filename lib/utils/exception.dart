@@ -15,6 +15,19 @@ class CacheException implements Exception {
   final dynamic details;
 }
 
+class MaximumUploadExceededException implements Exception {
+  MaximumUploadExceededException({this.code, this.message, this.details});
+
+  /// An error code.
+  final int? code;
+
+  /// A human-readable error message, possibly null.
+  final String? message;
+
+  /// Error details, possibly null.
+  final dynamic details;
+}
+
 class ServerException implements Exception {
   ServerException({this.code, this.message, this.details});
 
