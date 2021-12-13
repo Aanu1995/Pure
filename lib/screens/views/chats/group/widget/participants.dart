@@ -1,8 +1,8 @@
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pure/blocs/bloc.dart';
 
+import '../../../../../blocs/bloc.dart';
 import '../../../../../model/chat/chat_model.dart';
 import '../../../../../model/pure_user_model.dart';
 import '../../../../../utils/app_theme.dart';
@@ -157,6 +157,11 @@ class _ParticipantsState extends State<Participants> {
         if (result == "info") {
           push(context: context, page: ProfileScreen(user: user));
         } else if (result == "make") {
+          BlocProvider.of<ParticipantCubit>(context)
+              .addAdmin(widget.chat.chatId, user.id);
+        } else if (result == "dismiss") {
+          BlocProvider.of<ParticipantCubit>(context)
+              .removeAdmin(widget.chat.chatId, user.id);
         } else if (result == "remove") {
           BlocProvider.of<ParticipantCubit>(context)
               .removeMember(widget.chat.chatId, index, user);

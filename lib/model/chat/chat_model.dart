@@ -46,7 +46,7 @@ class ChatModel extends Equatable {
   factory ChatModel.fromMap(Map<String, dynamic> data) {
     final members = <String>[];
     final admins = <String>[];
-    for (String userId in data['members']) members.add(userId);
+    for (String userId in data['members'] ?? []) members.add(userId);
     for (String userId in data['admins'] ?? []) admins.add(userId);
 
     return ChatModel(
@@ -75,6 +75,30 @@ class ChatModel extends Equatable {
       groupCreatedBy: groupCreatedBy,
       creationDate: creationDate,
       lastMessage: lastMessage,
+      admins: admins,
+      members: members,
+      senderId: senderId,
+      updateDate: updateDate,
+    );
+  }
+
+  ChatModel copyWithForAdmin(String memberId, bool addAsAdmin) {
+    List<String> newAdmins = admins!;
+    if (addAsAdmin)
+      newAdmins.add(memberId);
+    else
+      newAdmins.remove(memberId);
+
+    return ChatModel(
+      chatId: chatId,
+      type: type,
+      groupName: groupName,
+      groupDescription: groupDescription,
+      groupImage: groupImage,
+      groupCreatedBy: groupCreatedBy,
+      creationDate: creationDate,
+      lastMessage: lastMessage,
+      admins: newAdmins,
       members: members,
       senderId: senderId,
       updateDate: updateDate,
@@ -90,8 +114,6 @@ class ChatModel extends Equatable {
     }
   }
 
-  // only available to one to one chat
-  // only available to get the other userId
   String? getReceipient(final String currentuserId) {
     if (type == ChatType.One_To_One) {
       final users = members.toList();
@@ -112,6 +134,7 @@ class ChatModel extends Equatable {
       "creationDate": creationDate.toUtc().toIso8601String(),
       "updateDate": creationDate.toUtc().toIso8601String(),
       "members": members,
+      "admins": <String>[],
     };
   }
 
@@ -142,6 +165,7 @@ class ChatModel extends Equatable {
         creationDate,
         lastMessage,
         members,
+        admins,
         updateDate,
         senderId,
       ];

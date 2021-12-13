@@ -138,7 +138,7 @@ class _GroupMessageAppBarTitleState extends State<GroupMessageAppBarTitle> {
   Future<void> viewGroupProfile(BuildContext context) async {
     final state = BlocProvider.of<GroupCubit>(context).state;
     if (state is GroupMembers) {
-      final members = state.members.toList();
+      List<PureUser> members = state.members;
       members.sort((a, b) => a.fullName.compareTo(b.fullName));
 
       Navigator.of(context).push<void>(

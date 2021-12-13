@@ -31,7 +31,6 @@ class GroupInfoScreen extends StatefulWidget {
 
 class _GroupInfoScreenState extends State<GroupInfoScreen> {
   late ChatModel chat;
-  List<PureUser> participants = [];
 
   final _style = const TextStyle(
     fontSize: 16,
@@ -42,16 +41,23 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
   @override
   void initState() {
     super.initState();
-    participants = widget.participants;
     chat = widget.chat;
   }
 
   // update as state in Bloc Listener updates
   void participantStateListener(BuildContext context, ParticipantState state) {
     if (state is RemovingParticipant) {
-      setState(() => participants.remove(state.participant));
+      setState(() => widget.participants.remove(state.participant));
+    } else if (state is AddingAdmin) {
+      final newChat = chat.copyWithForAdmin(state.memberId, true);
+      widget.onChatChanged.call(newChat);
+      setState(() => chat = newChat);
+    } else if (state is RemovingAdmin) {
+      final newChat = chat.copyWithForAdmin(state.memberId, false);
+      widget.onChatChanged.call(newChat);
+      setState(() => chat = newChat);
     } else if (state is FailedToRemoveParticipant) {
-      participants.insert(state.index, state.participant);
+      widget.participants.insert(state.index, state.participant);
     }
   }
 
@@ -139,7 +145,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                     // Participants
                     Participants(
                       chat: widget.chat,
-                      participants: participants,
+                      participants: widget.participants,
                       onAddNewParticipantstapped: () => addParticipant(context),
                     ),
                   ],
@@ -183,11 +189,13 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
           ],
           child: AddNewParticipant(
             chat: chat,
-            groupMembers: participants.map((e) => e.id).toList(),
+            groupMembers:
+                widget.participants.toList().map((e) => e.id).toList(),
             onNewParticipantsAdded: (newMembers) {
               setState(() {
-                participants.addAll(newMembers);
-                participants.sort((a, b) => a.fullName.compareTo(b.fullName));
+                widget.participants.addAll(newMembers);
+                widget.participants
+                    .sort((a, b) => a.fullName.compareTo(b.fullName));
               });
             },
           ),

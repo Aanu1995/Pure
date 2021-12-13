@@ -41,4 +41,16 @@ class ParticipantCubit extends Cubit<ParticipantState> {
       emit(FailedToRemoveParticipant(index, member));
     }
   }
+
+  Future<void> addAdmin(String chatId, String userId) async {
+    emit(AddingAdmin(userId));
+    await chatService.addAdmin(chatId, userId);
+    emit(OperationCompleted());
+  }
+
+  Future<void> removeAdmin(String chatId, String userId) async {
+    emit(RemovingAdmin(userId));
+    await chatService.removeAdmin(chatId, userId);
+    emit(OperationCompleted());
+  }
 }

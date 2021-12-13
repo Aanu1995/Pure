@@ -34,6 +34,20 @@ class RemovingParticipant extends ParticipantState {
   const RemovingParticipant(this.participant);
 }
 
+class AddingAdmin extends ParticipantState {
+  final String memberId;
+
+  const AddingAdmin(this.memberId);
+}
+
+class RemovingAdmin extends ParticipantState {
+  final String memberId;
+
+  const RemovingAdmin(this.memberId);
+}
+
+class OperationCompleted extends ParticipantState {}
+
 class ParticipantRemoved extends ParticipantState {
   final PureUser participant;
 
