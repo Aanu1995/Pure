@@ -20,6 +20,9 @@ abstract class ChatService {
       {File? groupImage});
   Future<void> updateGroupChat(String chatId, Map<String, dynamic> data);
   Future<void> addNewParticipants(String chatId, List<String> newMembers);
+  Future<void> removeParticipant(String chatId, String memberId);
+  Future<void> addAdmin(String chatId, String memberId);
+  Future<void> removeAdmin(String chatId, String memberId);
   Future<String> updateGroupImage(String chatId, File file);
   Future<ChatsModel> getOfflineChats(String userId);
   Stream<ChatsModel?> getRealTimeChats(String userId);
@@ -120,6 +123,35 @@ class ChatServiceImp extends ChatService {
     } catch (e) {
       throw ServerException(message: ErrorMessages.generalMessage2);
     }
+  }
+
+  @override
+  Future<void> removeParticipant(String chatId, String memberId) async {
+    try {
+      await _chatCollection.doc(chatId).update({
+        "members": FieldValue.arrayRemove(<String>[memberId]),
+        "admins": FieldValue.arrayRemove(<String>[memberId])
+      }).timeout(GlobalUtils.updateTimeOutInDuration);
+      ;
+    } on TimeoutException catch (_) {
+      throw ServerException(message: ErrorMessages.timeoutMessage);
+    } catch (e) {
+      throw ServerException(message: ErrorMessages.generalMessage2);
+    }
+  }
+
+  @override
+  Future<void> addAdmin(String chatId, String memberId) async {
+    await _chatCollection.doc(chatId).update({
+      "admins": FieldValue.arrayUnion(<String>[memberId])
+    });
+  }
+
+  @override
+  Future<void> removeAdmin(String chatId, String memberId) async {
+    await _chatCollection.doc(chatId).update({
+      "admins": FieldValue.arrayRemove(<String>[memberId])
+    });
   }
 
   @override

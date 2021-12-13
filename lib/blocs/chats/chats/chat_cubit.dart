@@ -136,6 +136,24 @@ class ChatCubit extends Cubit<ChatState> {
     }
   }
 
+  // remove chat
+  void removeChat(final String chatId) {
+    final currentState = state;
+    if (currentState is ChatsLoaded) {
+      final oldChats = currentState.chatsModel.chats.toList();
+      oldChats.removeWhere((chat) => chat.chatId == chatId);
+      emit(
+        ChatsLoaded(
+          chatsModel: ChatsModel(
+            chats: oldChats,
+            lastDoc: currentState.chatsModel.lastDoc,
+          ),
+          hasMore: currentState.hasMore,
+        ),
+      );
+    }
+  }
+
   void dispose() {
     _subscription?.cancel();
     _realTimeSubscription?.cancel();

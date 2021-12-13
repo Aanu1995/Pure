@@ -1,7 +1,6 @@
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:provider/src/provider.dart';
 
 import '../../../../../blocs/bloc.dart';
 import '../../../../../model/connection_model.dart';
@@ -118,7 +117,7 @@ class _ConnectorProfile extends StatelessWidget {
                     ),
                     const SizedBox(height: 4.0),
                     Text(
-                      "Connected ${getFormattedDate(connector.connectionDate!)}",
+                      "Connected ${getFormattedTime(connector.connectionDate!)}",
                       style: TextStyle(
                         fontSize: 12.0,
                         fontWeight: FontWeight.w500,

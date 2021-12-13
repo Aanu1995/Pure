@@ -58,7 +58,7 @@ class _AddNewParticipantState extends State<AddNewParticipant> {
   }
 
   // update as state in Bloc Listener updates
-  void addMemberStateListener(BuildContext context, NewParticipantState state) {
+  void addMemberStateListener(BuildContext context, ParticipantState state) {
     if (state is AddingParticipant) {
       EasyLoading.show(status: 'Adding...');
     } else if (state is NewParticipant) {
@@ -66,9 +66,7 @@ class _AddNewParticipantState extends State<AddNewParticipant> {
         EasyLoading.dismiss();
         widget.onNewParticipantsAdded.call(state.newMembers);
         Navigator.pop(context);
-      } catch (e) {
-        print(e);
-      }
+      } catch (e) {}
     } else if (state is NewParticipantFailed) {
       EasyLoading.dismiss();
       showFailureFlash(context, state.message);
@@ -132,7 +130,7 @@ class _AddNewParticipantState extends State<AddNewParticipant> {
             ),
           ),
         ),
-        body: BlocListener<NewParticipantCubit, NewParticipantState>(
+        body: BlocListener<ParticipantCubit, ParticipantState>(
           listener: addMemberStateListener,
           child: Column(
             children: [
@@ -181,7 +179,7 @@ class _AddNewParticipantState extends State<AddNewParticipant> {
   }
 
   void addNewAppliacants(String chatId, List<PureUser> members) {
-    context.read<NewParticipantCubit>().addGroupMembers(chatId, members);
+    context.read<ParticipantCubit>().addGroupMembers(chatId, members);
   }
 }
 
