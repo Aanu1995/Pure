@@ -273,13 +273,17 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
 
   // sort by admin
   void sortByAdmin() {
+    // sort all users by full name in ascending order
     widget.participants.sort((a, b) => a.fullName.compareTo(b.fullName));
+    // retrieves all admins for sorting purpose
     List<PureUser> admins = [];
     for (final user in widget.participants) {
       if (chat.isAdmin(user.id)) admins.add(user);
     }
+    // remove and insert all admins to appear first in the list
     widget.participants.removeWhere((element) => admins.contains(element));
     widget.participants.insertAll(0, admins);
+    // remove and make the current user appear first in list
     final user = widget.participants
         .firstWhere((element) => element.id == CurrentUser.currentUserId);
     widget.participants.remove(user);
