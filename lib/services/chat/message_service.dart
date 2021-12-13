@@ -94,12 +94,13 @@ class MessageServiceImp extends MessageService {
           // this will be null if user just connected with another user
           // or if the user just joined
           final lastSeenMessageDate =
-              data[currentUserId]["lastSeen"] as String?;
+              data[currentUserId]["lastSeen"] as String? ??
+                  DateTime(1970).toIso8601String();
 
           String? newTopMessageDate =
               _getTopReadMessageDate(data, currentUserId);
 
-          if (lastSeenMessageDate != null && newTopMessageDate != null) {
+          if (newTopMessageDate != null) {
             final msgModelResult =
                 await _getNewMessagesFuture(chatId, lastSeenMessageDate);
             if (msgModelResult != null) {
@@ -282,7 +283,8 @@ class MessageServiceImp extends MessageService {
       final newData = data.values.toList();
 
       for (final map in newData) {
-        dates.add(map["lastSeen"] as String);
+        dates.add(
+            map["lastSeen"] as String? ?? DateTime(1970).toIso8601String());
       }
 
       dates.sort();

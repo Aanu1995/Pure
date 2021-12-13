@@ -1,18 +1,19 @@
 import 'package:equatable/equatable.dart';
-import 'package:pure/model/pure_user_model.dart';
 
-class NewParticipantState extends Equatable {
-  const NewParticipantState();
+import '../../../../../model/pure_user_model.dart';
+
+class ParticipantState extends Equatable {
+  const ParticipantState();
 
   @override
   List<Object?> get props => [];
 }
 
-class ParticipantInitial extends NewParticipantState {}
+class ParticipantInitial extends ParticipantState {}
 
-class AddingParticipant extends NewParticipantState {}
+class AddingParticipant extends ParticipantState {}
 
-class NewParticipant extends NewParticipantState {
+class NewParticipant extends ParticipantState {
   final List<PureUser> newMembers;
 
   const NewParticipant({required this.newMembers});
@@ -21,8 +22,27 @@ class NewParticipant extends NewParticipantState {
   List<Object?> get props => [newMembers];
 }
 
-class NewParticipantFailed extends NewParticipantState {
+class NewParticipantFailed extends ParticipantState {
   final String message;
 
   const NewParticipantFailed(this.message);
+}
+
+class RemovingParticipant extends ParticipantState {
+  final PureUser participant;
+
+  const RemovingParticipant(this.participant);
+}
+
+class ParticipantRemoved extends ParticipantState {
+  final PureUser participant;
+
+  const ParticipantRemoved(this.participant);
+}
+
+class FailedToRemoveParticipant extends ParticipantState {
+  final PureUser participant;
+  final int index;
+
+  const FailedToRemoveParticipant(this.index, this.participant);
 }

@@ -1,5 +1,7 @@
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pure/blocs/bloc.dart';
 
 import '../../../../../model/chat/chat_model.dart';
 import '../../../../../model/pure_user_model.dart';
@@ -12,6 +14,7 @@ class Participants extends StatefulWidget {
   final ChatModel chat;
   final List<PureUser> participants;
   final Function()? onAddNewParticipantstapped;
+
   const Participants({
     Key? key,
     required this.participants,
@@ -84,7 +87,7 @@ class _ParticipantsState extends State<Participants> {
             return ListTile(
               dense: true,
               horizontalTitleGap: 12.0,
-              onTap: () => viewFullProfile(context, participant),
+              onTap: () => viewFullProfile(context, index, participant),
               leading: Avartar2(imageURL: participant.photoURL),
               title: Text(
                 participant.isMe ? "You" : participant.fullName,
@@ -121,7 +124,8 @@ class _ParticipantsState extends State<Participants> {
     );
   }
 
-  void viewFullProfile(BuildContext context, final PureUser user) async {
+  void viewFullProfile(
+      BuildContext context, int index, final PureUser user) async {
     if (!user.isMe) {
       if (widget.chat.isAdmin(CurrentUser.currentUserId)) {
         const infoButton = SheetAction(label: 'Info', key: 'info');
@@ -153,7 +157,10 @@ class _ParticipantsState extends State<Participants> {
         if (result == "info") {
           push(context: context, page: ProfileScreen(user: user));
         } else if (result == "make") {
-        } else if (result == "remove") {}
+        } else if (result == "remove") {
+          BlocProvider.of<ParticipantCubit>(context)
+              .removeMember(widget.chat.chatId, index, user);
+        }
       } else {
         push(context: context, page: ProfileScreen(user: user));
       }

@@ -143,8 +143,11 @@ class _GroupMessageAppBarTitleState extends State<GroupMessageAppBarTitle> {
 
       Navigator.of(context).push<void>(
         MaterialPageRoute(builder: (context) {
-          return BlocProvider(
-            create: (_) => GroupChatCubit(ChatServiceImp()),
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider(create: (_) => GroupChatCubit(ChatServiceImp())),
+              BlocProvider(create: (_) => ParticipantCubit(ChatServiceImp())),
+            ],
             child: GroupInfoScreen(
               chat: chat,
               participants: members,

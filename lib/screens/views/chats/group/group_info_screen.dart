@@ -46,6 +46,15 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
     chat = widget.chat;
   }
 
+  // update as state in Bloc Listener updates
+  void participantStateListener(BuildContext context, ParticipantState state) {
+    if (state is RemovingParticipant) {
+      setState(() => participants.remove(state.participant));
+    } else if (state is FailedToRemoveParticipant) {
+      participants.insert(state.index, state.participant);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,73 +73,77 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
           ),
         ),
       ),
-      body: BlocListener<GroupChatCubit, GroupChatState>(
-        listenWhen: (pre, current) => current is GroupChatUpdated,
-        listener: (context, state) {
-          if (state is GroupChatUpdated) {
-            widget.onChatChanged.call(state.chatModel);
-            setState(() => chat = state.chatModel);
-          }
-        },
-        child: NestedScrollView(
-          headerSliverBuilder: (context, innerIsScrolled) {
-            return <Widget>[
-              SliverAppBar(
-                automaticallyImplyLeading: false,
-                expandedHeight: 1.sw * 0.5,
-                backgroundColor: Colors.black45,
-                flexibleSpace: GroupBanner(chat: chat),
-              )
-            ];
+      body: BlocListener<ParticipantCubit, ParticipantState>(
+        listener: participantStateListener,
+        child: BlocListener<GroupChatCubit, GroupChatState>(
+          listenWhen: (pre, current) => current is GroupChatUpdated,
+          listener: (context, state) {
+            if (state is GroupChatUpdated) {
+              widget.onChatChanged.call(state.chatModel);
+              setState(() => chat = state.chatModel);
+            }
           },
-          body: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  // Add group Name and Description
-                  Column(
-                    children: [
-                      ListTile(
-                        dense: true,
-                        title: Text(
-                          chat.groupName!,
-                          style: _style.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                        trailing: Icon(Icons.chevron_right),
-                        onTap: () => editGroupSubject(),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 20.0),
-                        child: Divider(height: 0.0),
-                      ),
-                      ListTile(
-                        dense: true,
-                        title: Text(
-                          chat.groupDescription!.isEmpty
-                              ? "Add group description"
-                              : chat.groupDescription!,
-                          style: _style.copyWith(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            color:
-                                Theme.of(context).colorScheme.secondaryVariant,
+          child: NestedScrollView(
+            headerSliverBuilder: (context, innerIsScrolled) {
+              return <Widget>[
+                SliverAppBar(
+                  automaticallyImplyLeading: false,
+                  expandedHeight: 1.sw * 0.5,
+                  backgroundColor: Colors.black45,
+                  flexibleSpace: GroupBanner(chat: chat),
+                )
+              ];
+            },
+            body: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    // Add group Name and Description
+                    Column(
+                      children: [
+                        ListTile(
+                          dense: true,
+                          title: Text(
+                            chat.groupName!,
+                            style: _style.copyWith(fontWeight: FontWeight.bold),
                           ),
+                          trailing: Icon(Icons.chevron_right),
+                          onTap: () => editGroupSubject(),
                         ),
-                        trailing: Icon(Icons.chevron_right),
-                        onTap: () => editGroupDescription(),
-                      ),
-                    ],
-                  ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 20.0),
+                          child: Divider(height: 0.0),
+                        ),
+                        ListTile(
+                          dense: true,
+                          title: Text(
+                            chat.groupDescription!.isEmpty
+                                ? "Add group description"
+                                : chat.groupDescription!,
+                            style: _style.copyWith(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .secondaryVariant,
+                            ),
+                          ),
+                          trailing: Icon(Icons.chevron_right),
+                          onTap: () => editGroupDescription(),
+                        ),
+                      ],
+                    ),
 
-                  const SizedBox(height: 30),
-                  // Participants
-                  Participants(
-                    chat: widget.chat,
-                    participants: participants,
-                    onAddNewParticipantstapped: () => addParticipant(context),
-                  ),
-                ],
+                    const SizedBox(height: 30),
+                    // Participants
+                    Participants(
+                      chat: widget.chat,
+                      participants: participants,
+                      onAddNewParticipantstapped: () => addParticipant(context),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -166,7 +179,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
           providers: [
             BlocProvider(create: (_) => AddParticipantCubit(ChatServiceImp())),
             BlocProvider(create: (_) => SearchFriendBloc(SearchServiceImpl())),
-            BlocProvider(create: (_) => NewParticipantCubit(ChatServiceImp())),
+            BlocProvider(create: (_) => ParticipantCubit(ChatServiceImp())),
           ],
           child: AddNewParticipant(
             chat: chat,

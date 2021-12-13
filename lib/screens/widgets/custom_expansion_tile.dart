@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 /// This class is a fork from the main Flutter [ExpansionTile] class
 /// To read more about some properties in this class, please check the main
