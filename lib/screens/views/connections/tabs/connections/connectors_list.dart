@@ -117,7 +117,7 @@ class _ConnectorProfile extends StatelessWidget {
                     ),
                     const SizedBox(height: 4.0),
                     Text(
-                      "Connected ${getFormattedDate(connector.connectionDate!)}",
+                      "Connected ${getFormattedTime(connector.connectionDate!)}",
                       style: TextStyle(
                         fontSize: 12.0,
                         fontWeight: FontWeight.w500,

@@ -1,5 +1,7 @@
+import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../blocs/bloc.dart';
@@ -9,6 +11,7 @@ import '../../../../services/chat/chat_service.dart';
 import '../../../../services/search_service.dart';
 import '../../../../utils/app_theme.dart';
 import '../../../../utils/navigate.dart';
+import '../../../widgets/snackbars.dart';
 import 'add_participants_screen.dart';
 import 'edit_group_description_screen.dart';
 import 'edit_group_subject_screen.dart';
@@ -42,6 +45,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
   void initState() {
     super.initState();
     chat = widget.chat;
+    sortByAdmin();
   }
 
   // update as state in Bloc Listener updates
@@ -52,12 +56,23 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
       final newChat = chat.copyWithForAdmin(state.memberId, true);
       widget.onChatChanged.call(newChat);
       setState(() => chat = newChat);
+      sortByAdmin();
     } else if (state is RemovingAdmin) {
       final newChat = chat.copyWithForAdmin(state.memberId, false);
       widget.onChatChanged.call(newChat);
       setState(() => chat = newChat);
+      sortByAdmin();
     } else if (state is FailedToRemoveParticipant) {
       widget.participants.insert(state.index, state.participant);
+    } else if (state is ExitingGroup) {
+      EasyLoading.show(status: 'Creating...');
+    } else if (state is GroupExited) {
+      EasyLoading.dismiss();
+      context.read<ChatCubit>().removeChat(state.chatId);
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    } else if (state is FailedToExitGroup) {
+      EasyLoading.dismiss();
+      showFailureFlash(context, state.message);
     }
   }
 
@@ -104,6 +119,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
               padding: const EdgeInsets.symmetric(vertical: 16.0),
               child: SingleChildScrollView(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Add group Name and Description
                     Column(
@@ -148,6 +164,42 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
                       participants: widget.participants,
                       onAddNewParticipantstapped: () => addParticipant(context),
                     ),
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Divider(height: 0.0),
+                          ListTile(
+                            dense: true,
+                            contentPadding: EdgeInsets.all(0.0),
+                            onTap: () => exitGroup(),
+                            title: Text(
+                              "Exit Group",
+                              style: _style.copyWith(
+                                fontSize: 17.0,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.red,
+                              ),
+                            ),
+                          ),
+                          Divider(height: 0.0),
+                          const SizedBox(height: 8.0),
+                          Text(
+                            "Created ${chat.chatCreatedDate()}",
+                            style: _style.copyWith(
+                              fontSize: 13.0,
+                              fontWeight: FontWeight.w400,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .secondaryVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 50.0),
                   ],
                 ),
               ),
@@ -202,5 +254,35 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
         );
       }),
     );
+  }
+
+  Future<void> exitGroup() async {
+    final result = await showOkCancelAlertDialog(
+      context: context,
+      title: 'Exit Group',
+      message: "Are you sure you want to exit this group?",
+      okLabel: "Exit",
+      isDestructiveAction: true,
+    );
+
+    if (result == OkCancelResult.ok) {
+      final userId = CurrentUser.currentUserId;
+      context.read<ParticipantCubit>().exitGroup(chat.chatId, userId);
+    }
+  }
+
+  // sort by admin
+  void sortByAdmin() {
+    widget.participants.sort((a, b) => a.fullName.compareTo(b.fullName));
+    List<PureUser> admins = [];
+    for (final user in widget.participants) {
+      if (chat.isAdmin(user.id)) admins.add(user);
+    }
+    widget.participants.removeWhere((element) => admins.contains(element));
+    widget.participants.insertAll(0, admins);
+    final user = widget.participants
+        .firstWhere((element) => element.id == CurrentUser.currentUserId);
+    widget.participants.remove(user);
+    widget.participants.insert(0, user);
   }
 }

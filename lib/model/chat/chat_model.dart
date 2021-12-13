@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
+import 'package:intl/intl.dart';
 
 enum ChatType { One_To_One, Group }
 
@@ -152,6 +153,10 @@ class ChatModel extends Equatable {
 
   bool isAdmin(String userId) {
     return admins!.contains(userId) || userId == senderId;
+  }
+
+  String chatCreatedDate() {
+    return DateFormat("MMM d, yyyy").format(creationDate);
   }
 
   @override

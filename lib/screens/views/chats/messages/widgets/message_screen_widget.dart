@@ -139,7 +139,6 @@ class _GroupMessageAppBarTitleState extends State<GroupMessageAppBarTitle> {
     final state = BlocProvider.of<GroupCubit>(context).state;
     if (state is GroupMembers) {
       List<PureUser> members = state.members;
-      members.sort((a, b) => a.fullName.compareTo(b.fullName));
 
       Navigator.of(context).push<void>(
         MaterialPageRoute(builder: (context) {

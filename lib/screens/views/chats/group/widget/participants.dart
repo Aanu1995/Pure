@@ -54,26 +54,27 @@ class _ParticipantsState extends State<Participants> {
         ),
         Divider(height: 0.0),
         // Only the group Admin can add participants
-        Column(
-          children: [
-            // Add Particpants
-            _Item(
-              title: "Add Participants",
-              icon: Icons.add,
-              onTap: widget.onAddNewParticipantstapped,
-            ),
-            const Padding(
-              padding: EdgeInsets.only(left: 60.0),
-              child: Divider(height: 0.0),
-            ),
-            // Invite to Group
-            _Item(
-              title: "Invite to group via link",
-              icon: Icons.link,
-              onTap: () {},
-            )
-          ],
-        ),
+        if (widget.chat.isAdmin(CurrentUser.currentUserId))
+          Column(
+            children: [
+              // Add Particpants
+              _Item(
+                title: "Add Participants",
+                icon: Icons.add,
+                onTap: widget.onAddNewParticipantstapped,
+              ),
+              const Padding(
+                padding: EdgeInsets.only(left: 60.0),
+                child: Divider(height: 0.0),
+              ),
+              // Invite to Group
+              _Item(
+                title: "Invite to group via link",
+                icon: Icons.link,
+                onTap: () {},
+              )
+            ],
+          ),
         ListView.separated(
           shrinkWrap: true,
           physics: NeverScrollableScrollPhysics(),

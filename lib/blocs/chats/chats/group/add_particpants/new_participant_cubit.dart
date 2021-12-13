@@ -42,6 +42,21 @@ class ParticipantCubit extends Cubit<ParticipantState> {
     }
   }
 
+  Future<void> exitGroup(String chatId, String userId) async {
+    emit(ExitingGroup());
+
+    try {
+      await chatService.removeParticipant(chatId, userId);
+      emit(GroupExited(chatId));
+    } on NetworkException catch (error) {
+      emit(FailedToExitGroup(error.message!));
+    } on ServerException catch (error) {
+      emit(FailedToExitGroup(error.message!));
+    } catch (_) {
+      emit(FailedToExitGroup(ErrorMessages.generalMessage2));
+    }
+  }
+
   Future<void> addAdmin(String chatId, String userId) async {
     emit(AddingAdmin(userId));
     await chatService.addAdmin(chatId, userId);

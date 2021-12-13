@@ -60,3 +60,17 @@ class FailedToRemoveParticipant extends ParticipantState {
 
   const FailedToRemoveParticipant(this.index, this.participant);
 }
+
+class ExitingGroup extends ParticipantState {}
+
+class GroupExited extends ParticipantState {
+  final String chatId;
+
+  const GroupExited(this.chatId);
+}
+
+class FailedToExitGroup extends ParticipantState {
+  final String message;
+
+  const FailedToExitGroup(this.message);
+}

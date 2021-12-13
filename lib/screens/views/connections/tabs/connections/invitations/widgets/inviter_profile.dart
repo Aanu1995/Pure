@@ -46,7 +46,7 @@ class InviterProfile extends StatelessWidget {
                   ),
                 ),
                 subtitle: Text(
-                  "Received ${getFormattedDate(inviter.receivedDate!)}",
+                  "Received ${getFormattedTime(inviter.receivedDate!)}",
                   style: TextStyle(
                     fontSize: 13.0,
                     fontWeight: FontWeight.w400,
