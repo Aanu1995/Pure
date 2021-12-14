@@ -4,10 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../blocs/bloc.dart';
 import '../../../widgets/failure_widget.dart';
-import '../../../widgets/progress_indicator.dart';
-import '../../../widgets/shimmers/loading_shimmer.dart';
-import '../../../widgets/snackbars.dart';
 import '../../../widgets/message_widget.dart';
+import '../../../widgets/progress_indicator.dart';
+import '../../../widgets/snackbars.dart';
 import 'widgets/search_user_profile.dart';
 
 class SearchAllConnectionResults extends StatefulWidget {
@@ -141,10 +140,7 @@ class _SearchAllConnectionResultsState
                         onPressed: () => tryAgain(),
                       );
                     }
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: LoadingShimmer(itemCount: 6),
-                    );
+                    return Center(child: const CustomProgressIndicator());
                   },
                 ),
               ),
