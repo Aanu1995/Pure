@@ -78,12 +78,12 @@ class MessageServiceImp extends MessageService {
     }
   }
 
-  // this fetches new messages for a user on every receipt update using the
-  // user last seen message time
-  String? topMessageDate;
-
   @override
   Stream<MessagesModel?> getNewMessages(String chatId, String currentUserId) {
+    // this fetches new messages for a user on every receipt update using the
+    // user last seen message time
+    String? topMessageDate;
+
     try {
       return _receiptCollection
           .doc(chatId)
@@ -100,7 +100,8 @@ class MessageServiceImp extends MessageService {
           String? newTopMessageDate =
               _getTopReadMessageDate(data, currentUserId);
 
-          if (newTopMessageDate != null) {
+          if (newTopMessageDate != null &&
+              (topMessageDate != newTopMessageDate)) {
             final msgModelResult =
                 await _getNewMessagesFuture(chatId, lastSeenMessageDate);
             if (msgModelResult != null) {
