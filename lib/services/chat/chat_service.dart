@@ -317,7 +317,7 @@ class ChatServiceImp extends ChatService {
           .snapshots()
           .map((querySnap) => querySnap.docs.length);
     } catch (e) {
-      return Stream.value(null);
+      return Stream.value(0);
     }
   }
 }
