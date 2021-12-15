@@ -26,6 +26,7 @@ dependencies:
   flash: ^2.0.1
   flex_color_scheme: ^4.1.1
   flutter_easyloading: ^3.0.0
+  go_router: ^2.5.2
   intl: ^0.17.0
   open_file: ^3.2.1
   palette_generator: ^0.3.2
