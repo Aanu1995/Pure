@@ -4,14 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../blocs/bloc.dart';
 import '../../../utils/app_theme.dart';
 import '../../../utils/app_utils.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/snackbars.dart';
-import 'signin_screen.dart';
-import 'signup_screen.dart';
 import 'widgets/auth_bloc_provider.dart';
 import 'widgets/intro_section.dart';
 import 'widgets/social_signin_button.dart';
@@ -39,9 +38,8 @@ class SocialSignInScreenExt extends StatelessWidget {
     } else if (state is LoginSuccess) {
       updateUserFCMToken(state.pureUser.id); // updates fcm token
       EasyLoading.dismiss();
-      EasyLoading.dismiss().then(
-          (value) => BlocProvider.of<AuthCubit>(context).authenticateUser());
-      ;
+      BlocProvider.of<AuthCubit>(context).authenticateUser();
+      GoRouter.of(context).go("/");
     } else if (state is AuthUserFailure) {
       EasyLoading.dismiss();
       showFailureFlash(context, state.message);
@@ -121,21 +119,10 @@ class SocialSignInScreenExt extends StatelessWidget {
   }
 
   Future<void> goTosignInScreen(BuildContext context) async {
-    final navigator = Navigator.of(context);
-    final result = await navigator.push<AuthUserState?>(
-        MaterialPageRoute(builder: (context) => SignInScreen()));
-    if (result != null) {
-      Future<void>.delayed(Duration(milliseconds: 400))
-          .then((_) => BlocProvider.of<AuthCubit>(context).authenticateUser());
-    }
+    GoRouter.of(context).pushNamed("signin");
   }
 
   Future<void> goTosignUpScreen(BuildContext context) async {
-    final navigator = Navigator.of(context);
-    final isSignedUp = await navigator
-        .push<bool>(MaterialPageRoute(builder: (context) => SignUpScreen()));
-    if (isSignedUp != null) {
-      await goTosignInScreen(context);
-    }
+    GoRouter.of(context).pushNamed("signup");
   }
 }
