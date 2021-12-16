@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pure/repositories/push_notification.dart';
 
 import '../../../../blocs/bloc.dart';
 import '../../../../model/chat/chat_model.dart';
@@ -69,6 +70,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
     } else if (state is GroupExited) {
       EasyLoading.dismiss();
       context.read<ChatCubit>().removeChat(state.chatId);
+      PushNotificationImpl.unsubscribeFromTopic(state.chatId);
       Navigator.of(context).popUntil((route) => route.isFirst);
     } else if (state is FailedToExitGroup) {
       EasyLoading.dismiss();

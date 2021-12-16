@@ -4,13 +4,26 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../blocs/bloc.dart';
 import '../../../../model/chat/chat_model.dart';
 import '../../../../model/pure_user_model.dart';
+import '../../../../repositories/push_notification.dart';
 import '../../../../services/chat/message_service.dart';
 import 'widgets/message_screen_widget.dart';
 
-class GroupChatMessageScreen extends StatelessWidget {
+class GroupChatMessageScreen extends StatefulWidget {
   final ChatModel chatModel;
   const GroupChatMessageScreen({Key? key, required this.chatModel})
       : super(key: key);
+
+  @override
+  State<GroupChatMessageScreen> createState() => _GroupChatMessageScreenState();
+}
+
+class _GroupChatMessageScreenState extends State<GroupChatMessageScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // subscribe to notifification from this chat messages
+    PushNotificationImpl.subscribeToTopic(widget.chatModel.chatId);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,12 +32,12 @@ class GroupChatMessageScreen extends StatelessWidget {
         BlocProvider(
           lazy: false,
           create: (_) => MessageCubit(MessageServiceImp())
-            ..fetchMessages(chatModel.chatId, CurrentUser.currentUserId),
+            ..fetchMessages(widget.chatModel.chatId, CurrentUser.currentUserId),
         ),
         BlocProvider(create: (_) => NewMessagesCubit(MessageServiceImp())),
         BlocProvider(create: (_) => LoadMoreMessageCubit(MessageServiceImp())),
       ],
-      child: _GroupChatMessageScreenExtension(chatModel: chatModel),
+      child: _GroupChatMessageScreenExtension(chatModel: widget.chatModel),
     );
   }
 }

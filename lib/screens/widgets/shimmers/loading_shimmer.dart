@@ -76,7 +76,7 @@ class SingleShimmer extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(right: 16.0),
               child: CircleAvatar(
-                radius: 40,
+                radius: 30,
                 backgroundColor: Theme.of(context).colorScheme.surface,
               ),
             ),

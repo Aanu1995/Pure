@@ -29,7 +29,7 @@ abstract class ChatService {
   Stream<ChatsModel?> getLastRemoteMessage(
       String userId, DocumentSnapshot endDoc);
   Stream<int> getUnReadMessageCount(String chatId, String userId);
-  Stream<int?> getUnReadChatCount(String userId);
+  Stream<int> getUnReadChatCount(String userId);
   Future<ChatsModel> loadMoreChats(String userId, DocumentSnapshot doc,
       {int limit = GlobalUtils.messagesLimit});
   Stream<List<PureUser>?> getGroupMembersProfile(List<String> userIds);
@@ -132,7 +132,10 @@ class ChatServiceImp extends ChatService {
         "members": FieldValue.arrayRemove(<String>[memberId]),
         "admins": FieldValue.arrayRemove(<String>[memberId])
       }).timeout(GlobalUtils.updateTimeOutInDuration);
-      ;
+      // delete the participant receipt
+      await _receiptCollection
+          .doc(chatId)
+          .update({memberId: FieldValue.delete()});
     } on TimeoutException catch (_) {
       throw ServerException(message: ErrorMessages.timeoutMessage);
     } catch (e) {
@@ -310,14 +313,14 @@ class ChatServiceImp extends ChatService {
   }
 
   @override
-  Stream<int?> getUnReadChatCount(String userId) {
+  Stream<int> getUnReadChatCount(String userId) {
     try {
       return _receiptCollection
           .where("$userId.unreadCount", isGreaterThan: 0)
           .snapshots()
           .map((querySnap) => querySnap.docs.length);
     } catch (e) {
-      return Stream.value(null);
+      return Stream.value(0);
     }
   }
 }

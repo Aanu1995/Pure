@@ -203,6 +203,6 @@ class MessageBody extends StatelessWidget {
   }
 
   void sendMessage(final BuildContext context, final MessageModel message) {
-    context.read<MessageCubit>().sendTextMessageOnly(chatId, message);
+    context.read<MessageCubit>().sendMessage(chatId, message);
   }
 }

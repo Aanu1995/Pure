@@ -7,12 +7,11 @@ import '../../../../../../../model/connection_model.dart';
 import '../../../../../../../model/invitation_model.dart';
 import '../../../../../../../model/pure_user_model.dart';
 import '../../../../../../widgets/failure_widget.dart';
+import '../../../../../../widgets/message_widget.dart';
 import '../../../../../../widgets/progress_indicator.dart';
-import '../../../../../../widgets/shimmers/loading_shimmer.dart';
 import '../../../../../../widgets/snackbars.dart';
 import '../../../../../../widgets/user_profile_provider.dart';
 import '../../../../widgets/load_more.dart';
-import '../../../../../../widgets/message_widget.dart';
 import '../widgets/inviter_profile.dart';
 
 class ReceivedScreen extends StatefulWidget {
@@ -186,10 +185,7 @@ class _ReceivedScreenState extends State<ReceivedScreen>
                     onPressed: () => tryAgain(),
                   );
                 }
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: LoadingShimmer(itemCount: 6),
-                );
+                return Center(child: const CustomProgressIndicator());
               },
             ),
           ),
