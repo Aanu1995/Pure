@@ -16,7 +16,7 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return ScreenUtilInit(
       // the resolution for the design in Figma
-      designSize: const Size(360, 640),
+      designSize: const Size(375, 812),
       builder: () {
         return CustomMultiBlocProvider(
           child: GestureDetector(
