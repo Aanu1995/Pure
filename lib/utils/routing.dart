@@ -12,6 +12,7 @@ import '../screens/views/authentication/signin_screen.dart';
 import '../screens/views/authentication/signup_screen.dart';
 import '../screens/views/authentication/social_signin_screen.dart';
 import '../screens/views/onboarding/onboarding_screen.dart';
+import '../screens/views/splash_screen.dart';
 import '../screens/widgets/error_page.dart';
 
 final router = GoRouter(
@@ -28,16 +29,18 @@ final router = GoRouter(
             BlocProvider.of<OnBoardingCubit>(context, listen: true).state;
         if (onboardingState is NotBoarded)
           return OnBoardingScreen();
-        else {
+        else if (onboardingState is OnBoarded) {
           final authState =
               BlocProvider.of<AuthCubit>(context, listen: true).state;
-          if (authState is Authenticated) {
+          if (authState is UnAuthenticated) {
+            return const SocialSignInScreen();
+          } else if (authState is Authenticated) {
             CurrentUser.setUserId = authState.user.id;
             BlocProvider.of<BottomBarBloc>(context).add(0);
             return const AppBase();
           }
-          return const SocialSignInScreen();
         }
+        return const SplashScreen();
       },
     ),
     GoRoute(
