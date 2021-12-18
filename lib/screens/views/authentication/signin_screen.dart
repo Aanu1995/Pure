@@ -91,7 +91,7 @@ class __SignInExtState extends State<_SignInExt> {
       updateUserFCMToken(state.pureUser.id); // updates fcm token
       EasyLoading.dismiss().then((value) {
         BlocProvider.of<AuthCubit>(context).authenticateUser();
-        GoRouter.of(context).go("/");
+        GoRouter.of(context).goNamed("home");
       });
     } else if (state is AuthUserFailure) {
       EasyLoading.dismiss();

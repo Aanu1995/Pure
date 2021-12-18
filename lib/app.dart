@@ -14,12 +14,12 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenUtilInit(
-      // the resolution for the design in Figma
-      designSize: const Size(375, 812),
-      builder: () {
-        return CustomMultiBlocProvider(
-          child: GestureDetector(
+    return CustomMultiBlocProvider(
+      child: ScreenUtilInit(
+        // the resolution for the design in Figma
+        designSize: const Size(375, 812),
+        builder: () {
+          return GestureDetector(
             onTap: () => removeKeyboardFocus(context),
             child: MaterialApp.router(
               routeInformationParser: router.routeInformationParser,
@@ -40,9 +40,9 @@ class App extends StatelessWidget {
               debugShowCheckedModeBanner: false,
               builder: EasyLoading.init(),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 

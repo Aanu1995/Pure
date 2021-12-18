@@ -1,17 +1,14 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pure/blocs/bloc.dart';
+import 'package:pure/screens/views/onboarding/onboarding_screen.dart';
 
-import '../blocs/bloc.dart';
-import '../model/pure_user_model.dart';
 import '../screens/views/app_base.dart';
 import '../screens/views/authentication/reset_password_screen.dart';
 import '../screens/views/authentication/reset_password_success_screen.dart';
 import '../screens/views/authentication/signin_screen.dart';
 import '../screens/views/authentication/signup_screen.dart';
 import '../screens/views/authentication/social_signin_screen.dart';
-import '../screens/views/onboarding/onboarding_screen.dart';
 import '../screens/views/splash_screen.dart';
 import '../screens/widgets/error_page.dart';
 
@@ -23,26 +20,25 @@ final router = GoRouter(
     GoRoute(
       name: "/",
       path: "/",
+      builder: (context, state) => const SplashScreen(),
+    ),
+    GoRoute(
+      name: "board",
+      path: '/board',
+      builder: (context, state) => const OnBoardingScreen(),
+    ),
+    GoRoute(
+      name: "home",
+      path: '/home',
       builder: (context, state) {
-        initializeLoadingAttributes(context);
-        final onboardingState =
-            BlocProvider.of<OnBoardingCubit>(context, listen: true).state;
-        if (onboardingState is NotBoarded)
-          return OnBoardingScreen();
-        else if (onboardingState is OnBoarded) {
-          final authState =
-              BlocProvider.of<AuthCubit>(context, listen: true).state;
-          print("Hello");
-          if (authState is UnAuthenticated) {
-            return const SocialSignInScreen();
-          } else if (authState is Authenticated) {
-            BlocProvider.of<BottomBarBloc>(context).add(0);
-            CurrentUser.setUserId = authState.user.id;
-            return const AppBase();
-          }
-        }
-        return const SplashScreen();
+        BlocProvider.of<BottomBarBloc>(context).add(0);
+        return const AppBase();
       },
+    ),
+    GoRoute(
+      name: "social",
+      path: '/social',
+      builder: (context, state) => const SocialSignInScreen(),
     ),
     GoRoute(
       name: "signin",
@@ -67,13 +63,3 @@ final router = GoRouter(
   ],
   errorBuilder: (context, state) => ErrorPage(error: state.error.toString()),
 );
-
-void initializeLoadingAttributes(BuildContext context) {
-  EasyLoading.instance
-    ..indicatorType = EasyLoadingIndicatorType.fadingCircle
-    ..loadingStyle = EasyLoadingStyle.custom
-    ..indicatorColor = Colors.white
-    ..textColor = Colors.white
-    ..userInteractions = false
-    ..backgroundColor = Theme.of(context).primaryColor;
-}
