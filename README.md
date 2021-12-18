@@ -5,7 +5,7 @@ Pure is a Social Network Messenger app developed using Flutter.
 **Tech Stack**
 - Flutter 
 - Firebase
-- Cloud Functions
+- Cloud Functions (https://github.com/Aanu1995/Pure_Dev_Cloud_Function)
 - algolia (For Search)
 
 **Dependencies**
