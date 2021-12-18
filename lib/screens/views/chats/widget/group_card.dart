@@ -164,7 +164,7 @@ class _GroupCardState extends State<GroupCard> {
                       ),
                     );
                   }
-                  return Offstage();
+                  return const Offstage();
                 },
               )
             ],

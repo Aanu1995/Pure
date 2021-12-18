@@ -9,7 +9,6 @@ import '../../../../utils/app_theme.dart';
 import '../../../../utils/app_utils.dart';
 import '../../../../utils/navigate.dart';
 import '../../../widgets/avatar.dart';
-import '../../../widgets/shimmers/loading_shimmer.dart';
 import '../../../widgets/user_profile_provider.dart';
 import '../messages/messages_screen.dart';
 
@@ -168,7 +167,7 @@ class _OneToOneCardState extends State<OneToOneCard> {
               ],
             );
           }
-          return const SingleShimmer();
+          return const Offstage();
         },
       ),
     );

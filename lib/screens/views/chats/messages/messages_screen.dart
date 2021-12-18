@@ -3,11 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../blocs/bloc.dart';
 import '../../../../model/pure_user_model.dart';
+import '../../../../repositories/push_notification.dart';
 import '../../../../services/chat/message_service.dart';
 import '../../../../services/user_service.dart';
 import 'widgets/message_screen_widget.dart';
 
-class MessagesScreen extends StatelessWidget {
+class MessagesScreen extends StatefulWidget {
   final String chatId;
   final PureUser receipient;
   final bool hasPresenceActivated;
@@ -19,26 +20,38 @@ class MessagesScreen extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<MessagesScreen> createState() => _MessagesScreenState();
+}
+
+class _MessagesScreenState extends State<MessagesScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // subscribe to notifification from this chat messages
+    PushNotificationImpl.subscribeToTopic(widget.chatId);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
           lazy: false,
           create: (_) => MessageCubit(MessageServiceImp())
-            ..fetchMessages(chatId, CurrentUser.currentUserId),
+            ..fetchMessages(widget.chatId, CurrentUser.currentUserId),
         ),
         BlocProvider(create: (_) => NewMessagesCubit(MessageServiceImp())),
         BlocProvider(create: (_) => LoadMoreMessageCubit(MessageServiceImp())),
-        if (!hasPresenceActivated)
+        if (!widget.hasPresenceActivated)
           BlocProvider(
             create: (_) => UserPresenceCubit(UserServiceImpl())
-              ..getUserPresence(receipient.id),
+              ..getUserPresence(widget.receipient.id),
           ),
       ],
       child: _MessagesScreenExtension(
-        chatId: chatId,
-        receipient: receipient,
-        hasPresenceActivated: hasPresenceActivated,
+        chatId: widget.chatId,
+        receipient: widget.receipient,
+        hasPresenceActivated: widget.hasPresenceActivated,
       ),
     );
   }

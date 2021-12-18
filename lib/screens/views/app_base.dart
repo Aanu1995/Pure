@@ -3,9 +3,9 @@ import 'dart:developer';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pure/blocs/chats/chats/unread_chat.dart';
 
 import '../../blocs/bloc.dart';
+import '../../blocs/chats/chats/unread_chat.dart';
 import '../../model/pure_user_model.dart';
 import '../../repositories/push_notification.dart';
 import '../../services/user_service.dart';
@@ -42,11 +42,15 @@ class _AppBaseState extends State<AppBase> {
   }
 
   void initialize() {
-    final currentUserId = CurrentUser.currentUserId;
-    // set user presence online
-    context.read<AuthCubit>().setUserOnline(currentUserId);
-    // gets all unread chat
-    context.read<UnReadChatCubit>().getUnreadMessageCounts(currentUserId);
+    final authState = BlocProvider.of<AuthCubit>(context).state;
+    if (authState is Authenticated) {
+      final currentUserId = authState.user.id;
+      CurrentUser.setUserId = currentUserId;
+      // set user presence online
+      context.read<AuthCubit>().setUserOnline(currentUserId);
+      // gets all unread chat
+      context.read<UnReadChatCubit>().getUnreadMessageCounts(currentUserId);
+    }
   }
 
   @override

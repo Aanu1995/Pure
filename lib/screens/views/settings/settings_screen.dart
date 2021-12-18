@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pure/screens/views/settings/account_screen.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../../app.dart';
 import '../../../blocs/bloc.dart';
 import '../../../blocs/search/search_username.dart';
 import '../../../model/pure_user_model.dart';
@@ -12,6 +11,7 @@ import '../../../services/user_service.dart';
 import '../../../utils/image_utils.dart';
 import '../../../utils/navigate.dart';
 import '../../widgets/bottom_bar.dart';
+import 'account_screen.dart';
 import 'profile/edit_profile_screen.dart';
 import 'update_username_screen.dart';
 import 'widgets/items.dart';
@@ -41,7 +41,7 @@ class _Body extends StatelessWidget {
 
   void signOutListener(BuildContext context, AuthState authState) {
     if (authState is UnAuthenticated) {
-      pushAndRemoveUntil(context: context, page: const RootWidget());
+      GoRouter.of(context).goNamed("social");
     }
   }
 

@@ -12,11 +12,10 @@ class UnReadChatCubit extends Cubit<int> {
 
   Future<void> getUnreadMessageCounts(String userId) async {
     _subscription?.cancel();
+
     _subscription =
         chatService.getUnReadChatCount(userId).listen((unreadChatCount) {
-      if (unreadChatCount != null) {
-        emit(unreadChatCount);
-      }
+      emit(unreadChatCount);
     });
   }
 

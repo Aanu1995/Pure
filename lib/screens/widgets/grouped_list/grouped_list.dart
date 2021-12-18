@@ -302,14 +302,15 @@ class _GroupedListViewState<T, E> extends State<GroupedListView<T, E>> {
           },
         ),
         StreamBuilder<int>(
-            stream: _streamController.stream,
-            initialData: _topElementIndex,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return _showFixedGroupHeader(snapshot.data!);
-              }
-              return Container();
-            }),
+          stream: _streamController.stream,
+          initialData: _topElementIndex,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return _showFixedGroupHeader(snapshot.data!);
+            }
+            return Container();
+          },
+        ),
       ],
     );
   }

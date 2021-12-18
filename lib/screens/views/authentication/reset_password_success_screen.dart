@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../widgets/custom_button.dart';
 import 'widgets/intro_section.dart';
@@ -41,7 +42,7 @@ class ResetPasswordSuccessScreen extends StatelessWidget {
             CustomButton(
               title: 'GO BACK TO LOGIN',
               width: 1.sw * 0.5,
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => GoRouter.of(context).pop(context),
             ),
           ],
         ),

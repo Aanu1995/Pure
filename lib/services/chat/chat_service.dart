@@ -20,13 +20,16 @@ abstract class ChatService {
       {File? groupImage});
   Future<void> updateGroupChat(String chatId, Map<String, dynamic> data);
   Future<void> addNewParticipants(String chatId, List<String> newMembers);
+  Future<void> removeParticipant(String chatId, String memberId);
+  Future<void> addAdmin(String chatId, String memberId);
+  Future<void> removeAdmin(String chatId, String memberId);
   Future<String> updateGroupImage(String chatId, File file);
   Future<ChatsModel> getOfflineChats(String userId);
   Stream<ChatsModel?> getRealTimeChats(String userId);
   Stream<ChatsModel?> getLastRemoteMessage(
       String userId, DocumentSnapshot endDoc);
   Stream<int> getUnReadMessageCount(String chatId, String userId);
-  Stream<int?> getUnReadChatCount(String userId);
+  Stream<int> getUnReadChatCount(String userId);
   Future<ChatsModel> loadMoreChats(String userId, DocumentSnapshot doc,
       {int limit = GlobalUtils.messagesLimit});
   Stream<List<PureUser>?> getGroupMembersProfile(List<String> userIds);
@@ -120,6 +123,38 @@ class ChatServiceImp extends ChatService {
     } catch (e) {
       throw ServerException(message: ErrorMessages.generalMessage2);
     }
+  }
+
+  @override
+  Future<void> removeParticipant(String chatId, String memberId) async {
+    try {
+      await _chatCollection.doc(chatId).update({
+        "members": FieldValue.arrayRemove(<String>[memberId]),
+        "admins": FieldValue.arrayRemove(<String>[memberId])
+      }).timeout(GlobalUtils.updateTimeOutInDuration);
+      // delete the participant receipt
+      await _receiptCollection
+          .doc(chatId)
+          .update({memberId: FieldValue.delete()});
+    } on TimeoutException catch (_) {
+      throw ServerException(message: ErrorMessages.timeoutMessage);
+    } catch (e) {
+      throw ServerException(message: ErrorMessages.generalMessage2);
+    }
+  }
+
+  @override
+  Future<void> addAdmin(String chatId, String memberId) async {
+    await _chatCollection.doc(chatId).update({
+      "admins": FieldValue.arrayUnion(<String>[memberId])
+    });
+  }
+
+  @override
+  Future<void> removeAdmin(String chatId, String memberId) async {
+    await _chatCollection.doc(chatId).update({
+      "admins": FieldValue.arrayRemove(<String>[memberId])
+    });
   }
 
   @override
@@ -278,14 +313,14 @@ class ChatServiceImp extends ChatService {
   }
 
   @override
-  Stream<int?> getUnReadChatCount(String userId) {
+  Stream<int> getUnReadChatCount(String userId) {
     try {
       return _receiptCollection
           .where("$userId.unreadCount", isGreaterThan: 0)
           .snapshots()
           .map((querySnap) => querySnap.docs.length);
     } catch (e) {
-      return Stream.value(null);
+      return Stream.value(0);
     }
   }
 }
