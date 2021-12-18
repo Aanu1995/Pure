@@ -32,11 +32,12 @@ final router = GoRouter(
         else if (onboardingState is OnBoarded) {
           final authState =
               BlocProvider.of<AuthCubit>(context, listen: true).state;
+          print("Hello");
           if (authState is UnAuthenticated) {
             return const SocialSignInScreen();
           } else if (authState is Authenticated) {
-            CurrentUser.setUserId = authState.user.id;
             BlocProvider.of<BottomBarBloc>(context).add(0);
+            CurrentUser.setUserId = authState.user.id;
             return const AppBase();
           }
         }
