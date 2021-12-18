@@ -28,15 +28,10 @@ class CustomMultiBlocProvider extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider(create: (_) => OnBoardingCubit(LocalStorageImpl())),
         BlocProvider(
-          lazy: false,
-          create: (_) => OnBoardingCubit(LocalStorageImpl())..isUserBoarded(),
-        ),
-        BlocProvider(
-          lazy: false,
           create: (_) =>
-              AuthCubit(FirebaseAuth.instance, _localStorage, _userService)
-                ..authenticateUser(),
+              AuthCubit(FirebaseAuth.instance, _localStorage, _userService),
         ),
         BlocProvider(lazy: false, create: (_) => BottomBarBloc()),
         BlocProvider(
