@@ -1,14 +1,14 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pure/blocs/bloc.dart';
-import 'package:pure/screens/views/onboarding/onboarding_screen.dart';
 
+import '../blocs/bloc.dart';
 import '../screens/views/app_base.dart';
 import '../screens/views/authentication/reset_password_screen.dart';
 import '../screens/views/authentication/reset_password_success_screen.dart';
 import '../screens/views/authentication/signin_screen.dart';
 import '../screens/views/authentication/signup_screen.dart';
 import '../screens/views/authentication/social_signin_screen.dart';
+import '../screens/views/onboarding/onboarding_screen.dart';
 import '../screens/views/splash_screen.dart';
 import '../screens/widgets/error_page.dart';
 
