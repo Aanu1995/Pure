@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../blocs/bloc.dart';
 import '../../../utils/app_utils.dart';
-import '../../../utils/navigate.dart';
 import '../../../utils/validators.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/snackbars.dart';
-import 'reset_password_screen.dart';
 import 'widgets/auth_bloc_provider.dart';
 import 'widgets/intro_section.dart';
 
@@ -90,7 +89,10 @@ class __SignInExtState extends State<_SignInExt> {
       EasyLoading.show(status: 'Authenticating...');
     } else if (state is LoginSuccess) {
       updateUserFCMToken(state.pureUser.id); // updates fcm token
-      EasyLoading.dismiss().then((value) => Navigator.pop(context, state));
+      EasyLoading.dismiss().then((value) {
+        BlocProvider.of<AuthCubit>(context).authenticateUser();
+        GoRouter.of(context).goNamed("home");
+      });
     } else if (state is AuthUserFailure) {
       EasyLoading.dismiss();
       showFailureFlash(context, state.message);
@@ -154,8 +156,7 @@ class __SignInExtState extends State<_SignInExt> {
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
-                onPressed: () =>
-                    push(context: context, page: const ResetPasswordScreen()),
+                onPressed: () => GoRouter.of(context).push("/resetpassword"),
                 child: Text(
                   'Forgot password?',
                   style: _textStyle.copyWith(color: primaryVariantColor),

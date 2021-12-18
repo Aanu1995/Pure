@@ -1,6 +1,8 @@
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../../blocs/bloc.dart';
 import '../../../../../model/chat/chat_model.dart';
 import '../../../../../model/pure_user_model.dart';
 import '../../../../../utils/app_theme.dart';
@@ -12,6 +14,7 @@ class Participants extends StatefulWidget {
   final ChatModel chat;
   final List<PureUser> participants;
   final Function()? onAddNewParticipantstapped;
+
   const Participants({
     Key? key,
     required this.participants,
@@ -51,26 +54,27 @@ class _ParticipantsState extends State<Participants> {
         ),
         Divider(height: 0.0),
         // Only the group Admin can add participants
-        Column(
-          children: [
-            // Add Particpants
-            _Item(
-              title: "Add Participants",
-              icon: Icons.add,
-              onTap: widget.onAddNewParticipantstapped,
-            ),
-            const Padding(
-              padding: EdgeInsets.only(left: 60.0),
-              child: Divider(height: 0.0),
-            ),
-            // Invite to Group
-            _Item(
-              title: "Invite to group via link",
-              icon: Icons.link,
-              onTap: () {},
-            )
-          ],
-        ),
+        if (widget.chat.isAdmin(CurrentUser.currentUserId))
+          Column(
+            children: [
+              // Add Particpants
+              _Item(
+                title: "Add Participants",
+                icon: Icons.add,
+                onTap: widget.onAddNewParticipantstapped,
+              ),
+              const Padding(
+                padding: EdgeInsets.only(left: 60.0),
+                child: Divider(height: 0.0),
+              ),
+              // Invite to Group
+              _Item(
+                title: "Invite to group via link",
+                icon: Icons.link,
+                onTap: () {},
+              )
+            ],
+          ),
         ListView.separated(
           shrinkWrap: true,
           physics: NeverScrollableScrollPhysics(),
@@ -84,7 +88,7 @@ class _ParticipantsState extends State<Participants> {
             return ListTile(
               dense: true,
               horizontalTitleGap: 12.0,
-              onTap: () => viewFullProfile(context, participant),
+              onTap: () => viewFullProfile(context, index, participant),
               leading: Avartar2(imageURL: participant.photoURL),
               title: Text(
                 participant.isMe ? "You" : participant.fullName,
@@ -121,7 +125,8 @@ class _ParticipantsState extends State<Participants> {
     );
   }
 
-  void viewFullProfile(BuildContext context, final PureUser user) async {
+  void viewFullProfile(
+      BuildContext context, int index, final PureUser user) async {
     if (!user.isMe) {
       if (widget.chat.isAdmin(CurrentUser.currentUserId)) {
         const infoButton = SheetAction(label: 'Info', key: 'info');
@@ -153,7 +158,15 @@ class _ParticipantsState extends State<Participants> {
         if (result == "info") {
           push(context: context, page: ProfileScreen(user: user));
         } else if (result == "make") {
-        } else if (result == "remove") {}
+          BlocProvider.of<ParticipantCubit>(context)
+              .addAdmin(widget.chat.chatId, user.id);
+        } else if (result == "dismiss") {
+          BlocProvider.of<ParticipantCubit>(context)
+              .removeAdmin(widget.chat.chatId, user.id);
+        } else if (result == "remove") {
+          BlocProvider.of<ParticipantCubit>(context)
+              .removeMember(widget.chat.chatId, index, user);
+        }
       } else {
         push(context: context, page: ProfileScreen(user: user));
       }

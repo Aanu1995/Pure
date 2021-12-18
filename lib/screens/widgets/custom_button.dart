@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pure/utils/app_theme.dart';
+
+import '../../utils/app_theme.dart';
 
 class CustomOutlinedButton extends StatelessWidget {
   const CustomOutlinedButton({
@@ -88,7 +89,7 @@ class CustomButton extends StatelessWidget {
               TextStyle(
                 fontSize: 15.5,
                 fontWeight: FontWeight.w500,
-                color: Theme.of(context).colorScheme.primaryVariant,
+                color: Theme.of(context).colorScheme.secondary,
               ),
         ),
       ),

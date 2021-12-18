@@ -8,12 +8,11 @@ import '../../../../../model/invitation_model.dart';
 import '../../../../../model/pure_user_model.dart';
 import '../../../../../services/search_service.dart';
 import '../../../../widgets/failure_widget.dart';
+import '../../../../widgets/message_widget.dart';
 import '../../../../widgets/page_transition.dart';
 import '../../../../widgets/progress_indicator.dart';
-import '../../../../widgets/shimmers/loading_shimmer.dart';
 import '../../../../widgets/snackbars.dart';
 import '../../search/search_screen.dart';
-import '../../../../widgets/message_widget.dart';
 import 'connectors_list.dart';
 
 class ConnectorsWidget extends StatefulWidget {
@@ -137,10 +136,7 @@ class _ConnectorsWidgetState extends State<ConnectorsWidget> {
                     ),
                   );
                 }
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: LoadingShimmer(itemCount: 4),
-                );
+                return Center(child: const CustomProgressIndicator());
               },
             ),
           ),

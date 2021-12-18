@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pure/screens/views/settings/update_email_screen.dart';
-import 'package:pure/screens/views/settings/update_password_screen.dart';
-import 'package:pure/services/auth_service.dart';
-import 'package:pure/services/user_service.dart';
 
 import '../../../blocs/bloc.dart';
+import '../../../services/auth_service.dart';
+import '../../../services/user_service.dart';
 import '../../../utils/image_utils.dart';
 import '../../../utils/navigate.dart';
+import 'update_email_screen.dart';
+import 'update_password_screen.dart';
 import 'widgets/items.dart';
 
 class AccountScreen extends StatelessWidget {

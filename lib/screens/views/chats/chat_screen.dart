@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -53,23 +52,7 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ],
         ),
-        body: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(14, 8, 14, 0),
-              child: CupertinoSearchTextField(
-                prefixInsets: const EdgeInsetsDirectional.fromSTEB(6, 0, 8, 4),
-                placeholder: "Search",
-                style: const TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w400,
-                ),
-                onTap: () {},
-              ),
-            ),
-            const Expanded(child: ChatList()),
-          ],
-        ),
+        body: ChatList(),
         bottomNavigationBar: const BottomBar(),
       ),
     );

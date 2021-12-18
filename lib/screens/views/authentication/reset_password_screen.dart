@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../blocs/bloc.dart';
-import '../../../utils/navigate.dart';
 import '../../../utils/validators.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/snackbars.dart';
-import 'reset_password_success_screen.dart';
 import 'widgets/auth_bloc_provider.dart';
 import 'widgets/intro_section.dart';
 
@@ -83,8 +82,8 @@ class _ResetPasswordScreenExtState extends State<ResetPasswordScreenExt> {
       EasyLoading.show(status: 'Loading...');
     } else if (state is ResetPasswordSuccess) {
       EasyLoading.dismiss();
-      pushReplacement(
-          context: context, page: const ResetPasswordSuccessScreen());
+      GoRouter.of(context).pop(context);
+      GoRouter.of(context).push("/resetpasswordsuccess");
     } else if (state is AuthUserFailure) {
       EasyLoading.dismiss();
       showFailureFlash(context, state.message);

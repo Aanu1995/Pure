@@ -31,7 +31,7 @@ Future<void> updateUserFCMToken(String userId) async {
   }
 }
 
-String getFormattedDate(DateTime date) {
+String getFormattedTime(DateTime date) {
   return timeago.format(date, allowFromNow: true);
 }
 
@@ -97,7 +97,6 @@ List<String> getConnections(Map<String, ConnectionStatus> data) {
 }
 
 // gets lastDoc for messages
-
 DocumentSnapshot? getLastDoc(MessagesModel newMsg, MessagesModel oldMsg) {
   return oldMsg.messages.length > newMsg.messages.length
       ? oldMsg.lastDoc

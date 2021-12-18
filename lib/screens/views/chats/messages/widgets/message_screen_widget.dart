@@ -138,13 +138,15 @@ class _GroupMessageAppBarTitleState extends State<GroupMessageAppBarTitle> {
   Future<void> viewGroupProfile(BuildContext context) async {
     final state = BlocProvider.of<GroupCubit>(context).state;
     if (state is GroupMembers) {
-      final members = state.members.toList();
-      members.sort((a, b) => a.fullName.compareTo(b.fullName));
+      List<PureUser> members = state.members;
 
       Navigator.of(context).push<void>(
         MaterialPageRoute(builder: (context) {
-          return BlocProvider(
-            create: (_) => GroupChatCubit(ChatServiceImp()),
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider(create: (_) => GroupChatCubit(ChatServiceImp())),
+              BlocProvider(create: (_) => ParticipantCubit(ChatServiceImp())),
+            ],
             child: GroupInfoScreen(
               chat: chat,
               participants: members,
@@ -201,6 +203,6 @@ class MessageBody extends StatelessWidget {
   }
 
   void sendMessage(final BuildContext context, final MessageModel message) {
-    context.read<MessageCubit>().sendTextMessageOnly(chatId, message);
+    context.read<MessageCubit>().sendMessage(chatId, message);
   }
 }

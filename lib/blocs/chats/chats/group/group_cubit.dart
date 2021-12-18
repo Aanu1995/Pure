@@ -20,6 +20,10 @@ class GroupCubit extends Cubit<GroupState> {
     }
   }
 
+  void addAllMembers(List<PureUser> participants) {
+    emit(GroupMembers(members: participants));
+  }
+
   void removeMember(PureUser user) {
     final currentState = state;
 
@@ -37,7 +41,7 @@ class GroupCubit extends Cubit<GroupState> {
     _subscription =
         chatService.getGroupMembersProfile(userIds).listen((members) {
       if (members != null) {
-        emit(GroupMembers(members: members));
+        emit(GroupMembers(members: members.toList()));
         // cancel subscription once data is available
         _subscription?.cancel();
       }

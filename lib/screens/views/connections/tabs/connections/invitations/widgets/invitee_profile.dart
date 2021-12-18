@@ -46,7 +46,7 @@ class InviteeProfile extends StatelessWidget {
                   ),
                 ),
                 subtitle: Text(
-                  "Sent ${getFormattedDate(invitee.sentDate!)}",
+                  "Sent ${getFormattedTime(invitee.sentDate!)}",
                   key: ValueKey(invitee.invitationId),
                   style: TextStyle(
                     fontSize: 13.0,

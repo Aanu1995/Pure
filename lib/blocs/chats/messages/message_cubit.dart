@@ -26,15 +26,16 @@ class MessageCubit extends Cubit<MessageState> {
     }
   }
 
-  // send text messages
-  Future<void> sendTextMessageOnly(
-      final String chatId, final MessageModel message,
-      {bool isOnline = false, bool update = true}) async {
-    if (update) {
-      _updateMessage(message);
-    }
+  Future<void> sendMessage(final String chatId, final MessageModel message,
+      {bool update = true}) async {
     try {
+      if (update) _updateMessage(message);
       await messageService.sendMessage(chatId, message);
+      // update on message sent
+      if (update) {
+        final newMessage = message.copyWith(newRecept: Receipt.Sent);
+        _updateMessage(newMessage, oldMsg: message);
+      }
     } catch (e) {
       _onMessageFailed(message);
     }
@@ -107,7 +108,7 @@ class MessageCubit extends Cubit<MessageState> {
 
       // start resending those failed messages
       for (final msg in failedMessages.toList()) {
-        sendTextMessageOnly(chatId, msg, update: false);
+        sendMessage(chatId, msg, update: false);
       }
     }
   }
@@ -170,8 +171,7 @@ class MessageCubit extends Cubit<MessageState> {
 
     final messagesModel = MessagesModel(
       messages: msgsModel.messages.toList().map((e) {
-        final receipt = e.attachments == null ? Receipt.Sent : e.receipt;
-        return e.copyWithUpdateReceipt(topMessageDate, receipt);
+        return e.copyWithUpdateReceipt(topMessageDate, e.receipt);
       }).toList(),
       lastDoc: msgsModel.lastDoc,
       topMessageDate: topMessageDate,

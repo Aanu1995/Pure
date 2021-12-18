@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../blocs/bloc.dart';
 import '../../../utils/validators.dart';
@@ -98,7 +99,8 @@ class __SignUpExtState extends State<_SignUpExt> {
     } else if (state is SignUpSuccess) {
       EasyLoading.dismiss();
       showSuccessFlash(context, state.message);
-      Navigator.of(context).pop(true);
+      GoRouter.of(context).pop(context);
+      GoRouter.of(context).pushNamed("signin");
     } else if (state is AuthUserFailure) {
       EasyLoading.dismiss();
       showFailureFlash(context, state.message);

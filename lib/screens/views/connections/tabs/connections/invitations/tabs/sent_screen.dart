@@ -6,12 +6,11 @@ import '../../../../../../../blocs/bloc.dart';
 import '../../../../../../../model/invitation_model.dart';
 import '../../../../../../../model/pure_user_model.dart';
 import '../../../../../../widgets/failure_widget.dart';
+import '../../../../../../widgets/message_widget.dart';
 import '../../../../../../widgets/progress_indicator.dart';
-import '../../../../../../widgets/shimmers/loading_shimmer.dart';
 import '../../../../../../widgets/snackbars.dart';
 import '../../../../../../widgets/user_profile_provider.dart';
 import '../../../../widgets/load_more.dart';
-import '../../../../../../widgets/message_widget.dart';
 import '../widgets/invitee_profile.dart';
 
 class SentScreen extends StatefulWidget {
@@ -168,10 +167,7 @@ class _SentScreenState extends State<SentScreen>
                     onPressed: () => tryAgain(),
                   );
                 }
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: LoadingShimmer(itemCount: 6),
-                );
+                return Center(child: const CustomProgressIndicator());
               },
             ),
           ),
