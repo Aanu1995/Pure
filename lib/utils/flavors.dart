@@ -21,7 +21,7 @@ class F {
       case Flavor.staging:
         return 'com.annulus.pure.stg';
       case Flavor.prod:
-        return 'com.annulus.pure.prod';
+        return 'com.annulus.pure';
     }
   }
 

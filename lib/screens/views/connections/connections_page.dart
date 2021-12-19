@@ -110,17 +110,6 @@ class _ConnectionsPageState extends State<ConnectionsPage> {
   }
 
   Future<void> shareInviteLink() async {
-    // final authState = context.read<AuthCubit>().state;
-    // if (authState is Authenticated) {
-    //   try {
-    //     DynamicLinkService _service = DynamicLinkServiceImpl();
-    //     final link = await _service.shareUserInviteLink(authState.user);
-    //     final text = "Open this link to connect with me on AhoyMate \n$link";
-    //     shareLink(link: text, subject: "AhoyMate Invite Link");
-    //   } catch (e) {
-    //     EasyLoading.dismiss();
-    //     showFailureFlash(context, ErrorMessages.generalMessage);
-    //   }
-    // }
+    // Coming Soon
   }
 }

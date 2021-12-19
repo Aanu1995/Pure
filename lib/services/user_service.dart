@@ -55,7 +55,7 @@ class UserServiceImpl extends UserService {
     _userExtCollection = (firestore ?? FirebaseFirestore.instance)
         .collection(GlobalUtils.userExtCollection);
     _databaseReference = (firebaseDatabase ?? FirebaseDatabase.instance)
-        .reference()
+        .ref()
         .child(GlobalUtils.userCollection);
     _connection = connection ?? ConnectionRepoImpl();
     _localStorage = localStorage ?? LocalStorageImpl();

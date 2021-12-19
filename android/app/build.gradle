@@ -30,6 +30,7 @@ if (keystorePropertiesFile.exists()) {
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.crashlytics'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
@@ -86,7 +87,7 @@ android {
     productFlavors { 
         production {
             dimension "default"
-            applicationIdSuffix ".prod"
+            applicationIdSuffix ""
         }
         staging {
             dimension "default"
@@ -106,7 +107,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt')
         }
         debug {
-           signingConfig signingConfigs.release
+           signingConfig signingConfigs.debug
         }
     }
 }
