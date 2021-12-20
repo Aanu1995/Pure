@@ -45,16 +45,11 @@ class ChatModel extends Equatable {
   });
 
   factory ChatModel.fromMap(Map<String, dynamic> data) {
-    final members = <String>[];
-    final admins = <String>[];
-    for (String userId in data['members'] ?? []) members.add(userId);
-    for (String userId in data['admins'] ?? []) admins.add(userId);
-
     return ChatModel(
       chatId: data["chatId"] as String,
       type: getChatTpe(data["type"] as String),
       lastMessage: data["lastMessage"] as String,
-      members: members,
+      members: List<String>.from(data['members'] as List? ?? <String>[]),
       groupName: data['groupName'] as String? ?? "",
       groupDescription: data['groupDescription'] as String? ?? "",
       groupImage: data['groupImage'] as String? ?? "",
@@ -62,7 +57,7 @@ class ChatModel extends Equatable {
       senderId: data['senderId'] as String? ?? "",
       creationDate: DateTime.parse(data['creationDate'] as String).toLocal(),
       updateDate: DateTime.parse(data['updateDate'] as String).toLocal(),
-      admins: admins,
+      admins: List<String>.from(data['admins'] as List? ?? <String>[]),
     );
   }
 

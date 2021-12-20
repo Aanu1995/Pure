@@ -15,5 +15,5 @@ key.properties
 
 app/src/development/google-services.json
 app/src/staging/google-services.json
-app/src/google-services.json
+app/google-services.json
 
