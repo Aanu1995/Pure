@@ -43,7 +43,7 @@ dependencies:
   uuid: ^3.0.4
   
   # Authentication
-  sign_in_with_apple: ^3.2.0
+  sign_in_with_apple: ^3.3.0
   google_sign_in: ^5.2.1
 
   # Screen Utilities
@@ -67,6 +67,7 @@ dependencies:
   firebase_dynamic_links: ^3.0.1
   firebase_messaging: ^11.1.0
   firebase_storage: ^10.1.0
+  firebase_crashlytics: ^2.4.4
 
 dev_dependencies:
   bloc_test: ^9.0.0
