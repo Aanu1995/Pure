@@ -1,6 +1,5 @@
-import 'dart:developer';
+import 'dart:io';
 
-import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -9,7 +8,6 @@ import '../../blocs/chats/chats/unread_chat.dart';
 import '../../model/pure_user_model.dart';
 import '../../repositories/push_notification.dart';
 import '../../services/user_service.dart';
-import '../widgets/deep_link_navigation.dart';
 import '../widgets/push_notification_navigation.dart';
 import 'chats/chat_screen.dart';
 import 'connections/connections_page.dart';
@@ -38,7 +36,6 @@ class _AppBaseState extends State<AppBase> {
     super.initState();
     initialize();
     initializePushNotificationMethods();
-    initDynamicLinks();
   }
 
   void initialize() {
@@ -64,39 +61,26 @@ class _AppBaseState extends State<AppBase> {
 
   // Push Notifications
   Future<void> initializePushNotificationMethods() async {
-    final notifications = PushNotificationImpl();
+    // This only support android till when push notification is set up
+    // for IOS
+    if (Platform.isAndroid) {
+      final notifications = PushNotificationImpl();
 
-    // initialize notifications
-    notifications.initialize(
-      NotificationNavigation.updateNotificationScreen,
-      NotificationNavigation.navigateToScreenOnMessageOpenApp,
-    );
+      // initialize notifications
+      notifications.initialize(
+        NotificationNavigation.updateNotificationScreen,
+        NotificationNavigation.navigateToScreenOnMessageOpenApp,
+      );
 
-    // executes method on token refreshed
-    notifications.onTokenRefreshed((token) async {
-      final userId = CurrentUser.currentUserId;
-      final deviceId = await notifications.getDeviceId();
-      if (deviceId != null) {
-        // updates the token at the server side
-        UserServiceImpl().updateUserFCMToken(userId, deviceId, token);
-      }
-    });
-  }
-
-  // Firebase Dynamic links
-  Future<void> initDynamicLinks() async {
-    FirebaseDynamicLinks.instance.onLink(
-      onSuccess: (PendingDynamicLinkData? dynamicLink) async {
-        return DeepLinkNavigation.deepLinkRoute(dynamicLink?.link);
-      },
-      onError: (OnLinkErrorException e) async {
-        return log(e.message ?? "Dynamic Link failed");
-      },
-    );
-
-    final PendingDynamicLinkData? data =
-        await FirebaseDynamicLinks.instance.getInitialLink();
-
-    return DeepLinkNavigation.deepLinkRoute(data?.link);
+      // executes method on token refreshed
+      notifications.onTokenRefreshed((token) async {
+        final userId = CurrentUser.currentUserId;
+        final deviceId = await notifications.getDeviceId();
+        if (deviceId != null) {
+          // updates the token at the server side
+          UserServiceImpl().updateUserFCMToken(userId, deviceId, token);
+        }
+      });
+    }
   }
 }
