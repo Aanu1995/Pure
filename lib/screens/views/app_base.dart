@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -59,22 +61,26 @@ class _AppBaseState extends State<AppBase> {
 
   // Push Notifications
   Future<void> initializePushNotificationMethods() async {
-    final notifications = PushNotificationImpl();
+    // This only support android till when push notification is set up
+    // for IOS
+    if (Platform.isAndroid) {
+      final notifications = PushNotificationImpl();
 
-    // initialize notifications
-    notifications.initialize(
-      NotificationNavigation.updateNotificationScreen,
-      NotificationNavigation.navigateToScreenOnMessageOpenApp,
-    );
+      // initialize notifications
+      notifications.initialize(
+        NotificationNavigation.updateNotificationScreen,
+        NotificationNavigation.navigateToScreenOnMessageOpenApp,
+      );
 
-    // executes method on token refreshed
-    notifications.onTokenRefreshed((token) async {
-      final userId = CurrentUser.currentUserId;
-      final deviceId = await notifications.getDeviceId();
-      if (deviceId != null) {
-        // updates the token at the server side
-        UserServiceImpl().updateUserFCMToken(userId, deviceId, token);
-      }
-    });
+      // executes method on token refreshed
+      notifications.onTokenRefreshed((token) async {
+        final userId = CurrentUser.currentUserId;
+        final deviceId = await notifications.getDeviceId();
+        if (deviceId != null) {
+          // updates the token at the server side
+          UserServiceImpl().updateUserFCMToken(userId, deviceId, token);
+        }
+      });
+    }
   }
 }
