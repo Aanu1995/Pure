@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 class PostVisibility extends StatefulWidget {
   final int visibilityStatus;
   final ValueChanged<int> onPostVisibilityChanged;
-  const PostVisibility(
-      {Key? key,
-      required this.visibilityStatus,
-      required this.onPostVisibilityChanged})
-      : super(key: key);
+  const PostVisibility({
+    Key? key,
+    required this.visibilityStatus,
+    required this.onPostVisibilityChanged,
+  }) : super(key: key);
 
   @override
   _PostVisibilityState createState() => _PostVisibilityState();
@@ -15,13 +15,10 @@ class PostVisibility extends StatefulWidget {
 
 class _PostVisibilityState extends State<PostVisibility> {
   int visibilityStatus = 0;
-  List<IconData> postVisibilityIcons = [Icons.public, Icons.people_alt];
-  List<String> postVisibilityText = ["Anyone", "Connections only"];
+  final postVisibilityIcons = const [Icons.public, Icons.people_alt];
+  final postVisibilityText = const ["Anyone", "Connections only"];
 
-  final _style = const TextStyle(
-    fontSize: 20.0,
-    fontWeight: FontWeight.w500,
-  );
+  final _style = const TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500);
 
   @override
   void initState() {
@@ -85,7 +82,7 @@ class _PostVisibilityState extends State<PostVisibility> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 30.0),
+                const SizedBox(height: 26.0),
                 Text(
                   "Who can see your post?",
                   style: _style.copyWith(
@@ -99,38 +96,57 @@ class _PostVisibilityState extends State<PostVisibility> {
                   style: _style.copyWith(fontSize: 13.0),
                 ),
                 const SizedBox(height: 16.0),
-                ListTile(
-                  leading: Icon(Icons.public),
-                  horizontalTitleGap: 0.0,
-                  contentPadding: EdgeInsets.all(0.0),
-                  dense: true,
-                  title: Text("Anyone", style: _style.copyWith(fontSize: 17)),
-                  subtitle: Text(
-                    "Anyone on or off Pure",
-                    style: _style.copyWith(fontSize: 12),
-                  ),
+                _PostItem(
+                  leading: Icons.public,
+                  title: postVisibilityText[0],
+                  subtitle: "Anyone on or off Pure",
                   onTap: () => Navigator.of(context).pop(0),
                 ),
-                ListTile(
-                  leading: Icon(Icons.people),
-                  horizontalTitleGap: 0.0,
-                  contentPadding: EdgeInsets.all(0.0),
-                  dense: true,
-                  title: Text(
-                    "Connections only",
-                    style: _style.copyWith(fontSize: 17),
-                  ),
-                  subtitle: Text(
-                    "Connections on Pure",
-                    style: _style.copyWith(fontSize: 12),
-                  ),
+                _PostItem(
+                  leading: Icons.people,
+                  title: postVisibilityText[1],
+                  subtitle: "Connections on Pure",
                   onTap: () => Navigator.of(context).pop(1),
-                )
+                ),
               ],
             ),
           ),
         );
       },
+    );
+  }
+}
+
+class _PostItem extends StatelessWidget {
+  final IconData leading;
+  final String title;
+  final String subtitle;
+  final Function()? onTap;
+
+  const _PostItem({
+    Key? key,
+    required this.leading,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  }) : super(key: key);
+
+  final _style = const TextStyle(fontSize: 17.0, fontWeight: FontWeight.w500);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Icon(leading),
+      horizontalTitleGap: 0.0,
+      contentPadding: EdgeInsets.all(0.0),
+      minVerticalPadding: 0.0,
+      dense: true,
+      title: Text(title, style: _style),
+      subtitle: Text(
+        subtitle,
+        style: _style.copyWith(fontSize: 12),
+      ),
+      onTap: onTap,
     );
   }
 }
