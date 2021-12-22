@@ -113,9 +113,10 @@ class ImageUtils implements ImageMethods {
   Future<File?> pickVideo(ImagePicker imagePicker, ImageSource source,
       {CameraDevice preferredCameraDevice = CameraDevice.front}) async {
     final pickedFile = await imagePicker.pickVideo(
-        source: source,
-        preferredCameraDevice: preferredCameraDevice,
-        maxDuration: Duration(minutes: 2));
+      source: source,
+      preferredCameraDevice: preferredCameraDevice,
+      maxDuration: Duration(minutes: 2),
+    );
 
     if (pickedFile != null) {
       return File(pickedFile.path);

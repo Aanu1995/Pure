@@ -24,8 +24,10 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
   late PureUser? currentUser;
   int visibilityStatus = 0;
+
   List<File> imageFiles = [];
-  File? videoFile;
+  File? originalVideoFile;
+  File? trimmedVideoFile;
 
   final _style = const TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500);
 
@@ -155,9 +157,11 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             Divider(height: 0.0),
             PostFileIconWidget(
               imageFiles: imageFiles,
-              videoFile: videoFile,
+              videoFile: trimmedVideoFile,
               onImageFilesUpdated: onImagesPicked,
               onVideoFilePicked: onVideoFilePicked,
+              requestFocus: () =>
+                  FocusScope.of(context).requestFocus(_focusNode),
             ),
           ],
         ),
@@ -172,14 +176,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
     setState(() {});
     _postNotifier.value = true;
-    FocusScope.of(context).requestFocus(_focusNode);
   }
 
-  void onVideoFilePicked(File file) {
+  void onVideoFilePicked(File originalFile, File trimmedFile) {
     setState(() {
-      videoFile = file;
+      originalVideoFile = originalFile;
+      trimmedVideoFile = trimmedFile;
     });
     _postNotifier.value = true;
-    FocusScope.of(context).requestFocus(_focusNode);
   }
 }
