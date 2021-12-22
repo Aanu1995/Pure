@@ -92,15 +92,14 @@ class _TrimmerViewState extends State<TrimmerView> {
             Stack(
               fit: StackFit.expand,
               children: [
+                // shows the video being trimmed
                 VideoViewer(trimmer: _trimmer),
                 InkWell(
                   child: ValueListenableBuilder<bool>(
                     valueListenable: _isPlayingNotifier,
                     builder: (context, isPlaying, _) {
                       return Icon(
-                        _isPlayingNotifier.value
-                            ? Icons.pause_circle
-                            : Icons.play_circle,
+                        isPlaying ? Icons.pause_circle : Icons.play_circle,
                         color: Palette.tintColor,
                         size: 60.0,
                       );
@@ -110,6 +109,7 @@ class _TrimmerViewState extends State<TrimmerView> {
                 ),
               ],
             ),
+            // shows the trimmer container
             Align(
               alignment: Alignment.bottomCenter,
               child: Container(
@@ -124,15 +124,10 @@ class _TrimmerViewState extends State<TrimmerView> {
                     viewerWidth: 1.sw,
                     borderPaintColor: Palette.tintColor,
                     maxVideoLength: const Duration(minutes: 2, seconds: 20),
-                    onChangeStart: (value) {
-                      _startValue = value;
-                    },
-                    onChangeEnd: (value) {
-                      _endValue = value;
-                    },
-                    onChangePlaybackState: (value) {
-                      _isPlayingNotifier.value = value;
-                    },
+                    onChangeStart: (value) => _startValue = value,
+                    onChangeEnd: (value) => _endValue = value,
+                    onChangePlaybackState: (value) =>
+                        _isPlayingNotifier.value = value,
                   ),
                 ),
               ),
