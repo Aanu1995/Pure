@@ -63,6 +63,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     return Scaffold(
       appBar: AppBar(
         leadingWidth: 100,
+        centerTitle: true,
         leading: TextButton(
           onPressed: () => Navigator.of(context).pop(),
           child: Text(

@@ -58,6 +58,7 @@ class _TrimmerViewState extends State<TrimmerView> {
           backgroundColor: const Color(0xFF242424),
           elevation: 0.0,
           leadingWidth: 100,
+          centerTitle: true,
           leading: TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
