@@ -52,7 +52,7 @@ android {
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "com.annulus.pure"
-        minSdkVersion 21
+        minSdkVersion 24
         targetSdkVersion 31
         multiDexEnabled true
         versionCode flutterVersionCode.toInteger()

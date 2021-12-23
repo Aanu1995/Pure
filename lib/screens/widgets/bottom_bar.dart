@@ -20,7 +20,7 @@ class BottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final unselectedColor = Theme.of(context).colorScheme.secondaryVariant;
     final selectedColor = Palette.tintColor;
-    final iconSize = 26.0;
+    final iconSize = 24.0;
 
     return BlocBuilder<BottomBarBloc, int>(
       bloc: BlocProvider.of<BottomBarBloc>(context),
