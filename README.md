@@ -2,8 +2,7 @@
 
 Pure is a Social Network Messenger app developed using Flutter.
 
-![coverage][coverage_badge]
-[![style: very good analysis][very_good_analysis_badge]][very_good_analysis_link]
+[![build Actions Status](https://github.com/Aanu1995/Pure/workflows/build/badge.svg)](https://github.com/Aanu1995/Pure/actions)
 [![License: MIT][license_badge]][license_link]
 [![Codemagic build status](https://api.codemagic.io/apps/61c16a2d5d15f530c8172797/61c16b3168cc9cfd2f86b064/status_badge.svg)](https://codemagic.io/apps/61c16a2d5d15f530c8172797/61c16b3168cc9cfd2f86b064/latest_build)
 
