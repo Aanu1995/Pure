@@ -41,6 +41,7 @@ dependencies:
   stream_transform: ^2.0.0
   timeago: ^3.1.0
   uuid: ^3.0.4
+  video_player: ^2.2.10
   video_trimmer: ^1.0.0
   
   # Authentication

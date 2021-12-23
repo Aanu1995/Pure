@@ -134,14 +134,22 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                                 ),
                               ),
 
-                              // show images
-                              PostImagePreview(
-                                imageFiles: imageFiles,
-                                onImageRemoved: (file) {
-                                  setState(() => imageFiles.remove(file));
-                                },
-                              ),
-                              // show videos
+                              // preview images
+                              if (imageFiles.isNotEmpty)
+                                PostImagePreview(
+                                  imageFiles: imageFiles,
+                                  onImageRemoved: (file) =>
+                                      setState(() => imageFiles.remove(file)),
+                                ),
+                              // preview video
+                              if (trimmedVideoFile != null)
+                                PostVideoPreview(
+                                  key: ValueKey(trimmedVideoFile!.path),
+                                  originalVideoFile: originalVideoFile!,
+                                  trimmedVideoFile: trimmedVideoFile!,
+                                  onVideoRemoved: onVideoRemoved,
+                                  onVideoTrimmed: onVideoTrimmed,
+                                ),
                             ],
                           ),
                         ),
@@ -185,5 +193,16 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       trimmedVideoFile = trimmedFile;
     });
     _postNotifier.value = true;
+  }
+
+  void onVideoRemoved() {
+    setState(() {
+      originalVideoFile = null;
+      trimmedVideoFile = null;
+    });
+  }
+
+  void onVideoTrimmed(File trimmedFile) {
+    setState(() => trimmedVideoFile = trimmedFile);
   }
 }
