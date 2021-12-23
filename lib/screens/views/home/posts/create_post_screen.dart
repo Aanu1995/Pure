@@ -7,8 +7,9 @@ import '../../../../blocs/bloc.dart';
 import '../../../../model/pure_user_model.dart';
 import '../../../../utils/app_permission.dart';
 import '../../../widgets/avatar.dart';
-import 'widget/file_widget.dart';
+import 'widget/post_file_icons.dart';
 import 'widget/post_visibility.dart';
+import 'widget/selected_file_preview.dart';
 
 class CreatePostScreen extends StatefulWidget {
   const CreatePostScreen({Key? key}) : super(key: key);
