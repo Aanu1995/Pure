@@ -1,4 +1,4 @@
-name: pure
+name: build
 
 on: [pull_request, push]
 
