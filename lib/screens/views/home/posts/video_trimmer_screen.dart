@@ -32,13 +32,22 @@ class _TrimmerViewState extends State<TrimmerView> {
   @override
   void initState() {
     super.initState();
-    _trimmer.loadVideo(videoFile: widget.file);
+    initializeVideo();
+  }
+
+  Future<void> initializeVideo() async {
+    await _trimmer.loadVideo(videoFile: widget.file);
+    WidgetsBinding.instance!.addPostFrameCallback((_) async {
+      _trimmer.videoPlayerController?.play();
+    });
   }
 
   @override
   void dispose() {
     _isTrimmingNotifier.dispose();
     _isPlayingNotifier.dispose();
+    _trimmer.videoPlayerController?.dispose();
+    _trimmer.dispose();
     super.dispose();
   }
 
@@ -117,13 +126,16 @@ class _TrimmerViewState extends State<TrimmerView> {
                 color: Colors.black54,
                 width: 1.sw,
                 height: 120,
-                padding: EdgeInsets.only(top: 4.0, bottom: 20.0),
+                padding: EdgeInsets.fromLTRB(0, 4, 0, 20),
                 child: Center(
                   child: TrimEditor(
                     trimmer: _trimmer,
                     viewerHeight: 50.0,
-                    viewerWidth: 1.sw,
+                    viewerWidth: 1.sw * 0.96,
                     borderPaintColor: Palette.tintColor,
+                    scrubberPaintColor: Palette.greenColor,
+                    scrubberWidth: 2.0,
+                    circleSize: 6,
                     maxVideoLength: const Duration(minutes: 2, seconds: 20),
                     onChangeStart: (value) => _startValue = value,
                     onChangeEnd: (value) => _endValue = value,
