@@ -66,7 +66,7 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
     } else if (state is FailedToRemoveParticipant) {
       widget.participants.insert(state.index, state.participant);
     } else if (state is ExitingGroup) {
-      EasyLoading.show(status: 'Creating...');
+      EasyLoading.show(status: 'Exiting...');
     } else if (state is GroupExited) {
       EasyLoading.dismiss();
       context.read<ChatCubit>().removeChat(state.chatId);

@@ -72,9 +72,12 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     } else if (state is GroupChatCreated) {
       EasyLoading.dismiss();
       Navigator.popUntil(context, (route) => route.isFirst);
+      final chat = state.chatModel;
       push(
         context: context,
-        page: GroupChatMessageScreen(chatModel: state.chatModel),
+        page: GroupChatMessageScreen(
+          chatModel: chat.copyWith(image: chat.groupImage ?? ""),
+        ),
       );
     } else if (state is GroupChatsFailed) {
       EasyLoading.dismiss();

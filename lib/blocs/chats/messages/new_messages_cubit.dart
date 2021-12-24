@@ -59,11 +59,13 @@ class NewMessagesCubit extends Cubit<MessageState> {
 
   Future<void> _updateTheLastMessageReceipt(
       String chatId, String userId, MessagesModel msgModel) async {
-    await messageService.setCurrentUserLastReadMessageId(
-      chatId,
-      userId,
-      msgModel.messages.first.sentDate!.toUtc().toIso8601String(),
-    );
+    if (msgModel.messages.isNotEmpty) {
+      await messageService.setCurrentUserLastReadMessageId(
+        chatId,
+        userId,
+        msgModel.messages.first.sentDate!.toUtc().toIso8601String(),
+      );
+    }
   }
 
   void _update(final MessagesModel messagesModel) {
