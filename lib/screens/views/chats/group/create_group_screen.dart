@@ -72,12 +72,10 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     } else if (state is GroupChatCreated) {
       EasyLoading.dismiss();
       Navigator.popUntil(context, (route) => route.isFirst);
-      final chat = state.chatModel;
+
       push(
         context: context,
-        page: GroupChatMessageScreen(
-          chatModel: chat.copyWith(image: chat.groupImage ?? ""),
-        ),
+        page: GroupChatMessageScreen(chatModel: state.chatModel),
       );
     } else if (state is GroupChatsFailed) {
       EasyLoading.dismiss();
@@ -220,7 +218,8 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
         groupName: _groupNameController.text.trim(),
         creationDate: DateTime.now(),
         lastMessage: "Group created",
-        groupCreatedBy: members.first,
+        groupCreatedBy: CurrentUser.currentUserId,
+        groupImage: "",
         members: members,
         updateDate: DateTime.now(),
       );
