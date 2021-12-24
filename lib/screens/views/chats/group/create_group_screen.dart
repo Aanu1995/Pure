@@ -219,7 +219,6 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
         creationDate: DateTime.now(),
         lastMessage: "Group created",
         groupCreatedBy: CurrentUser.currentUserId,
-        groupImage: "",
         members: members,
         updateDate: DateTime.now(),
       );

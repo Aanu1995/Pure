@@ -32,8 +32,9 @@ class ResetPasswordScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 SizedBox(
-                    height: 1.sh * 0.25,
-                    child: const IntroSection(title: "Forgot Password?")),
+                  height: 1.sh * 0.25,
+                  child: const IntroSection(title: "Forgot Password?"),
+                ),
                 SizedBox(height: 1.sh * 0.1),
                 Text(
                   _instruction(),
