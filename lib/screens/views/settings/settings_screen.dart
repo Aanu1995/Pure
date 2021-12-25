@@ -42,7 +42,7 @@ class _Body extends StatelessWidget {
   void signOutListener(BuildContext context, AuthState authState) {
     if (authState is UnAuthenticated) {
       GoRouter.of(context).goNamed("social");
-      context.read<BottomBarBloc>().reset();
+      context.read<BottomBarCubit>().reset();
     }
   }
 

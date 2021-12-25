@@ -22,8 +22,7 @@ class BottomBar extends StatelessWidget {
     final selectedColor = Palette.tintColor;
     final iconSize = 24.0;
 
-    return BlocBuilder<BottomBarBloc, int>(
-      bloc: BlocProvider.of<BottomBarBloc>(context),
+    return BlocBuilder<BottomBarCubit, int>(
       builder: (BuildContext context, int state) {
         return ClipRRect(
           borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
@@ -113,7 +112,7 @@ class BottomBar extends StatelessWidget {
               ),
             ],
             onTap: (index) =>
-                context.read<BottomBarBloc>().onBottomItemPressed(index),
+                context.read<BottomBarCubit>().onBottomItemPressed(index),
           ),
         );
       },

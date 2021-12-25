@@ -52,7 +52,7 @@ class _AppBaseState extends State<AppBase> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<BottomBarBloc, int>(
+    return BlocBuilder<BottomBarCubit, int>(
       builder: (context, state) {
         return screens[state];
       },

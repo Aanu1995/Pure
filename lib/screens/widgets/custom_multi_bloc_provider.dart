@@ -33,7 +33,7 @@ class CustomMultiBlocProvider extends StatelessWidget {
           create: (_) =>
               AuthCubit(FirebaseAuth.instance, _localStorage, _userService),
         ),
-        BlocProvider(lazy: false, create: (_) => BottomBarBloc()),
+        BlocProvider(create: (_) => BottomBarCubit()),
         BlocProvider(
           create: (_) => ConnectorCubit(
             connectionService: ConnectionServiceImpl(),

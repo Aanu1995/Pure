@@ -2,7 +2,7 @@ export 'authentication/auth_cubit.dart';
 export 'authentication/auth_state.dart';
 export 'authentication/auth_user_cubit.dart';
 export 'authentication/auth_user_state.dart';
-export 'bottom_bar/bottom_bar_bloc.dart';
+export 'bottom_bar/bottom_bar_cubit.dart';
 export 'chats/chats/chat_cubit.dart';
 export 'chats/chats/chat_state.dart';
 export 'chats/chats/group/add_participant_cubit.dart';
