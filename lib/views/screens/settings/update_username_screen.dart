@@ -8,7 +8,7 @@ import '../../../../blocs/search/search_username.dart';
 import '../../../../blocs/user_profile/user_profile_cubit.dart';
 import '../../../../blocs/user_profile/user_profile_state.dart';
 import '../../../model/pure_user_model.dart';
-import '../../../utils/app_theme.dart';
+import '../../../utils/palette.dart';
 import '../../widgets/snackbars.dart';
 
 class UpdateUsernameScreen extends StatefulWidget {

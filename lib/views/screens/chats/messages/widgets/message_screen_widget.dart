@@ -6,7 +6,7 @@ import '../../../../../model/chat/chat_model.dart';
 import '../../../../../model/chat/message_model.dart';
 import '../../../../../model/pure_user_model.dart';
 import '../../../../../services/chat/chat_service.dart';
-import '../../../../../utils/app_theme.dart';
+import '../../../../../utils/palette.dart';
 import '../../../../../utils/navigate.dart';
 import '../../../../widgets/avatar.dart';
 import '../../../settings/profile/profile_screen.dart';

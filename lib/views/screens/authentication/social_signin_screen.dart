@@ -7,7 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../blocs/bloc.dart';
-import '../../../utils/app_theme.dart';
+import '../../../utils/palette.dart';
 import '../../../utils/app_utils.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/snackbars.dart';

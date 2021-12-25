@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../utils/app_theme.dart';
+import '../../../../utils/palette.dart';
 
 class SettingItem extends StatelessWidget {
   final String title;

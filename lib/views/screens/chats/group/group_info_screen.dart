@@ -10,7 +10,7 @@ import '../../../../model/chat/chat_model.dart';
 import '../../../../model/pure_user_model.dart';
 import '../../../../services/chat/chat_service.dart';
 import '../../../../services/search_service.dart';
-import '../../../../utils/app_theme.dart';
+import '../../../../utils/palette.dart';
 import '../../../../utils/navigate.dart';
 import '../../../widgets/snackbars.dart';
 import 'add_participants_screen.dart';

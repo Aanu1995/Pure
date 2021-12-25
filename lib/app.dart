@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import 'utils/app_theme.dart';
+import 'utils/palette.dart';
 import 'utils/flavors.dart';
 import 'utils/routing.dart';
 import 'views/widgets/custom_multi_bloc_provider.dart';

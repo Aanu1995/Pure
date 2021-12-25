@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:video_trimmer/video_trimmer.dart';
 
-import '../../../../utils/app_theme.dart';
+import '../../../../utils/palette.dart';
 
 class TrimmerView extends StatefulWidget {
   final File file;

@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../blocs/bloc.dart';
 import '../../blocs/chats/chats/unread_chat.dart';
-import '../../utils/app_theme.dart';
+import '../../utils/palette.dart';
 import '../../utils/image_utils.dart';
 
 class BottomBar extends StatelessWidget {

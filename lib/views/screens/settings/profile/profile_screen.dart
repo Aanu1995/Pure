@@ -7,7 +7,7 @@ import '../../../../model/inviter_model.dart';
 import '../../../../model/pure_user_model.dart';
 import '../../../../services/invitation_service.dart';
 import '../../../../services/user_service.dart';
-import '../../../../utils/app_theme.dart';
+import '../../../../utils/palette.dart';
 import '../../../../utils/app_utils.dart';
 import '../../../../utils/image_utils.dart';
 import '../../../../utils/navigate.dart';

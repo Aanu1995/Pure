@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../utils/app_theme.dart';
+import '../../../../utils/palette.dart';
 
 class PrevButton extends StatelessWidget {
   const PrevButton({Key? key, required this.onPressed}) : super(key: key);

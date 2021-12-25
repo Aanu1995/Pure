@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../utils/app_theme.dart';
+import '../../../../utils/palette.dart';
 import '../../../../utils/image_utils.dart';
 
 class NoNotificationWidget extends StatelessWidget {

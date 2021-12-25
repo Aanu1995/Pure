@@ -1,7 +1,7 @@
 import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../utils/app_theme.dart';
+import '../../../../utils/palette.dart';
 
 import '../../../../blocs/bloc.dart';
 import '../../../../model/chat/chat_model.dart';

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../utils/app_theme.dart';
+import '../../../../utils/palette.dart';
 
 class IntroSection extends StatelessWidget {
   final String? title;

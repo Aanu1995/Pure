@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:video_player/video_player.dart';
 
-import '../../../../../utils/app_theme.dart';
+import '../../../../../utils/palette.dart';
 import '../../../../widgets/page_transition.dart';
 import '../video_trimmer_screen.dart';
 

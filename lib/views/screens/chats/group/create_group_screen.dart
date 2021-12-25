@@ -10,7 +10,7 @@ import '../../../../blocs/bloc.dart';
 import '../../../../model/chat/chat_model.dart';
 import '../../../../model/pure_user_model.dart';
 import '../../../../utils/app_permission.dart';
-import '../../../../utils/app_theme.dart';
+import '../../../../utils/palette.dart';
 import '../../../../utils/app_utils.dart';
 import '../../../../utils/image_utils.dart';
 import '../../../../utils/navigate.dart';

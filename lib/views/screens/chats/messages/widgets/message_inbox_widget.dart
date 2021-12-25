@@ -9,7 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../../model/chat/message_model.dart';
 import '../../../../../model/pure_user_model.dart';
 import '../../../../../utils/app_permission.dart';
-import '../../../../../utils/app_theme.dart';
+import '../../../../../utils/palette.dart';
 import '../../../../../utils/exception.dart';
 import '../../../../../utils/file_utils.dart';
 import '../../../../../utils/global_utils.dart';

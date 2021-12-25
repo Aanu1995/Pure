@@ -5,7 +5,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import '../../../../blocs/bloc.dart';
 import '../../../../model/pure_user_model.dart';
 import '../../../../utils/app_extension.dart';
-import '../../../../utils/app_theme.dart';
+import '../../../../utils/palette.dart';
 import '../../../../utils/validators.dart';
 import '../../../widgets/snackbars.dart';
 import '../widgets/items.dart';

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../model/chat/attachment_model.dart';
-import '../../../../../utils/app_theme.dart';
+import '../../../../../utils/palette.dart';
 import '../../../../../utils/navigate.dart';
 import '../../../photo_view_screen.dart';
 

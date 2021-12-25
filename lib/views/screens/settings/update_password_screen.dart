@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 import '../../../../blocs/bloc.dart';
-import '../../../utils/app_theme.dart';
+import '../../../utils/palette.dart';
 import '../../widgets/snackbars.dart';
 
 class UpdatePasswordScreen extends StatefulWidget {

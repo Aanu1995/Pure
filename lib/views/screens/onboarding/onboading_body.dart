@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../../utils/app_theme.dart';
+import '../../../utils/palette.dart';
 
 class OnBoardingBody extends StatelessWidget {
   const OnBoardingBody({

@@ -9,7 +9,7 @@ import '../../../widgets/snackbars.dart';
 
 import '../../../../blocs/bloc.dart';
 import '../../../../model/pure_user_model.dart';
-import '../../../../utils/app_theme.dart';
+import '../../../../utils/palette.dart';
 import '../../../../utils/app_utils.dart';
 import '../../../widgets/avatar.dart';
 import '../../../widgets/message_widget.dart';

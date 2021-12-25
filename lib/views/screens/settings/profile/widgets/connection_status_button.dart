@@ -9,7 +9,7 @@ import '../../../../../model/connection_model.dart';
 import '../../../../../model/invitation_model.dart';
 import '../../../../../model/inviter_model.dart';
 import '../../../../../model/pure_user_model.dart';
-import '../../../../../utils/app_theme.dart';
+import '../../../../../utils/palette.dart';
 import '../../../../../utils/navigate.dart';
 import '../../../../widgets/custom_button.dart';
 import '../../../../widgets/snackbars.dart';

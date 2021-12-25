@@ -8,7 +8,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../../../blocs/bloc.dart';
 import '../../../../../utils/app_permission.dart';
-import '../../../../../utils/app_theme.dart';
+import '../../../../../utils/palette.dart';
 import '../../../../../utils/image_utils.dart';
 import '../../../../../utils/pick_file_dialog.dart';
 import '../../../../widgets/snackbars.dart';
