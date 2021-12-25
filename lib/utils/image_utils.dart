@@ -27,7 +27,6 @@ abstract class ImageMethods {
 
 class ImageUtils implements ImageMethods {
   const ImageUtils();
-  static const String splash = 'assets/images/splash.png';
 
   // onboarding light mode slides
   static const String slide1Light = 'assets/images/slide1_light.png';

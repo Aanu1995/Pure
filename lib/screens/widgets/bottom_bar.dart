@@ -113,7 +113,7 @@ class BottomBar extends StatelessWidget {
               ),
             ],
             onTap: (index) =>
-                BlocProvider.of<BottomBarBloc>(context).add(index),
+                context.read<BottomBarBloc>().onBottomItemPressed(index),
           ),
         );
       },

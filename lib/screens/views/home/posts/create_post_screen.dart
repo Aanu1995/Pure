@@ -67,7 +67,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         centerTitle: true,
         leading: TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: Text(
+          child: const Text(
             "Cancel",
             style: TextStyle(
               fontSize: 17.0,
@@ -78,7 +78,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         ),
         title: const Text(
           'Start post',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 20.0,
             fontWeight: FontWeight.w600,
           ),
@@ -89,7 +89,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             builder: (context, state, _) {
               return TextButton(
                 onPressed: state ? () {} : null,
-                child: Text(
+                child: const Text(
                   "Post",
                   style: TextStyle(
                     fontSize: 17.0,

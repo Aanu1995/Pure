@@ -19,7 +19,27 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    BlocProvider.of<OnBoardingCubit>(context).isUserBoarded();
+    initialize();
+  }
+
+  Future<void> initialize() async {
+    WidgetsBinding.instance!.addPostFrameCallback((_) async {
+      await context.read<OnBoardingCubit>().isUserBoarded();
+      final onboardingState = context.read<OnBoardingCubit>().state;
+      if (onboardingState is NotBoarded) {
+        context.goNamed("board");
+      } else {
+        await context.read<AuthCubit>().authenticateUser();
+        final authState = context.read<AuthCubit>().state;
+        if (authState is UnAuthenticated) {
+          context.goNamed("social");
+        } else if (authState is Authenticated) {
+          CurrentUser.setUserId = authState.user.id;
+          context.goNamed("home");
+        }
+      }
+      initializeLoadingAttributes(context);
+    });
   }
 
   void initializeLoadingAttributes(BuildContext context) {
@@ -34,37 +54,13 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    initializeLoadingAttributes(context);
-
-    return MultiBlocListener(
-      listeners: [
-        BlocListener<OnBoardingCubit, OnBoardingState>(
-          listener: (context, state) {
-            if (state is NotBoarded) {
-              context.goNamed("board");
-            } else {
-              BlocProvider.of<AuthCubit>(context).authenticateUser();
-            }
-          },
-        ),
-        BlocListener<AuthCubit, AuthState>(
-          listener: (context, authState) {
-            if (authState is UnAuthenticated) {
-              context.goNamed("social");
-            } else if (authState is Authenticated) {
-              BlocProvider.of<BottomBarBloc>(context).add(0);
-              CurrentUser.setUserId = authState.user.id;
-              context.goNamed("home");
-            }
-          },
-        ),
-      ],
-      child: Scaffold(
-        body: Image.asset(
-          ImageUtils.splash,
+    return Scaffold(
+      body: Center(
+        child: Image.asset(
+          ImageUtils.logo,
           fit: BoxFit.contain,
-          height: 1.sh,
-          width: 1.sw,
+          height: 45.h,
+          width: 150.w,
         ),
       ),
     );

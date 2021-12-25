@@ -130,12 +130,9 @@ class _TrimmerViewState extends State<TrimmerView> {
                 child: Center(
                   child: TrimEditor(
                     trimmer: _trimmer,
-                    viewerHeight: 50.0,
                     viewerWidth: 1.sw * 0.96,
                     borderPaintColor: Palette.tintColor,
                     scrubberPaintColor: Palette.greenColor,
-                    scrubberWidth: 2.0,
-                    circleSize: 6,
                     maxVideoLength: const Duration(minutes: 2, seconds: 20),
                     onChangeStart: (value) => _startValue = value,
                     onChangeEnd: (value) => _endValue = value,
@@ -151,10 +148,10 @@ class _TrimmerViewState extends State<TrimmerView> {
     );
   }
 
-  void _trimVideo() {
+  Future<void> _trimVideo() async {
     _isTrimmingNotifier.value = true;
 
-    _trimmer.saveTrimmedVideo(
+    await _trimmer.saveTrimmedVideo(
       startValue: _startValue,
       endValue: _endValue,
       onSave: (outputPath) {

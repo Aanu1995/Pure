@@ -114,7 +114,6 @@ class _GroupMessageAppBarTitleState extends State<GroupMessageAppBarTitle> {
 
   @override
   Widget build(BuildContext context) {
-    print(chat.groupImage);
     return InkWell(
       onTap: () => viewGroupProfile(context),
       child: Row(

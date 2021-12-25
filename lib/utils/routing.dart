@@ -1,7 +1,5 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../blocs/bloc.dart';
 import '../screens/views/app_base.dart';
 import '../screens/views/authentication/reset_password_screen.dart';
 import '../screens/views/authentication/reset_password_success_screen.dart';
@@ -30,10 +28,7 @@ final router = GoRouter(
     GoRoute(
       name: "home",
       path: '/home',
-      builder: (context, state) {
-        BlocProvider.of<BottomBarBloc>(context).add(0);
-        return const AppBase();
-      },
+      builder: (context, state) => const AppBase(),
     ),
     GoRoute(
       name: "social",
