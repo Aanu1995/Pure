@@ -14,17 +14,19 @@ abstract class ImageMethods {
     ImagePicker imagePicker,
     ImageSource source, {
     CameraDevice preferredCameraDevice,
-    int? imageQuality,
-    String cancelTitle,
+    int imageQuality = 100,
+    int compressQuality = 45,
     String? doneTitle,
     bool crop,
   });
   Future<List<File>?> pickMultiImage(ImagePicker imagePicker,
-      {int? imageQuality = 100});
+      {int imageQuality = 100, int compressQuality = 45});
+  Future<File?> pickVideo(ImagePicker imagePicker, ImageSource source,
+      {CameraDevice preferredCameraDevice = CameraDevice.front});
 }
 
 class ImageUtils implements ImageMethods {
-  static const String splash = 'assets/images/splash.png';
+  const ImageUtils();
 
   // onboarding light mode slides
   static const String slide1Light = 'assets/images/slide1_light.png';
@@ -58,13 +60,16 @@ class ImageUtils implements ImageMethods {
   static const String username = 'assets/images/username.png';
   static const String location = 'assets/images/location.png';
   static const String calendar = 'assets/images/calendar.png';
+  static const String notifyLight = 'assets/images/notify_light.png';
+  static const String notifyDark = 'assets/images/notify_dark.png';
 
   @override
   Future<File?> pickImage(
     ImagePicker imagePicker,
     ImageSource source, {
     CameraDevice preferredCameraDevice = CameraDevice.front,
-    int? imageQuality = 100,
+    int imageQuality = 100,
+    int compressQuality = 45,
     String cancelTitle = 'Cancel',
     String? doneTitle = 'Done',
     bool crop = true,
@@ -84,7 +89,8 @@ class ImageUtils implements ImageMethods {
       if (isExceeded == false) {
         if (crop == false) {
           // compress image
-          final compressedFile = await _compressImage(rawPickedFile);
+          final compressedFile =
+              await _compressImage(rawPickedFile, compressQuality);
           return compressedFile;
         } else {
           final file = await _cropImage(
@@ -105,9 +111,24 @@ class ImageUtils implements ImageMethods {
     }
   }
 
+  Future<File?> pickVideo(ImagePicker imagePicker, ImageSource source,
+      {CameraDevice preferredCameraDevice = CameraDevice.front}) async {
+    final pickedFile = await imagePicker.pickVideo(
+      source: source,
+      preferredCameraDevice: preferredCameraDevice,
+      maxDuration: Duration(minutes: 2),
+    );
+
+    if (pickedFile != null) {
+      return File(pickedFile.path);
+    } else {
+      return null;
+    }
+  }
+
   @override
   Future<List<File>?> pickMultiImage(ImagePicker imagePicker,
-      {int? imageQuality = 100}) async {
+      {int imageQuality = 100, int compressQuality = 45}) async {
     final pickedFiles =
         await imagePicker.pickMultiImage(imageQuality: imageQuality);
 
@@ -122,7 +143,8 @@ class ImageUtils implements ImageMethods {
         final isExceeded = await isImageUploadSizeExceeded(rawPickedFile);
         if (isExceeded == false) {
           // compress image
-          final compressedFile = await _compressImage(rawPickedFile);
+          final compressedFile =
+              await _compressImage(rawPickedFile, compressQuality);
           if (compressedFile != null) {
             imageFiles.add(compressedFile);
           }
@@ -163,7 +185,7 @@ class ImageUtils implements ImageMethods {
     return croppedFile;
   }
 
-  Future<File?> _compressImage(File file) async {
+  Future<File?> _compressImage(File file, int quality) async {
     final filePath = file.absolute.path;
 
     // Create output file path
@@ -174,7 +196,7 @@ class ImageUtils implements ImageMethods {
     final result = await FlutterImageCompress.compressAndGetFile(
       filePath,
       targetPath,
-      quality: 45,
+      quality: quality,
     );
 
     return result;
