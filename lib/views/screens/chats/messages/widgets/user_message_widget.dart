@@ -40,7 +40,7 @@ class UserMessage extends StatelessWidget {
             if (message.receipt == Receipt.Failed)
               FailedToDeliverMessageWidget(
                 chatId: chatId,
-                hasAttachments: message.attachments!.isNotEmpty,
+                hasAttachments: message.attachments?.isNotEmpty ?? false,
               )
           ],
         ),

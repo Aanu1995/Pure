@@ -82,7 +82,7 @@ class MessageServiceImp extends MessageService {
   Stream<MessagesModel?> getNewMessages(String chatId, String currentUserId) {
     // this fetches new messages for a user on every receipt update using the
     // user last seen message time
-    String? topMessageDate;
+    String? topMsgDate;
 
     try {
       return _receiptCollection
@@ -97,16 +97,31 @@ class MessageServiceImp extends MessageService {
               data[currentUserId]["lastSeen"] as String? ??
                   DateTime(1970).toIso8601String();
 
-          String? newTopMessageDate =
-              _getTopReadMessageDate(data, currentUserId);
+          String? newTopMsgDate = _getTopReadMessageDate(data, currentUserId);
 
-          if (newTopMessageDate != null &&
-              (topMessageDate != newTopMessageDate)) {
-            final msgModelResult =
+          if (newTopMsgDate != null && (topMsgDate != newTopMsgDate)) {
+            final msgResult =
                 await _getNewMessagesFuture(chatId, lastSeenMessageDate);
-            if (msgModelResult != null) {
-              topMessageDate = newTopMessageDate;
-              return _getMessageModel(msgModelResult, newTopMessageDate, data);
+            if (msgResult != null) {
+              final shouldUpdateLocalStorage =
+                  topMsgDate == null && msgResult.messages.length <= 20;
+              topMsgDate = newTopMsgDate;
+
+              // shouldUpdateLocalStorage is true only when the user starts
+              // listening for the first time.
+              // if shouldUpdateLocalStorage is true, the local storage is
+              // updated with the last 20 messages in order to be in sync
+              // with the data in the remote database. else nothing happens
+              if (shouldUpdateLocalStorage) {
+                _getNewMessagesFuture(
+                  chatId,
+                  DateTime(1970).toIso8601String(),
+                  limit: 20,
+                ).then((result) {
+                  _getMessageModel(result!, newTopMsgDate, data);
+                });
+              }
+              return _getMessageModel(msgResult, newTopMsgDate, data);
             }
           }
         }
