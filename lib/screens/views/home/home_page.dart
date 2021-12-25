@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:pure/utils/app_theme.dart';
 
+import '../../../utils/app_theme.dart';
 import '../../widgets/bottom_bar.dart';
 import '../../widgets/page_transition.dart';
 import 'posts/create_post_screen.dart';
@@ -20,7 +20,12 @@ class _HomePageState extends State<HomePage> {
         elevation: 1,
         title: Text("Home"),
       ),
-      body: Container(),
+      body: Center(
+        child: const Text(
+          "Coming Soon",
+          style: TextStyle(fontSize: 24),
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Palette.tintColor,
         child: Icon(

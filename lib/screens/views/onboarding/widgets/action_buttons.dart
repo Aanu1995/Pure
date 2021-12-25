@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:pure/utils/app_theme.dart';
+
+import '../../../../utils/app_theme.dart';
 
 class PrevButton extends StatelessWidget {
   const PrevButton({Key? key, required this.onPressed}) : super(key: key);
@@ -11,13 +12,13 @@ class PrevButton extends StatelessWidget {
       onPressed: onPressed,
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        children: const [
+        children: [
           Icon(
             Icons.chevron_left,
             size: 26,
             color: Palette.tintColor,
           ),
-          Text(
+          const Text(
             'BACK',
             style: TextStyle(
               fontSize: 14,
@@ -44,8 +45,8 @@ class NextButton extends StatelessWidget {
           onPressed: onPressed,
           child: Row(
             mainAxisSize: MainAxisSize.min,
-            children: const [
-              Text(
+            children: [
+              const Text(
                 'NEXT',
                 style: TextStyle(
                   fontSize: 14,

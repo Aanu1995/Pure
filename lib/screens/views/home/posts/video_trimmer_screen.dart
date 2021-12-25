@@ -133,6 +133,8 @@ class _TrimmerViewState extends State<TrimmerView> {
                     viewerWidth: 1.sw * 0.96,
                     borderPaintColor: Palette.tintColor,
                     scrubberPaintColor: Palette.greenColor,
+                    circleSize: 20,
+                    scrubberWidth: 2,
                     maxVideoLength: const Duration(minutes: 2, seconds: 20),
                     onChangeStart: (value) => _startValue = value,
                     onChangeEnd: (value) => _endValue = value,

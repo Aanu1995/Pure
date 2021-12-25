@@ -21,16 +21,13 @@ class OnBoardingBody extends StatelessWidget {
       children: [
         Image.asset(image),
         SizedBox(height: 1.sh * 0.07),
-        SizedBox(
-          width: 1.sw * 0.9,
-          child: Text(
-            title,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 32,
-              fontFamily: Palette.migraFontFamily,
-              fontWeight: FontWeight.w500,
-            ),
+        Text(
+          title,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 32,
+            fontFamily: Palette.migraFontFamily,
+            fontWeight: FontWeight.w500,
           ),
         ),
         const SizedBox(height: 8),
@@ -40,7 +37,7 @@ class OnBoardingBody extends StatelessWidget {
             subTitle,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 17,
+              fontSize: 16,
               fontWeight: FontWeight.w400,
               height: 1.3,
               letterSpacing: 0.5,

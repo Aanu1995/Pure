@@ -51,7 +51,6 @@ class AppPermission {
 
   // check if camera permission is granted
   static Future<void> checkVideoPermission(BuildContext context) async {
-    await checkPhotoPermission(context);
     await checkCameraPermission(context);
     await checkMicrophonePermission(context);
   }

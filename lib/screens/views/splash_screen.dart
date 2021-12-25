@@ -23,23 +23,21 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> initialize() async {
-    WidgetsBinding.instance!.addPostFrameCallback((_) async {
-      await context.read<OnBoardingCubit>().isUserBoarded();
-      final onboardingState = context.read<OnBoardingCubit>().state;
-      if (onboardingState is NotBoarded) {
-        context.goNamed("board");
-      } else {
-        await context.read<AuthCubit>().authenticateUser();
-        final authState = context.read<AuthCubit>().state;
-        if (authState is UnAuthenticated) {
-          context.goNamed("social");
-        } else if (authState is Authenticated) {
-          CurrentUser.setUserId = authState.user.id;
-          context.goNamed("home");
-        }
+    await context.read<OnBoardingCubit>().isUserBoarded();
+    final onboardingState = context.read<OnBoardingCubit>().state;
+    if (onboardingState is NotBoarded) {
+      context.goNamed("board");
+    } else {
+      await context.read<AuthCubit>().authenticateUser();
+      final authState = context.read<AuthCubit>().state;
+      if (authState is UnAuthenticated) {
+        context.goNamed("social");
+      } else if (authState is Authenticated) {
+        CurrentUser.setUserId = authState.user.id;
+        context.goNamed("home");
       }
-      initializeLoadingAttributes(context);
-    });
+    }
+    initializeLoadingAttributes(context);
   }
 
   void initializeLoadingAttributes(BuildContext context) {
