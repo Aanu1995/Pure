@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:pure/screens/views/settings/widgets/items.dart';
-import 'package:pure/utils/app_theme.dart';
 
 import '../../../../blocs/bloc.dart';
 import '../../../../model/pure_user_model.dart';
 import '../../../../utils/app_extension.dart';
+import '../../../../utils/app_theme.dart';
 import '../../../../utils/validators.dart';
 import '../../../widgets/snackbars.dart';
+import '../widgets/items.dart';
 import 'widgets/profile_pic_widget.dart';
 
 class EditProfileScreen extends StatefulWidget {

@@ -79,9 +79,7 @@ class _PostVideoPreviewState extends State<PostVideoPreview> {
   void initState() {
     super.initState();
     _controller = VideoPlayerController.file(widget.trimmedVideoFile);
-    _controller.initialize().then((_) => setState(() {
-          _controller.play();
-        }));
+    _controller.initialize().then((_) => setState(() {}));
   }
 
   @override

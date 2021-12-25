@@ -1,14 +1,14 @@
 import 'package:go_router/go_router.dart';
 
-import '../screens/views/app_base.dart';
-import '../screens/views/authentication/reset_password_screen.dart';
-import '../screens/views/authentication/reset_password_success_screen.dart';
-import '../screens/views/authentication/signin_screen.dart';
-import '../screens/views/authentication/signup_screen.dart';
-import '../screens/views/authentication/social_signin_screen.dart';
-import '../screens/views/onboarding/onboarding_screen.dart';
-import '../screens/views/splash_screen.dart';
-import '../screens/widgets/error_page.dart';
+import '../views/screens/app_base.dart';
+import '../views/screens/authentication/reset_password_screen.dart';
+import '../views/screens/authentication/reset_password_success_screen.dart';
+import '../views/screens/authentication/signin_screen.dart';
+import '../views/screens/authentication/signup_screen.dart';
+import '../views/screens/authentication/social_signin_screen.dart';
+import '../views/screens/onboarding/onboarding_screen.dart';
+import '../views/screens/splash_screen.dart';
+import '../views/widgets/error_page.dart';
 
 final router = GoRouter(
   // turn off the # in the URLs on the web

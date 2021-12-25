@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pure/screens/views/chats/messages/messages_screen.dart';
-import 'package:pure/utils/navigate.dart';
 
 import '../../../../../blocs/bloc.dart';
 import '../../../../../model/app_enum.dart';
 import '../../../../../model/invitation_model.dart';
 import '../../../../../model/pure_user_model.dart';
 import '../../../../../utils/app_theme.dart';
+import '../../../../../utils/navigate.dart';
+import '../../../chats/messages/messages_screen.dart';
 
 class ConnectionStatusWidget extends StatelessWidget {
   final PureUser viewer;

@@ -1,12 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:pure/screens/views/settings/settings_screen.dart';
 
 import '../../../../../model/pure_user_model.dart';
 import '../../../../../utils/image_utils.dart';
 import '../../../../../utils/navigate.dart';
 import '../../../../widgets/avatar.dart';
 import '../../../settings/profile/profile_screen.dart';
+import '../../../settings/settings_screen.dart';
 import 'connection_status_widget.dart';
 
 class ShortUserProfile extends StatelessWidget {

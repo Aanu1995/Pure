@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:pure/model/pure_user_model.dart';
-import 'package:pure/screens/widgets/snackbars.dart';
-import 'package:pure/utils/app_theme.dart';
 
 import '../../../../blocs/search/search_username.dart';
 import '../../../../blocs/user_profile/user_profile_cubit.dart';
 import '../../../../blocs/user_profile/user_profile_state.dart';
+import '../../../model/pure_user_model.dart';
+import '../../../utils/app_theme.dart';
+import '../../widgets/snackbars.dart';
 
 class UpdateUsernameScreen extends StatefulWidget {
   final PureUser user;
