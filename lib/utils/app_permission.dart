@@ -6,7 +6,7 @@ import 'package:permission_handler/permission_handler.dart';
 class AppPermission {
   // check if camera permission is granted
   static Future<void> checkCameraPermission(BuildContext context) async {
-    final status = await Permission.camera.status;
+    final status = await Permission.camera.request();
 
     if (status == PermissionStatus.denied ||
         status == PermissionStatus.permanentlyDenied) {
@@ -22,7 +22,7 @@ class AppPermission {
 
   // check if camera permission is granted
   static Future<void> checkPhotoPermission(BuildContext context) async {
-    final status = await Permission.photos.status;
+    final status = await Permission.photos.request();
     if (status == PermissionStatus.denied ||
         status == PermissionStatus.permanentlyDenied) {
       const title = 'Enable Photos Access';
@@ -33,6 +33,26 @@ class AppPermission {
         message: message,
       );
     }
+  }
+
+  static Future<void> checkMicrophonePermission(BuildContext context) async {
+    final status = await Permission.microphone.request();
+    if (status == PermissionStatus.denied ||
+        status == PermissionStatus.permanentlyDenied) {
+      const title = 'Enable Microphone Access';
+      const message = 'Go to settings to enable microphone access';
+      await _showPermissionRequestDialog(
+        context: context,
+        title: title,
+        message: message,
+      );
+    }
+  }
+
+  // check if camera permission is granted
+  static Future<void> checkVideoPermission(BuildContext context) async {
+    await checkCameraPermission(context);
+    await checkMicrophonePermission(context);
   }
 
   static Future<void> _showPermissionRequestDialog(

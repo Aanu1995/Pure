@@ -61,10 +61,12 @@ class ChatServiceImp extends ChatService {
       if (groupImage != null) {
         // upload image to storage
         groupImageURL = await _remoteStorage.uploadProfileImage(
-            chatModel.chatId, groupImage);
+          chatModel.chatId,
+          groupImage,
+        );
       }
 
-      final groupChat = chatModel.copyWith(image: groupImageURL);
+      final groupChat = chatModel.copyWith(image: groupImageURL ?? "");
 
       await _chatCollection
           .doc(chatModel.chatId)
