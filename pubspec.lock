@@ -197,6 +197,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.0.1"
+  csslib:
+    dependency: transitive
+    description:
+      name: csslib
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.17.1"
   cupertino_icons:
     dependency: "direct main"
     description:
@@ -288,6 +295,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.1.2"
+  ffmpeg_kit_flutter:
+    dependency: transitive
+    description:
+      name: ffmpeg_kit_flutter
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.5.0-LTS"
+  ffmpeg_kit_flutter_platform_interface:
+    dependency: transitive
+    description:
+      name: ffmpeg_kit_flutter_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.0"
   file:
     dependency: transitive
     description:
@@ -567,6 +588,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.10.0+3"
+  html:
+    dependency: transitive
+    description:
+      name: html
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.15.0"
   http:
     dependency: transitive
     description:
@@ -1209,6 +1237,41 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.4.0"
+  video_player:
+    dependency: "direct main"
+    description:
+      name: video_player
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.2.10"
+  video_player_platform_interface:
+    dependency: transitive
+    description:
+      name: video_player_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "5.0.0"
+  video_player_web:
+    dependency: transitive
+    description:
+      name: video_player_web
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.5"
+  video_thumbnail:
+    dependency: transitive
+    description:
+      name: video_thumbnail
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.4.3"
+  video_trimmer:
+    dependency: "direct main"
+    description:
+      name: video_trimmer
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.0"
   vm_service:
     dependency: transitive
     description:

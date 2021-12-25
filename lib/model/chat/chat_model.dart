@@ -147,7 +147,7 @@ class ChatModel extends Equatable {
   }
 
   bool isAdmin(String userId) {
-    return admins!.contains(userId) || userId == senderId;
+    return admins!.contains(userId) || userId == groupCreatedBy;
   }
 
   String chatCreatedDate() {

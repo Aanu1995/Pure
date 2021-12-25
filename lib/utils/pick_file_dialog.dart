@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'app_theme.dart';
+import 'palette.dart';
 
 // options available for user in bottom when trying to upload either image or file
 enum FileOption { gallery, camera, document, delete }
