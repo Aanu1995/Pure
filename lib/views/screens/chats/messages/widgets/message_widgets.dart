@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
 
 import '../../../../../blocs/bloc.dart';
 import '../../../../../model/chat/attachment_model.dart';
 import '../../../../../model/chat/message_model.dart';
+import '../../../../../utils/app_utils.dart';
 import '../../../../../utils/file_utils.dart';
+import '../../../../../utils/palette.dart';
 
 class TrailingText extends StatelessWidget {
   final String time;
@@ -115,19 +118,26 @@ class TextWidget extends StatelessWidget {
   const TextWidget({Key? key, required this.text, this.color})
       : super(key: key);
 
+  final _style = const TextStyle(
+    fontSize: 15,
+    fontWeight: FontWeight.w400,
+    letterSpacing: 0.15,
+    fontFamily: Palette.sanFontFamily,
+  );
+
   @override
   Widget build(BuildContext context) {
     if (text.isEmpty) return Offstage();
     return Padding(
       padding: const EdgeInsets.fromLTRB(2, 4, 2, 4),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 16.0,
-          fontWeight: FontWeight.w400,
+      child: SelectableLinkify(
+        text: text,
+        style: _style.copyWith(
           color: color ?? Theme.of(context).colorScheme.secondary,
-          letterSpacing: 0.15,
         ),
+        options: LinkifyOptions(humanize: false),
+        linkStyle: _style.copyWith(color: Colors.blueAccent),
+        onOpen: (link) => launchIfCan(context, link.url),
       ),
     );
   }

@@ -1,8 +1,11 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:pure/views/widgets/snackbars.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 
 import '../model/chat/chat_model.dart';
@@ -101,4 +104,14 @@ DocumentSnapshot? getLastDoc(MessagesModel newMsg, MessagesModel oldMsg) {
   return oldMsg.messages.length > newMsg.messages.length
       ? oldMsg.lastDoc
       : newMsg.lastDoc;
+}
+
+Future<void> launchIfCan(BuildContext context, String url) async {
+  final result = await canLaunch(url);
+  if (result)
+    launch(url);
+  else {
+    final message = "Please install a browser that can open the link";
+    showFailureFlash(context, message);
+  }
 }

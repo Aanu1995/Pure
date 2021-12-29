@@ -1,6 +1,7 @@
 import 'package:bubble/bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pure/views/screens/chats/messages/widgets/pure_link_preview.dart';
 
 import '../../../../../model/chat/attachment_model.dart';
 import '../../../../../model/chat/message_model.dart';
@@ -106,9 +107,15 @@ class _MessageBody extends StatelessWidget {
               )
           else
             // show text only
-            TextWidget(
-              key: ValueKey("${message.messageId}${message.text}"),
-              text: message.text,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                PureLinkPreview(text: message.text),
+                TextWidget(
+                  key: ValueKey("${message.messageId}${message.text}"),
+                  text: message.text,
+                ),
+              ],
             ),
           // Date Widget
           if (message.attachments?.first is! DocumentAttachment)
