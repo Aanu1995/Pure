@@ -2,9 +2,13 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_link_previewer/flutter_link_previewer.dart';
 import 'package:intl/intl.dart';
+import 'package:linkify/linkify.dart';
+import 'package:pure/utils/global_utils.dart';
 import 'package:pure/views/widgets/snackbars.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:flutter_chat_types/flutter_chat_types.dart' show PreviewData;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 
@@ -114,4 +118,21 @@ Future<void> launchIfCan(BuildContext context, String url) async {
     final message = "Please install a browser that can open the link";
     showFailureFlash(context, message);
   }
+}
+
+Future<PreviewData?> getLinkPreviewData(String text) async {
+  final links = linkify(
+    text,
+    options: LinkifyOptions(humanize: false),
+    linkifiers: [UrlLinkifier()],
+  ).where((element) {
+    final link = element.text;
+    if (link.contains("http") || link.contains("https")) return true;
+    return false;
+  }).toList();
+
+  if (links.isNotEmpty)
+    return await getPreviewData(text).timeout(GlobalUtils.timeOutInDuration);
+  else
+    return null;
 }

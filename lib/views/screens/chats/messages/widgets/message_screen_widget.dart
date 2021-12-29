@@ -6,8 +6,8 @@ import '../../../../../model/chat/chat_model.dart';
 import '../../../../../model/chat/message_model.dart';
 import '../../../../../model/pure_user_model.dart';
 import '../../../../../services/chat/chat_service.dart';
-import '../../../../../utils/palette.dart';
 import '../../../../../utils/navigate.dart';
+import '../../../../../utils/palette.dart';
 import '../../../../widgets/avatar.dart';
 import '../../../settings/profile/profile_screen.dart';
 import '../../group/group_info_screen.dart';
@@ -159,11 +159,24 @@ class _GroupMessageAppBarTitleState extends State<GroupMessageAppBarTitle> {
   }
 }
 
-class MessageBody extends StatelessWidget {
+class MessageBody extends StatefulWidget {
   final String chatId;
   final String? receipientName; // only for One-to-One Chat
   const MessageBody({Key? key, required this.chatId, this.receipientName})
       : super(key: key);
+
+  @override
+  State<MessageBody> createState() => _MessageBodyState();
+}
+
+class _MessageBodyState extends State<MessageBody> {
+  final _inputFocusNode = FocusNode();
+
+  @override
+  void dispose() {
+    _inputFocusNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -172,30 +185,25 @@ class MessageBody extends StatelessWidget {
           prev is MessageInitial && current is MessagesLoaded,
       listener: (context, state) => context
           .read<NewMessagesCubit>()
-          .updateOnNewMessages(chatId, CurrentUser.currentUserId),
+          .updateOnNewMessages(widget.chatId, CurrentUser.currentUserId),
       child: Column(
         children: [
           // Messages
           Expanded(
             child: Messagesbody(
-              chatId: chatId,
-              firstName: receipientName,
+              chatId: widget.chatId,
+              inputFocusNode: _inputFocusNode,
+              firstName: widget.receipientName,
               onSentButtonPressed: (final message) =>
                   sendMessage(context, message),
             ),
           ),
           // Message Input Box
-          AnimatedPadding(
-            duration: Duration(milliseconds: 300),
-            curve: Curves.decelerate,
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-            ),
-            child: MessageInputBox(
-              chatId: chatId,
-              onSentButtonPressed: (final message) =>
-                  sendMessage(context, message),
-            ),
+          MessageInputBox(
+            chatId: widget.chatId,
+            inputFocusNode: _inputFocusNode,
+            onSentButtonPressed: (final message) =>
+                sendMessage(context, message),
           )
         ],
       ),
@@ -203,6 +211,6 @@ class MessageBody extends StatelessWidget {
   }
 
   void sendMessage(final BuildContext context, final MessageModel message) {
-    context.read<MessageCubit>().sendMessage(chatId, message);
+    context.read<MessageCubit>().sendMessage(widget.chatId, message);
   }
 }

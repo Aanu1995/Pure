@@ -17,12 +17,14 @@ class Messagesbody extends StatefulWidget {
   final String chatId;
   final String? firstName;
   final ValueChanged<MessageModel> onSentButtonPressed;
-  const Messagesbody(
-      {Key? key,
-      required this.chatId,
-      this.firstName,
-      required this.onSentButtonPressed})
-      : super(key: key);
+  final FocusNode inputFocusNode;
+  const Messagesbody({
+    Key? key,
+    required this.chatId,
+    this.firstName,
+    required this.onSentButtonPressed,
+    required this.inputFocusNode,
+  }) : super(key: key);
 
   @override
   _MessagesbodyState createState() => _MessagesbodyState();
@@ -54,10 +56,8 @@ class _MessagesbodyState extends State<Messagesbody> {
 
   void newMessagesListener(BuildContext context, final MessageState state) {
     if (state is MessagesLoaded) {
-      final hasBottomPadding = MediaQuery.of(context).viewInsets.bottom > 0;
-
-      if (hasBottomPadding) {
-        // Occur if user keyboard is open, new messages should be autom
+      if (widget.inputFocusNode.hasFocus) {
+        // Occur if user keyboard is open, new messages should be updated automatically
         _updateLatestMessage(state);
       } else {
         final minScroll = _controller.position.minScrollExtent;

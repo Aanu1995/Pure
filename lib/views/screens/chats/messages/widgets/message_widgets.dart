@@ -145,9 +145,7 @@ class TextWidget extends StatelessWidget {
 
 class FailedToDeliverMessageWidget extends StatelessWidget {
   final String chatId;
-  final bool hasAttachments;
-  const FailedToDeliverMessageWidget(
-      {Key? key, required this.chatId, this.hasAttachments = false})
+  const FailedToDeliverMessageWidget({Key? key, required this.chatId})
       : super(key: key);
 
   static final _style = const TextStyle(
@@ -169,16 +167,15 @@ class FailedToDeliverMessageWidget extends StatelessWidget {
         ),
 
         // Try again Button
-        if (hasAttachments)
-          InkWell(
-            borderRadius: BorderRadius.circular(500),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(4, 2, 8, 10),
-              child: Icon(Icons.refresh),
-            ),
-            onTap: () =>
-                context.read<MessageCubit>().resendFailedMessages(chatId),
+        InkWell(
+          borderRadius: BorderRadius.circular(500),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(4, 2, 8, 10),
+            child: Icon(Icons.refresh),
           ),
+          onTap: () =>
+              context.read<MessageCubit>().resendFailedMessages(chatId),
+        ),
       ],
     );
   }
