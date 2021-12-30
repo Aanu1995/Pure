@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
+import 'package:linkify/linkify.dart';
 
 import '../../../../../blocs/bloc.dart';
 import '../../../../../model/chat/attachment_model.dart';
@@ -118,10 +119,16 @@ class TextWidget extends StatelessWidget {
   const TextWidget({Key? key, required this.text, this.color})
       : super(key: key);
 
+  final defaultLinkifiers = const [
+    UrlLinkifier(),
+    EmailLinkifier(),
+    UserTagLinkifier()
+  ];
+
   final _style = const TextStyle(
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: FontWeight.w400,
-    letterSpacing: 0.15,
+    letterSpacing: 0.1,
     fontFamily: Palette.sanFontFamily,
   );
 
@@ -135,6 +142,8 @@ class TextWidget extends StatelessWidget {
         style: _style.copyWith(
           color: color ?? Theme.of(context).colorScheme.secondary,
         ),
+        textScaleFactor: null,
+        linkifiers: defaultLinkifiers,
         options: LinkifyOptions(humanize: false),
         linkStyle: _style.copyWith(color: Colors.blueAccent),
         onOpen: (link) => launchIfCan(context, link.url),

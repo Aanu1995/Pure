@@ -36,8 +36,8 @@ class RefreshLoadingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: isTransparent ? Colors.transparent : Colors.grey[200],
+    return ColoredBox(
+      color: isTransparent ? Colors.transparent : Colors.grey[200]!,
       child: Column(
         children: [
           if (!isTransparent) Divider(height: 0.0),

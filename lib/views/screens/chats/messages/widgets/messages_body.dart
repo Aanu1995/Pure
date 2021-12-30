@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../../utils/chat_utils.dart';
 
 import '../../../../../blocs/bloc.dart';
 import '../../../../../model/chat/message_model.dart';
 import '../../../../../model/pure_user_model.dart';
-import '../../../../../utils/app_utils.dart';
 import '../../../../widgets/grouped_list/grouped_list.dart';
 import 'date_separator_widget.dart';
 import 'empty_widget.dart';
@@ -33,12 +33,14 @@ class Messagesbody extends StatefulWidget {
 class _MessagesbodyState extends State<Messagesbody> {
   final _controller = ScrollController();
   double lastPos = 0.0;
+  late String currentUserId;
 
   int showNewMessageAtIndex = -1;
 
   @override
   void initState() {
     super.initState();
+    currentUserId = CurrentUser.currentUserId;
     _controller.addListener(_updateMessageOnScroll);
     _controller.addListener(_fetchOldMessagesOnScroll);
   }
@@ -96,7 +98,16 @@ class _MessagesbodyState extends State<Messagesbody> {
                 listener: oldMessagesListener,
               )
             ],
-            child: BlocBuilder<MessageCubit, MessageState>(
+            child: BlocConsumer<MessageCubit, MessageState>(
+              listener: (_, __) {
+                if (widget.inputFocusNode.hasFocus) {
+                  _controller.position.animateTo(
+                    0,
+                    duration: Duration(milliseconds: 300),
+                    curve: Curves.linear,
+                  );
+                }
+              },
               buildWhen: (prev, current) =>
                   (prev is MessageInitial && current is MessagesLoaded) ||
                   (prev is MessagesLoaded &&
@@ -125,18 +136,14 @@ class _MessagesbodyState extends State<Messagesbody> {
                         return GroupDateSeparator(date: date);
                       },
                       indexedItemBuilder: (context, index) {
-                        if (index == messages.length) {
+                        if (index == messages.length)
                           return LoadMoreMessagesWidget(
                             onTap: () => _fetchMore(tryAgain: true),
                           );
-                        } else {
-                          double spacing = 0.0;
+                        else {
                           final message = messages[index];
-                          final isSelf =
-                              message.isSelf(CurrentUser.currentUserId);
-
-                          if (index > 0)
-                            spacing = isSame(index, messages) ? 4.0 : 16.0;
+                          final isSelf = message.isSelf(currentUserId);
+                          final spacing = isFromSameUser(index, messages);
 
                           return Column(
                             children: [
@@ -246,29 +253,8 @@ class _MessagesbodyState extends State<Messagesbody> {
     }
   }
 
-  bool isSame(final int index, final List<MessageModel> messages) {
-    return messages[index - 1].senderId == messages[index].senderId;
-  }
-
-  bool hideNip(final int index, final List<MessageModel> messages) {
-    if (messages.length >= 2 && index < (messages.length - 1)) {
-      final currentMessage = messages[index];
-      final nextMessage = messages[index + 1];
-      if (groupDate(currentMessage.sentDate!) !=
-          groupDate(nextMessage.sentDate!)) {
-        return false;
-      } else {
-        return currentMessage.senderId == nextMessage.senderId;
-      }
-    }
-    return false;
-  }
-
   void sendMessage(String text) {
-    final message = MessageModel.newMessage(
-      text,
-      CurrentUser.currentUserId,
-    );
+    final message = MessageModel.newMessage(text, currentUserId);
     widget.onSentButtonPressed.call(message);
   }
 }

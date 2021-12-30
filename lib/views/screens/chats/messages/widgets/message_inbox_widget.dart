@@ -74,8 +74,7 @@ class _MessageInputBoxState extends State<MessageInputBox> {
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(0, 10, 0, 24),
+      child: DecoratedBox(
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.secondary,
           border: Border(
@@ -85,96 +84,99 @@ class _MessageInputBoxState extends State<MessageInputBox> {
             ),
           ),
         ),
-        child: _docfile != null
-            ? FilePickedWidget(
-                file: _docfile!,
-                onCancelTap: () => setState(() => _docfile = null),
-                onSendPressed: () => sendMessageWithDocAttached(),
-              )
-            : Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  InkWell(
-                    onTap: () => _attachFile(context),
-                    borderRadius: BorderRadius.circular(500),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8.0,
-                        vertical: 4.0,
-                      ),
-                      child: CircleAvatar(
-                        radius: 16.0,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(0, 10, 0, 24),
+          child: _docfile != null
+              ? FilePickedWidget(
+                  file: _docfile!,
+                  onCancelTap: () => setState(() => _docfile = null),
+                  onSendPressed: () => sendMessageWithDocAttached(),
+                )
+              : Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    InkWell(
+                      onTap: () => _attachFile(context),
+                      borderRadius: BorderRadius.circular(500),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8.0,
+                          vertical: 4.0,
+                        ),
                         child: CircleAvatar(
-                          radius: 15.0,
-                          backgroundColor:
-                              Theme.of(context).dialogBackgroundColor,
-                          child: const Icon(Icons.add_outlined),
+                          radius: 16.0,
+                          child: CircleAvatar(
+                            radius: 15.0,
+                            backgroundColor:
+                                Theme.of(context).dialogBackgroundColor,
+                            child: const Icon(Icons.add_outlined),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  Expanded(
-                    child: CupertinoTextField(
-                      controller: _controller,
-                      focusNode: widget.inputFocusNode,
-                      style: _textStyle.copyWith(
-                        color: Theme.of(context).colorScheme.primaryVariant,
+                    Expanded(
+                      child: CupertinoTextField(
+                        controller: _controller,
+                        focusNode: widget.inputFocusNode,
+                        style: _textStyle.copyWith(
+                          color: Theme.of(context).colorScheme.primaryVariant,
+                        ),
+                        minLines: 1,
+                        maxLines: 5,
+                        textInputAction: TextInputAction.newline,
+                        placeholder: "Write a message...",
+                        placeholderStyle: _textStyle.copyWith(
+                          color: Colors.grey.shade600,
+                        ),
+                        padding: const EdgeInsets.all(10.0),
                       ),
-                      minLines: 1,
-                      maxLines: 5,
-                      textInputAction: TextInputAction.newline,
-                      placeholder: "Write a message...",
-                      placeholderStyle: _textStyle.copyWith(
-                        color: Colors.grey.shade600,
-                      ),
-                      padding: const EdgeInsets.all(10.0),
                     ),
-                  ),
-                  ValueListenableBuilder<bool>(
-                    valueListenable: _isEmptyNotifier,
-                    builder: (context, state, _) {
-                      if (state)
-                        return InkWell(
-                          onTap: () {},
-                          borderRadius: BorderRadius.circular(500),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8.0,
-                              vertical: 4.0,
-                            ),
-                            child: Icon(
-                              Icons.mic,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .secondaryVariant,
-                              size: 28.0,
-                            ),
-                          ),
-                        );
-                      else
-                        return InkWell(
-                          onTap: () => sendMessageOnly(),
-                          borderRadius: BorderRadius.circular(500),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8.0,
-                              vertical: 4.0,
-                            ),
-                            child: CircleAvatar(
-                              radius: 16.0,
-                              backgroundColor: Palette.tintColor,
+                    ValueListenableBuilder<bool>(
+                      valueListenable: _isEmptyNotifier,
+                      builder: (context, state, _) {
+                        if (state)
+                          return InkWell(
+                            onTap: () {},
+                            borderRadius: BorderRadius.circular(500),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8.0,
+                                vertical: 4.0,
+                              ),
                               child: Icon(
-                                Icons.send,
-                                size: 20.0,
-                                color: Theme.of(context).colorScheme.surface,
+                                Icons.mic,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .secondaryVariant,
+                                size: 28.0,
                               ),
                             ),
-                          ),
-                        );
-                    },
-                  )
-                ],
-              ),
+                          );
+                        else
+                          return InkWell(
+                            onTap: () => sendMessageOnly(),
+                            borderRadius: BorderRadius.circular(500),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8.0,
+                                vertical: 4.0,
+                              ),
+                              child: CircleAvatar(
+                                radius: 16.0,
+                                backgroundColor: Palette.tintColor,
+                                child: Icon(
+                                  Icons.send,
+                                  size: 20.0,
+                                  color: Theme.of(context).colorScheme.surface,
+                                ),
+                              ),
+                            ),
+                          );
+                      },
+                    )
+                  ],
+                ),
+        ),
       ),
     );
   }
