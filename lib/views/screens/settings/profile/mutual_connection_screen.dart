@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pure/views/widgets/custom_keep_alive.dart';
 
 import '../../../../blocs/bloc.dart';
 import '../../../../model/invitation_model.dart';
@@ -36,9 +37,8 @@ class MutualConnectionsScreen extends StatelessWidget {
         childrenDelegate: SliverChildBuilderDelegate(
           (BuildContext context, int index) {
             final connectorId = connections[index];
-            return KeepAlive(
+            return CustomKeepAlive(
               key: ValueKey<String>(connectorId),
-              keepAlive: true,
               child: ProfileProvider(
                 userId: connectorId,
                 child: _ConnectorProfile(

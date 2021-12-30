@@ -1,6 +1,7 @@
 import 'package:flash/flash.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pure/views/widgets/custom_keep_alive.dart';
 
 import '../../../../../../../blocs/bloc.dart';
 import '../../../../../../../model/connection_model.dart';
@@ -147,9 +148,8 @@ class _ReceivedScreenState extends State<ReceivedScreen>
                             else {
                               final inviter =
                                   state.inviterModel.inviters[index];
-                              return KeepAlive(
+                              return CustomKeepAlive(
                                 key: ValueKey<String>(inviter.invitationId),
-                                keepAlive: true,
                                 child: ProfileProvider(
                                   userId: inviter.inviterId,
                                   child: InviterProfile(
