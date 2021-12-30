@@ -5,7 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../model/chat/attachment_model.dart';
 import '../../model/chat/message_model.dart';
-import '../../utils/app_utils.dart';
+import '../../utils/chat_utils.dart';
 import '../../utils/exception.dart';
 import '../../utils/global_utils.dart';
 import '../../utils/request_messages.dart';

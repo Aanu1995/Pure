@@ -26,7 +26,7 @@ class PureLinkPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = Colors.black;
+    final color = Theme.of(context).colorScheme.secondary;
     if (!_hasData(linkPreviedData)) return Offstage();
     return InkWell(
       onTap: () => launchIfCan(context, linkPreviedData!.link!),
@@ -34,7 +34,7 @@ class PureLinkPreview extends StatelessWidget {
         width: 1.sw * 0.72,
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: Colors.black12,
+            color: color.withOpacity(0.06),
             borderRadius: BorderRadius.circular(4.0),
           ),
           child: FloatColumn(
@@ -63,7 +63,7 @@ class PureLinkPreview extends StatelessWidget {
                     text: linkPreviedData!.title!,
                     style: _style.copyWith(
                       fontWeight: FontWeight.w500,
-                      color: color.withOpacity(0.7),
+                      color: color.withOpacity(0.9),
                     ),
                   ),
                 ),
@@ -73,7 +73,7 @@ class PureLinkPreview extends StatelessWidget {
                   text: TextSpan(
                     text: linkPreviedData!.description!,
                     style: _style.copyWith(
-                      color: color.withOpacity(0.5),
+                      color: color.withOpacity(0.7),
                       fontSize: 12.0,
                     ),
                   ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../../utils/app_utils.dart';
+import '../../../../../utils/chat_utils.dart';
 
 class GroupDateSeparator extends StatelessWidget {
   final DateTime date;

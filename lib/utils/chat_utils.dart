@@ -1,5 +1,14 @@
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_chat_types/flutter_chat_types.dart' show PreviewData;
+import 'package:flutter_link_previewer/flutter_link_previewer.dart';
+import 'package:intl/intl.dart';
+import 'package:linkify/linkify.dart';
+
+import '../model/chat/chat_model.dart';
 import '../model/chat/message_model.dart';
-import 'app_utils.dart';
+import 'global_utils.dart';
 
 double isFromSameUser(final int index, final List<MessageModel> messages) {
   if (index > 0) {
@@ -22,4 +31,89 @@ bool hideNip(final int index, final List<MessageModel> messages) {
     }
   }
   return false;
+}
+
+// gets lastDoc for messages
+DocumentSnapshot? getLastDoc(MessagesModel newMsg, MessagesModel oldMsg) {
+  return oldMsg.messages.length > newMsg.messages.length
+      ? oldMsg.lastDoc
+      : newMsg.lastDoc;
+}
+
+String groupDate(DateTime date) {
+  final filteredDate = DateTime(date.year, date.month, date.day);
+  if (DateTime.now().difference(filteredDate).inDays == 0) return "Today";
+  if (DateTime.now().difference(filteredDate).inDays == 1) return "Yesterday";
+  if (DateTime.now().difference(filteredDate).inDays < 7)
+    return DateFormat("EEEE").format(date);
+  if (DateTime.now().difference(filteredDate).inDays < 365)
+    return DateFormat.MMMEd().format(date);
+
+  return DateFormat.yMMMd().format(date);
+}
+
+String chatTime(final DateTime date) {
+  final filteredDate = DateTime(date.year, date.month, date.day);
+  if (DateTime.now().difference(filteredDate).inDays == 0)
+    return DateFormat.jm().format(date);
+  if (DateTime.now().difference(filteredDate).inDays == 1) return "Yesterday";
+  if (DateTime.now().difference(filteredDate).inDays < 7)
+    return DateFormat("EEEE").format(date);
+
+  return DateFormat.yMd().format(date);
+}
+
+// this method remove duplicate messages and still main order
+List<MessageModel> orderedSetForMessages(final List<MessageModel> messages) {
+  final result = messages.toList();
+  final messageIds = Set<String>();
+  result.retainWhere((x) => messageIds.add(x.messageId));
+  return result.toList();
+}
+
+// this method remove duplicate chats and still main order
+List<ChatModel> orderedSetForChats(final List<ChatModel> chats) {
+  final result = chats.toList();
+  final chatIds = Set<String>();
+  result.retainWhere((x) => chatIds.add(x.chatId));
+  return result.toList();
+}
+
+// this method remove duplicate Files and still main order
+List<File> orderedSetForFiles(final List<File> files) {
+  final result = files.toList();
+  final chatIds = Set<int>();
+  result.retainWhere((x) => chatIds.add(x.lengthSync()));
+  return result.toList();
+}
+
+Future<PreviewData?> getLinkPreviewData(String text) async {
+  final links = linkify(
+    text,
+    options: LinkifyOptions(humanize: false),
+    linkifiers: [UrlLinkifier()],
+  ).where((element) {
+    final link = element.text;
+    if (link.contains("http") || link.contains("https")) return true;
+    return false;
+  }).toList();
+
+  if (links.isNotEmpty)
+    return await getPreviewData(text).timeout(GlobalUtils.timeOutInDuration);
+  else
+    return null;
+}
+
+// extracts tagged usernames from text
+List<String> getTaggedUsernames(String text) {
+  final links = linkify(
+    text,
+    linkifiers: [UserTagLinkifier()],
+  ).where((element) {
+    final link = element.text;
+    if (link.startsWith("@")) return true;
+    return false;
+  }).toList();
+  print(links.map((e) => e.text).toList());
+  return links.map((e) => e.text).toList();
 }

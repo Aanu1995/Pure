@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:pure/utils/chat_utils.dart';
 
 import '../../../../../model/chat/message_model.dart';
 import '../../../../../model/pure_user_model.dart';
@@ -24,11 +25,13 @@ class MessageInputBox extends StatefulWidget {
   final String chatId;
   final ValueChanged<MessageModel> onSentButtonPressed;
   final FocusNode inputFocusNode;
+  final bool allowUserTagging;
   const MessageInputBox({
     Key? key,
     required this.chatId,
     required this.onSentButtonPressed,
     required this.inputFocusNode,
+    this.allowUserTagging = false,
   }) : super(key: key);
 
   @override
@@ -36,6 +39,7 @@ class MessageInputBox extends StatefulWidget {
 }
 
 class _MessageInputBoxState extends State<MessageInputBox> {
+  late String currentUserId;
   final _imageMethods = ImageUtils();
   final _imagePicker = ImagePicker();
   final _fileUtils = FileUtilsImpl();
@@ -43,19 +47,21 @@ class _MessageInputBoxState extends State<MessageInputBox> {
   final _controller = TextEditingController();
   final _isEmptyNotifier = ValueNotifier<bool>(true);
 
+  PlatformFile? _docfile;
+
   static const _textStyle = TextStyle(
     fontSize: 17,
     fontWeight: FontWeight.w400,
     letterSpacing: 0.15,
   );
 
-  PlatformFile? _docfile;
-
   @override
   void initState() {
     super.initState();
+    currentUserId = CurrentUser.currentUserId;
     _controller.addListener(() {
       _isEmptyNotifier.value = _controller.text.isEmpty;
+      if (widget.allowUserTagging) getTaggedUsernames(_controller.text);
     });
   }
 
@@ -258,10 +264,7 @@ class _MessageInputBoxState extends State<MessageInputBox> {
   // send text message
   void sendMessageOnly() {
     if (_controller.text.trim().isNotEmpty) {
-      final message = MessageModel.newMessage(
-        _controller.text,
-        CurrentUser.currentUserId,
-      );
+      final message = MessageModel.newMessage(_controller.text, currentUserId);
       widget.onSentButtonPressed.call(message);
       _controller.clear();
     }
@@ -272,7 +275,7 @@ class _MessageInputBoxState extends State<MessageInputBox> {
     final attachments = await getImageAttachments(imageFiles);
     final message = MessageModel.newMessageWithAttachment(
       _controller.text,
-      CurrentUser.currentUserId,
+      currentUserId,
       attachments,
     );
     widget.onSentButtonPressed.call(message);
@@ -284,7 +287,7 @@ class _MessageInputBoxState extends State<MessageInputBox> {
     _controller.clear();
     final message = MessageModel.newMessageWithAttachment(
       _controller.text,
-      CurrentUser.currentUserId,
+      currentUserId,
       getDocAttachments(_docfile!),
     );
     widget.onSentButtonPressed.call(message);

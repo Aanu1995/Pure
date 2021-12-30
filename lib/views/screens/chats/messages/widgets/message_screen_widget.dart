@@ -202,6 +202,10 @@ class _MessageBodyState extends State<MessageBody> {
           MessageInputBox(
             chatId: widget.chatId,
             inputFocusNode: _inputFocusNode,
+            // recipient name is null if it is a group chat
+            // because the current user is not conversing with a specific user
+            // but rather a group of users
+            allowUserTagging: widget.receipientName == null,
             onSentButtonPressed: (final message) =>
                 sendMessage(context, message),
           )

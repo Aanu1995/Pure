@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../model/chat/message_model.dart';
 import '../../../services/chat/message_service.dart';
-import '../../../utils/app_utils.dart';
+import '../../../utils/chat_utils.dart';
 import 'message_state.dart';
 
 class NewMessagesCubit extends Cubit<MessageState> {

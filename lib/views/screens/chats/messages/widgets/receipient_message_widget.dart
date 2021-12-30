@@ -51,8 +51,8 @@ class ReceipientMessage extends StatelessWidget {
                       child: Text(
                         _senderUser?.fullName ?? "--",
                         style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w600,
                           color: _senderUser?.color ?? Colors.green,
                         ),
                       ),
