@@ -136,7 +136,10 @@ class _MessageBody extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                PureLinkPreview(linkPreviedData: message.linkPreviewData),
+                PureLinkPreview(
+                  linkPreviedData: message.linkPreviewData,
+                  color: Theme.of(context).colorScheme.primaryVariant,
+                ),
                 TextWidget(
                   key: ValueKey("${message.messageId}${message.text}"),
                   text: message.text,

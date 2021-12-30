@@ -9,8 +9,12 @@ import '../../../../../utils/palette.dart';
 
 class PureLinkPreview extends StatelessWidget {
   final PreviewData? linkPreviedData;
-  const PureLinkPreview({Key? key, required this.linkPreviedData})
-      : super(key: key);
+  final Color color;
+  const PureLinkPreview({
+    Key? key,
+    required this.linkPreviedData,
+    required this.color,
+  }) : super(key: key);
 
   static final imageSize = (1.sw * 0.72) * 0.22;
   final _style = const TextStyle(
@@ -26,7 +30,6 @@ class PureLinkPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = Theme.of(context).colorScheme.secondary;
     if (!_hasData(linkPreviedData)) return Offstage();
     return InkWell(
       onTap: () => launchIfCan(context, linkPreviedData!.link!),
@@ -34,7 +37,7 @@ class PureLinkPreview extends StatelessWidget {
         width: 1.sw * 0.72,
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: color.withOpacity(0.06),
+            color: Colors.black12,
             borderRadius: BorderRadius.circular(4.0),
           ),
           child: FloatColumn(

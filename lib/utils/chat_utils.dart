@@ -114,6 +114,5 @@ List<String> getTaggedUsernames(String text) {
     if (link.startsWith("@")) return true;
     return false;
   }).toList();
-  print(links.map((e) => e.text).toList());
   return links.map((e) => e.text).toList();
 }
