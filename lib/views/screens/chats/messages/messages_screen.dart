@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../blocs/bloc.dart';
 import '../../../../model/pure_user_model.dart';
@@ -86,6 +87,11 @@ class _MessagesScreenExtension extends StatelessWidget {
           receipient: receipient,
           hasPresenceActivated: hasPresenceActivated,
         ),
+      ),
+      bottomSheet: Container(
+        color: Colors.red,
+        height: 300,
+        width: 1.sw,
       ),
       body: MessageBody(chatId: chatId, receipientName: receipient.firstName),
     );

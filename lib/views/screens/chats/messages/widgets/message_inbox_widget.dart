@@ -5,16 +5,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:pure/utils/chat_utils.dart';
+import 'package:rich_text_controller/rich_text_controller.dart';
 
 import '../../../../../model/chat/message_model.dart';
 import '../../../../../model/pure_user_model.dart';
 import '../../../../../utils/app_permission.dart';
-import '../../../../../utils/palette.dart';
+import '../../../../../utils/chat_utils.dart';
 import '../../../../../utils/exception.dart';
 import '../../../../../utils/file_utils.dart';
 import '../../../../../utils/global_utils.dart';
 import '../../../../../utils/image_utils.dart';
+import '../../../../../utils/palette.dart';
 import '../../../../../utils/pick_file_dialog.dart';
 import '../../../../widgets/page_transition.dart';
 import '../../../../widgets/snackbars.dart';
@@ -44,7 +45,7 @@ class _MessageInputBoxState extends State<MessageInputBox> {
   final _imagePicker = ImagePicker();
   final _fileUtils = FileUtilsImpl();
 
-  final _controller = TextEditingController();
+  TextEditingController _controller = TextEditingController();
   final _isEmptyNotifier = ValueNotifier<bool>(true);
 
   PlatformFile? _docfile;
@@ -59,9 +60,26 @@ class _MessageInputBoxState extends State<MessageInputBox> {
   void initState() {
     super.initState();
     currentUserId = CurrentUser.currentUserId;
+    initializeController();
+  }
+
+  void initializeController() {
+    if (widget.allowUserTagging) {
+      _controller = RichTextController(
+        patternMatchMap: {
+          // Returns every Mention with blue color and bold style.
+          RegExp(r"\B@[a-zA-Z0-9]+\b"): _textStyle.copyWith(color: Colors.blue)
+        },
+        onMatch: (matches) {
+          final tag = getTheCurrentTag(_controller, matches);
+          if (tag != null && tag == "@mercy")
+            replaceUserTagOnSelected(_controller, tag, "@Wale ");
+        },
+        deleteOnBack: true,
+      );
+    }
     _controller.addListener(() {
       _isEmptyNotifier.value = _controller.text.isEmpty;
-      if (widget.allowUserTagging) getTaggedUsernames(_controller.text);
     });
   }
 

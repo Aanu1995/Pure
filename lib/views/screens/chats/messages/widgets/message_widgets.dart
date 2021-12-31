@@ -119,12 +119,6 @@ class TextWidget extends StatelessWidget {
   const TextWidget({Key? key, required this.text, this.color})
       : super(key: key);
 
-  final defaultLinkifiers = const [
-    UrlLinkifier(),
-    EmailLinkifier(),
-    UserTagLinkifier()
-  ];
-
   final _style = const TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w400,
@@ -143,7 +137,11 @@ class TextWidget extends StatelessWidget {
           color: color ?? Theme.of(context).colorScheme.secondary,
         ),
         textScaleFactor: null,
-        linkifiers: defaultLinkifiers,
+        linkifiers: const [
+          UrlLinkifier(),
+          EmailLinkifier(),
+          UserTagLinkifier()
+        ],
         options: LinkifyOptions(humanize: false),
         linkStyle: _style.copyWith(color: Colors.blueAccent),
         onOpen: (link) => launchIfCan(context, link.url),

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' show PreviewData;
 import 'package:flutter_link_previewer/flutter_link_previewer.dart';
 import 'package:intl/intl.dart';
@@ -115,4 +116,45 @@ List<String> getTaggedUsernames(String text) {
     return false;
   }).toList();
   return links.map((e) => e.text).toList();
+}
+
+void replaceUserTagOnSelected(
+    TextEditingController controller, String oldText, String myText) {
+  final text = controller.text;
+  final offset = (controller.selection.baseOffset - oldText.length);
+
+  final textSelection = TextSelection(baseOffset: offset, extentOffset: offset);
+  final newText = text.replaceRange(
+    offset,
+    controller.selection.baseOffset,
+    myText,
+  );
+  final myTextLength = myText.length;
+  controller.text = newText;
+  controller.selection = textSelection.copyWith(
+    baseOffset: textSelection.start + myTextLength,
+    extentOffset: textSelection.start + myTextLength,
+  );
+  controller.selection = textSelection.copyWith(
+    baseOffset: textSelection.start + myTextLength,
+    extentOffset: textSelection.start + myTextLength,
+  );
+}
+
+// From the list of tags in a text, it gets the currently typed tag
+// closest to the current cursor position
+String? getTheCurrentTag(
+    TextEditingController controller, List<String> userTags) {
+  String? currentTag;
+  final cursorPosition = controller.selection.baseOffset;
+  for (final tag in userTags) {
+    final pos = controller.text.indexOf(tag);
+    if (pos >= 0) {
+      if ((pos + tag.length) == cursorPosition) {
+        currentTag = tag;
+        break;
+      }
+    }
+  }
+  return currentTag;
 }

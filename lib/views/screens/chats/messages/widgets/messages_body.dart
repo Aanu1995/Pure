@@ -98,16 +98,7 @@ class _MessagesbodyState extends State<Messagesbody> {
                 listener: oldMessagesListener,
               )
             ],
-            child: BlocConsumer<MessageCubit, MessageState>(
-              listener: (_, __) {
-                if (widget.inputFocusNode.hasFocus) {
-                  _controller.position.animateTo(
-                    0,
-                    duration: Duration(milliseconds: 300),
-                    curve: Curves.linear,
-                  );
-                }
-              },
+            child: BlocBuilder<MessageCubit, MessageState>(
               buildWhen: (prev, current) =>
                   (prev is MessageInitial && current is MessagesLoaded) ||
                   (prev is MessagesLoaded &&
