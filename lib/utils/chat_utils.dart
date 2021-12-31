@@ -143,15 +143,15 @@ void replaceUserTagOnSelected(
 
 // From the list of tags in a text, it gets the currently typed tag
 // closest to the current cursor position
-String? getTheCurrentTag(
-    TextEditingController controller, List<String> userTags) {
+String? getTheCurrentTag(TextEditingController controller) {
+  final userTags = getTaggedUsernames(controller.text);
   String? currentTag;
   final cursorPosition = controller.selection.baseOffset;
   for (final tag in userTags) {
     final pos = controller.text.indexOf(tag);
     if (pos >= 0) {
       if ((pos + tag.length) == cursorPosition) {
-        currentTag = tag;
+        currentTag = tag.replaceAll("@", "");
         break;
       }
     }

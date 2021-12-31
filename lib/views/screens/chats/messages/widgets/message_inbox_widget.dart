@@ -5,7 +5,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:rich_text_controller/rich_text_controller.dart';
 
 import '../../../../../model/chat/message_model.dart';
 import '../../../../../model/pure_user_model.dart';
@@ -26,13 +25,13 @@ class MessageInputBox extends StatefulWidget {
   final String chatId;
   final ValueChanged<MessageModel> onSentButtonPressed;
   final FocusNode inputFocusNode;
-  final bool allowUserTagging;
+  final ValueNotifier<String?>? userTaggingNotifier;
   const MessageInputBox({
     Key? key,
     required this.chatId,
     required this.onSentButtonPressed,
     required this.inputFocusNode,
-    this.allowUserTagging = false,
+    this.userTaggingNotifier,
   }) : super(key: key);
 
   @override
@@ -64,23 +63,18 @@ class _MessageInputBoxState extends State<MessageInputBox> {
   }
 
   void initializeController() {
-    if (widget.allowUserTagging) {
-      _controller = RichTextController(
-        patternMatchMap: {
-          // Returns every Mention with blue color and bold style.
-          RegExp(r"\B@[a-zA-Z0-9]+\b"): _textStyle.copyWith(color: Colors.blue)
-        },
-        onMatch: (matches) {
-          final tag = getTheCurrentTag(_controller, matches);
-          if (tag != null && tag == "@mercy")
-            replaceUserTagOnSelected(_controller, tag, "@Wale ");
-        },
-        deleteOnBack: true,
-      );
-    }
     _controller.addListener(() {
       _isEmptyNotifier.value = _controller.text.isEmpty;
+      if (widget.userTaggingNotifier != null) {
+        final tag = getTheCurrentTag(_controller);
+        WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
+          widget.userTaggingNotifier!.value = tag;
+        });
+      }
     });
+
+    // // if (tag != null && tag == "@mercy")
+    // //   replaceUserTagOnSelected(_controller, tag, "@Wale ");
   }
 
   @override
@@ -92,7 +86,7 @@ class _MessageInputBoxState extends State<MessageInputBox> {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedContainer(
+    return AnimatedPadding(
       duration: Duration(milliseconds: 300),
       curve: Curves.decelerate,
       padding: EdgeInsets.only(
@@ -160,7 +154,8 @@ class _MessageInputBoxState extends State<MessageInputBox> {
                       builder: (context, state, _) {
                         if (state)
                           return InkWell(
-                            onTap: () {},
+                            onTap: () =>
+                                widget.userTaggingNotifier!.value = "Welcome",
                             borderRadius: BorderRadius.circular(500),
                             child: Padding(
                               padding: const EdgeInsets.symmetric(

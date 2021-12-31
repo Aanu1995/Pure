@@ -48,7 +48,6 @@ dependencies:
   uuid: ^3.0.4
   video_player: ^2.2.10
   video_trimmer: ^1.0.0
-  rich_text_controller: ^1.4.0
 
 
   # Authentication

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../blocs/bloc.dart';
 import '../../../../model/pure_user_model.dart';
 import '../../../../repositories/push_notification.dart';
 import '../../../../services/chat/message_service.dart';
 import '../../../../services/user_service.dart';
+import 'widgets/chat_app_bar.dart';
 import 'widgets/message_screen_widget.dart';
 
 class MessagesScreen extends StatefulWidget {
@@ -72,7 +72,6 @@ class _MessagesScreenExtension extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         leadingWidth: 40.0,
         elevation: 1.0,
@@ -87,11 +86,6 @@ class _MessagesScreenExtension extends StatelessWidget {
           receipient: receipient,
           hasPresenceActivated: hasPresenceActivated,
         ),
-      ),
-      bottomSheet: Container(
-        color: Colors.red,
-        height: 300,
-        width: 1.sw,
       ),
       body: MessageBody(chatId: chatId, receipientName: receipient.firstName),
     );

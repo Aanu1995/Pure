@@ -6,6 +6,7 @@ import '../../../../model/chat/chat_model.dart';
 import '../../../../model/pure_user_model.dart';
 import '../../../../repositories/push_notification.dart';
 import '../../../../services/chat/message_service.dart';
+import 'widgets/chat_app_bar.dart';
 import 'widgets/message_screen_widget.dart';
 
 class GroupChatMessageScreen extends StatefulWidget {
