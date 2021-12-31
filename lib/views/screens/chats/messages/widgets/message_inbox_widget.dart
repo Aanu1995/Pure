@@ -26,9 +26,11 @@ class MessageInputBox extends StatefulWidget {
   final ValueChanged<MessageModel> onSentButtonPressed;
   final FocusNode inputFocusNode;
   final ValueNotifier<String?>? userTaggingNotifier;
+  final TextEditingController controller;
   const MessageInputBox({
     Key? key,
     required this.chatId,
+    required this.controller,
     required this.onSentButtonPressed,
     required this.inputFocusNode,
     this.userTaggingNotifier,
@@ -44,7 +46,6 @@ class _MessageInputBoxState extends State<MessageInputBox> {
   final _imagePicker = ImagePicker();
   final _fileUtils = FileUtilsImpl();
 
-  TextEditingController _controller = TextEditingController();
   final _isEmptyNotifier = ValueNotifier<bool>(true);
 
   PlatformFile? _docfile;
@@ -63,10 +64,10 @@ class _MessageInputBoxState extends State<MessageInputBox> {
   }
 
   void initializeController() {
-    _controller.addListener(() {
-      _isEmptyNotifier.value = _controller.text.isEmpty;
+    widget.controller.addListener(() {
+      _isEmptyNotifier.value = widget.controller.text.isEmpty;
       if (widget.userTaggingNotifier != null) {
-        final tag = getTheCurrentTag(_controller);
+        final tag = getTheCurrentTag(widget.controller);
         WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
           widget.userTaggingNotifier!.value = tag;
         });
@@ -74,12 +75,12 @@ class _MessageInputBoxState extends State<MessageInputBox> {
     });
 
     // // if (tag != null && tag == "@mercy")
-    // //   replaceUserTagOnSelected(_controller, tag, "@Wale ");
+    // //   replaceUserTagOnSelected(widget.controller, tag, "@Wale ");
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    widget.controller.dispose();
     _isEmptyNotifier.dispose();
     super.dispose();
   }
@@ -134,7 +135,7 @@ class _MessageInputBoxState extends State<MessageInputBox> {
                     ),
                     Expanded(
                       child: CupertinoTextField(
-                        controller: _controller,
+                        controller: widget.controller,
                         focusNode: widget.inputFocusNode,
                         style: _textStyle.copyWith(
                           color: Theme.of(context).colorScheme.primaryVariant,
@@ -154,8 +155,7 @@ class _MessageInputBoxState extends State<MessageInputBox> {
                       builder: (context, state, _) {
                         if (state)
                           return InkWell(
-                            onTap: () =>
-                                widget.userTaggingNotifier!.value = "Welcome",
+                            onTap: () {},
                             borderRadius: BorderRadius.circular(500),
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
@@ -264,7 +264,7 @@ class _MessageInputBoxState extends State<MessageInputBox> {
       PageTransition(
         child: ChatImagePreviewScreen(
           imageFile: imageFile,
-          controller: _controller,
+          controller: widget.controller,
           source: source,
         ),
         type: PageTransitionType.bottomToTop,
@@ -276,10 +276,11 @@ class _MessageInputBoxState extends State<MessageInputBox> {
 
   // send text message
   void sendMessageOnly() {
-    if (_controller.text.trim().isNotEmpty) {
-      final message = MessageModel.newMessage(_controller.text, currentUserId);
+    if (widget.controller.text.trim().isNotEmpty) {
+      final message =
+          MessageModel.newMessage(widget.controller.text, currentUserId);
       widget.onSentButtonPressed.call(message);
-      _controller.clear();
+      widget.controller.clear();
     }
   }
 
@@ -287,19 +288,19 @@ class _MessageInputBoxState extends State<MessageInputBox> {
   void sendMessageWithImage(final List<File> imageFiles) async {
     final attachments = await getImageAttachments(imageFiles);
     final message = MessageModel.newMessageWithAttachment(
-      _controller.text,
+      widget.controller.text,
       currentUserId,
       attachments,
     );
     widget.onSentButtonPressed.call(message);
-    _controller.clear();
+    widget.controller.clear();
   }
 
   // send documents message
   void sendMessageWithDocAttached() async {
-    _controller.clear();
+    widget.controller.clear();
     final message = MessageModel.newMessageWithAttachment(
-      _controller.text,
+      widget.controller.text,
       currentUserId,
       getDocAttachments(_docfile!),
     );

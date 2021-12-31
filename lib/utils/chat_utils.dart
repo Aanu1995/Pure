@@ -119,17 +119,17 @@ List<String> getTaggedUsernames(String text) {
 }
 
 void replaceUserTagOnSelected(
-    TextEditingController controller, String oldText, String myText) {
+    TextEditingController controller, String input, String selected) {
   final text = controller.text;
-  final offset = (controller.selection.baseOffset - oldText.length);
+  final offset = (controller.selection.baseOffset - input.length);
 
   final textSelection = TextSelection(baseOffset: offset, extentOffset: offset);
   final newText = text.replaceRange(
     offset,
     controller.selection.baseOffset,
-    myText,
+    selected,
   );
-  final myTextLength = myText.length;
+  final myTextLength = selected.length;
   controller.text = newText;
   controller.selection = textSelection.copyWith(
     baseOffset: textSelection.start + myTextLength,

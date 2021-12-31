@@ -49,9 +49,9 @@ class ReceipientMessage extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(left: 2, top: 2),
                       child: Text(
-                        _senderUser?.fullName ?? "--",
+                        "@${_senderUser?.username}",
                         style: TextStyle(
-                          fontSize: 13.5,
+                          fontSize: 15,
                           fontWeight: FontWeight.w600,
                           color: _senderUser?.color ?? Colors.green,
                         ),
