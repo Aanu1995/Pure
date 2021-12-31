@@ -59,7 +59,7 @@ $ flutter run --flavor staging --target lib/main_staging.dart
 $ flutter run --flavor production --target lib/main_production.dart
 ```
 
-_\*Pure works on iOS, Android, and Web._
+_\*Pure works on iOS and Android. Support for Web will follow when stable version is released._
 
 ---
 
