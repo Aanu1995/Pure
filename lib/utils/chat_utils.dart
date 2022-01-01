@@ -147,13 +147,18 @@ String? getTheCurrentTag(TextEditingController controller) {
   String? currentTag;
   final cursorPosition = controller.selection.baseOffset;
   for (final tag in userTags) {
-    final pos = controller.text.indexOf(tag);
-    // print(pos);
-    if (pos >= 0) {
-      if ((pos + tag.length) == cursorPosition) {
-        currentTag = tag.replaceAll("@", "");
-        break;
+    final matches = tag.allMatches(controller.text);
+    for (final match in matches) {
+      final pos = match.start;
+      if (pos >= 0) {
+        if ((pos + tag.length) == cursorPosition) {
+          currentTag = tag.replaceAll("@", "");
+          break;
+        }
       }
+    }
+    if (currentTag != null) {
+      break;
     }
   }
   return currentTag?.trim();
