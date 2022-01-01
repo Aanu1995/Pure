@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pure/views/widgets/editable_text_controller.dart';
 
 import '../../../../../blocs/bloc.dart';
 import '../../../../../model/chat/message_model.dart';
 import '../../../../../model/pure_user_model.dart';
 import '../../../../../utils/chat_utils.dart';
 import '../../../../widgets/avatar.dart';
+import '../../../../widgets/editable_text_controller.dart';
 import 'message_inbox_widget.dart';
 import 'messages_body.dart';
 

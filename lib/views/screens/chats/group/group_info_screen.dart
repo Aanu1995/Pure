@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pure/repositories/push_notification.dart';
 
 import '../../../../blocs/bloc.dart';
 import '../../../../model/chat/chat_model.dart';
 import '../../../../model/pure_user_model.dart';
+import '../../../../repositories/push_notification.dart';
 import '../../../../services/chat/chat_service.dart';
 import '../../../../services/search_service.dart';
-import '../../../../utils/palette.dart';
 import '../../../../utils/navigate.dart';
+import '../../../../utils/palette.dart';
 import '../../../widgets/snackbars.dart';
 import 'add_participants_screen.dart';
 import 'edit_group_description_screen.dart';

@@ -158,3 +158,10 @@ String? getTheCurrentTag(TextEditingController controller) {
   }
   return currentTag?.trim();
 }
+
+// checks if there are any failed messages
+bool hasFailedMessages(List<MessageModel> messages) {
+  final failedMessages =
+      messages.where((msg) => msg.receipt == Receipt.Failed).toList();
+  return failedMessages.length > 0;
+}
