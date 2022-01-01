@@ -23,14 +23,6 @@ class AppBase extends StatefulWidget {
 }
 
 class _AppBaseState extends State<AppBase> {
-  final List<Widget> screens = const [
-    HomePage(),
-    ConnectionsPage(),
-    ChatScreen(),
-    NotificationsScreen(),
-    SettingsScreen(),
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -54,7 +46,16 @@ class _AppBaseState extends State<AppBase> {
   Widget build(BuildContext context) {
     return BlocBuilder<BottomBarCubit, int>(
       builder: (context, state) {
-        return screens[state];
+        return IndexedStack(
+          index: state,
+          children: const [
+            HomePage(),
+            ConnectionsPage(),
+            ChatScreen(),
+            NotificationsScreen(),
+            SettingsScreen(),
+          ],
+        );
       },
     );
   }
