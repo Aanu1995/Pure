@@ -3,6 +3,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pure/views/screens/chats/messages/widgets/pure_link_preview.dart';
 
 import '../../../../../blocs/bloc.dart';
 import '../../../../../model/chat/attachment_model.dart';
@@ -12,7 +13,7 @@ import 'docfile_preview_widget.dart';
 import 'file_widget.dart';
 import 'message_widgets.dart';
 
-class ReceipientMessage extends StatefulWidget {
+class ReceipientMessage extends StatelessWidget {
   final MessageModel message;
   final bool hideNip;
   final bool isGroupMessage;
@@ -23,17 +24,12 @@ class ReceipientMessage extends StatefulWidget {
       this.isGroupMessage = false})
       : super(key: key);
 
-  @override
-  State<ReceipientMessage> createState() => _ReceipientMessageState();
-}
-
-class _ReceipientMessageState extends State<ReceipientMessage> {
-  PureUser? _senderUser;
+  static late PureUser? _senderUser;
 
   @override
   Widget build(BuildContext context) {
-    if (widget.isGroupMessage) {
-      getSenderName(context, widget.message.senderId);
+    if (isGroupMessage) {
+      getSenderName(context, message.senderId);
     }
     return Align(
       alignment: Alignment.centerLeft,
@@ -41,30 +37,30 @@ class _ReceipientMessageState extends State<ReceipientMessage> {
         constraints: BoxConstraints(maxWidth: 1.sw * 0.72),
         child: Bubble(
           elevation: 0.0,
-          margin: BubbleEdges.only(left: widget.hideNip ? 8.0 : 0.0),
+          margin: BubbleEdges.only(left: hideNip ? 8.0 : 0.0),
           padding: const BubbleEdges.all(3.0),
           stick: true,
-          nip: widget.hideNip ? null : BubbleNip.leftTop,
+          nip: hideNip ? null : BubbleNip.leftTop,
           color: Theme.of(context).colorScheme.secondary,
-          child: widget.isGroupMessage
+          child: isGroupMessage
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(left: 2, top: 2),
                       child: Text(
-                        _senderUser?.fullName ?? "--",
+                        "@${_senderUser?.username}",
                         style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
                           color: _senderUser?.color ?? Colors.green,
                         ),
                       ),
                     ),
-                    _MessageBody(message: widget.message),
+                    _MessageBody(message: message),
                   ],
                 )
-              : _MessageBody(message: widget.message),
+              : _MessageBody(message: message),
         ),
       ),
     );
@@ -137,10 +133,19 @@ class _MessageBody extends StatelessWidget {
               )
           else
             // show text only
-            TextWidget(
-              key: ValueKey("${message.messageId}${message.text}"),
-              text: message.text,
-              color: Theme.of(context).colorScheme.primaryVariant,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                PureLinkPreview(
+                  linkPreviedData: message.linkPreviewData,
+                  color: Theme.of(context).colorScheme.primaryVariant,
+                ),
+                TextWidget(
+                  key: ValueKey("${message.messageId}${message.text}"),
+                  text: message.text,
+                  color: Theme.of(context).colorScheme.primaryVariant,
+                ),
+              ],
             ),
           // Date Widget
           if (message.attachments?.first is! DocumentAttachment)

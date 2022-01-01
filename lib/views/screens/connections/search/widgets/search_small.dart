@@ -12,8 +12,8 @@ class SearchSmallConnection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 16.0),
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 16.0),
       child: SingleChildScrollView(
         child: BlocBuilder<SearchConnBloc, SearchConnectionState>(
           builder: (context, state) {

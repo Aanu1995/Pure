@@ -95,8 +95,8 @@ class _SearchAllConnectionResultsState
       body: Column(
         children: [
           Expanded(
-            child: Container(
-              margin: EdgeInsets.only(bottom: 16.0),
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 16.0),
               child: MultiBlocListener(
                 listeners: [
                   BlocListener<SendInvitationCubit, SendInvitationState>(

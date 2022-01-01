@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../../../../utils/palette.dart';
-import '../../../../../utils/app_utils.dart';
+import '../../../../../utils/chat_utils.dart';
 import '../../../../../utils/exception.dart';
 import '../../../../../utils/image_utils.dart';
+import '../../../../../utils/palette.dart';
 import '../../../../widgets/snackbars.dart';
 
 class ChatImagePreviewScreen extends StatefulWidget {

@@ -7,6 +7,7 @@ import '../../../../../model/chat/message_model.dart';
 import 'docfile_preview_widget.dart';
 import 'file_widget.dart';
 import 'message_widgets.dart';
+import 'pure_link_preview.dart';
 
 class UserMessage extends StatelessWidget {
   final String chatId;
@@ -38,10 +39,7 @@ class UserMessage extends StatelessWidget {
             ),
             // shows failed to deliver message
             if (message.receipt == Receipt.Failed)
-              FailedToDeliverMessageWidget(
-                chatId: chatId,
-                hasAttachments: message.attachments?.isNotEmpty ?? false,
-              )
+              FailedToDeliverMessageWidget(chatId: chatId)
           ],
         ),
       ),
@@ -106,9 +104,18 @@ class _MessageBody extends StatelessWidget {
               )
           else
             // show text only
-            TextWidget(
-              key: ValueKey("${message.messageId}${message.text}"),
-              text: message.text,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                PureLinkPreview(
+                  color: Theme.of(context).colorScheme.secondary,
+                  linkPreviedData: message.linkPreviewData,
+                ),
+                TextWidget(
+                  key: ValueKey("${message.messageId}${message.text}"),
+                  text: message.text,
+                ),
+              ],
             ),
           // Date Widget
           if (message.attachments?.first is! DocumentAttachment)

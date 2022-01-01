@@ -69,7 +69,6 @@ class _ChatListState extends State<ChatList> {
               return ListView.custom(
                 controller: _controller,
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                physics: const AlwaysScrollableScrollPhysics(),
                 childrenDelegate: SliverChildBuilderDelegate(
                   (BuildContext context, int index) {
                     if (chats.length == index)
@@ -78,47 +77,19 @@ class _ChatListState extends State<ChatList> {
                       );
                     else {
                       final chat = chats[index];
-                      if (chat.type == ChatType.Group) {
-                        return KeepAlive(
-                          key: ValueKey<String>(chat.chatId),
-                          keepAlive: true,
-                          child: GroupMembersProvider(
-                            key: ValueKey(chat.members.length),
-                            members: chat.members,
-                            child: UnreadMessageProvider(
-                              child: GroupCard(
-                                key: ValueKey(chat.chatId),
-                                chat: chat,
-                                showSeparator: index < (chats.length - 1),
-                              ),
-                            ),
-                          ),
-                        );
-                      } else {
-                        final userId = chat.getReceipient(currentUserId)!;
-                        return KeepAlive(
-                          key: ValueKey<String>(chat.chatId),
-                          keepAlive: true,
-                          child: ProfileProvider(
-                            userId: userId,
-                            child: UnreadMessageProvider(
-                              child: OneToOneCard(
-                                key: ValueKey(chat.chatId),
-                                userId: userId,
-                                chat: chat,
-                                showSeparator: index < (chats.length - 1),
-                              ),
-                            ),
-                          ),
-                        );
-                      }
+                      return ChatKeepAlive(
+                        key: ValueKey<String>(chat.chatId),
+                        isGroupChat: chat.type == ChatType.Group,
+                        chat: chat,
+                        showSeparator: index < (chats.length - 1),
+                      );
                     }
                   },
                   childCount: chats.length + 1,
                   findChildIndexCallback: (Key key) {
                     final ValueKey<String> valueKey = key as ValueKey<String>;
                     final String data = valueKey.value;
-                    return chats.map((e) => e.chatId).toList().indexOf(data);
+                    return (chats.map((e) => e.chatId).toList()).indexOf(data);
                   },
                 ),
               );
@@ -150,6 +121,59 @@ class _ChatListState extends State<ChatList> {
           loadAgain(state.chatsModel);
         }
       }
+    }
+  }
+}
+
+class ChatKeepAlive extends StatefulWidget {
+  final ChatModel chat;
+  final bool showSeparator;
+  final bool isGroupChat;
+
+  const ChatKeepAlive({
+    required Key key,
+    required this.chat,
+    required this.showSeparator,
+    this.isGroupChat = false,
+  }) : super(key: key);
+
+  @override
+  State<ChatKeepAlive> createState() => _ChatKeepAliveState();
+}
+
+class _ChatKeepAliveState extends State<ChatKeepAlive>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+
+    if (widget.isGroupChat) {
+      return GroupMembersProvider(
+        key: ValueKey(widget.chat.members.length),
+        members: widget.chat.members,
+        child: UnreadMessageProvider(
+          child: GroupCard(
+            chat: widget.chat,
+            showSeparator: widget.showSeparator,
+          ),
+        ),
+      );
+    } else {
+      final userId = widget.chat.getReceipient(CurrentUser.currentUserId)!;
+      return ProfileProvider(
+        key: ValueKey(userId),
+        userId: userId,
+        child: UnreadMessageProvider(
+          child: OneToOneCard(
+            userId: userId,
+            chat: widget.chat,
+            showSeparator: widget.showSeparator,
+          ),
+        ),
+      );
     }
   }
 }

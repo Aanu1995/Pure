@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:pure/utils/palette.dart';
+import 'package:pure/views/widgets/custom_keep_alive.dart';
 
 import '../../../../blocs/bloc.dart';
 import '../../../../model/pure_user_model.dart';
@@ -171,9 +172,8 @@ class _Connections extends StatelessWidget {
         (BuildContext context, int index) {
           final friendId = connections[index];
 
-          return KeepAlive(
+          return CustomKeepAlive(
             key: ValueKey<String>(friendId),
-            keepAlive: true,
             child: ProfileProvider(
               key: ValueKey(friendId),
               userId: friendId,

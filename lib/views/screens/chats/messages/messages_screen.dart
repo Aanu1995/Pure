@@ -6,6 +6,7 @@ import '../../../../model/pure_user_model.dart';
 import '../../../../repositories/push_notification.dart';
 import '../../../../services/chat/message_service.dart';
 import '../../../../services/user_service.dart';
+import 'widgets/chat_app_bar.dart';
 import 'widgets/message_screen_widget.dart';
 
 class MessagesScreen extends StatefulWidget {
@@ -71,7 +72,6 @@ class _MessagesScreenExtension extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         leadingWidth: 40.0,
         elevation: 1.0,

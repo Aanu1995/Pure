@@ -56,22 +56,23 @@ class ImageView extends StatelessWidget {
                             width: newAttachment.width.toDouble(),
                             fit: BoxFit.cover,
                             placeholder: (context, _) {
-                              return Container(color: newAttachment.color);
+                              return ColoredBox(color: newAttachment.color!);
                             },
                             errorWidget: (context, url, dynamic _) {
-                              return Container(color: newAttachment.color);
+                              return ColoredBox(color: newAttachment.color!);
                             },
                           ),
                   ),
                   if (index == 3 && attachments.length > 4)
-                    Container(
+                    ColoredBox(
                       color: Colors.black54,
-                      alignment: Alignment.center,
-                      child: Text(
-                        "+${attachments.length - 4}",
-                        style: const TextStyle(
-                          fontSize: 40.0,
-                          color: Colors.white,
+                      child: Center(
+                        child: Text(
+                          "+${attachments.length - 4}",
+                          style: const TextStyle(
+                            fontSize: 40.0,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     )
@@ -111,14 +112,14 @@ class _SingleImage extends StatelessWidget {
               return AspectRatio(
                 aspectRatio: newAttachment.width.toDouble() /
                     newAttachment.height.toDouble(),
-                child: Container(color: newAttachment.color),
+                child: ColoredBox(color: newAttachment.color!),
               );
             },
             errorWidget: (context, url, dynamic _) {
               return AspectRatio(
                 aspectRatio: newAttachment.width.toDouble() /
                     newAttachment.height.toDouble(),
-                child: Container(color: newAttachment.color),
+                child: ColoredBox(color: newAttachment.color!),
               );
             },
           ),

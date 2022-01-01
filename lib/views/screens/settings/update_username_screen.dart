@@ -99,8 +99,8 @@ class _UpdateUsernameScreenState extends State<UpdateUsernameScreen> {
       ),
       body: BlocListener<UserProfileCubit, UserProfileState>(
         listener: updateProfileStateListener,
-        child: Container(
-          margin: EdgeInsets.all(16.0),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
