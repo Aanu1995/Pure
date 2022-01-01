@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pure/views/widgets/editable_text_controller.dart';
 
 import '../../../../../blocs/bloc.dart';
 import '../../../../../model/chat/message_model.dart';
@@ -22,7 +23,15 @@ class MessageBody extends StatefulWidget {
 class _MessageBodyState extends State<MessageBody> {
   final _inputFocusNode = FocusNode();
   final _userTaggedNotifier = ValueNotifier<String?>(null);
-  final _inputController = TextEditingController();
+  TextEditingController _inputController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.receipientName == null) {
+      _inputController = EditableTextController();
+    }
+  }
 
   @override
   void dispose() {
@@ -107,6 +116,7 @@ class _MessageBodyState extends State<MessageBody> {
   List<PureUser> taggedUsers(List<PureUser> users, String value) {
     final members = users.toList();
     members.removeWhere((element) => element.id == CurrentUser.currentUserId);
+
     return members.toList().where((member) {
       return member.username.toLowerCase().contains(value.toLowerCase());
     }).toList();

@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:linkify/linkify.dart';
+import 'package:collection/collection.dart';
+import 'package:pure/utils/navigate.dart';
+import 'package:pure/views/screens/settings/profile/profile_screen.dart';
 
 import '../../../../../blocs/bloc.dart';
 import '../../../../../model/chat/attachment_model.dart';
@@ -144,9 +147,25 @@ class TextWidget extends StatelessWidget {
         ],
         options: LinkifyOptions(humanize: false),
         linkStyle: _style.copyWith(color: Colors.blueAccent),
-        onOpen: (link) => launchIfCan(context, link.url),
+        onOpen: (link) => openLink(context, link.url),
       ),
     );
+  }
+
+  void openLink(BuildContext context, String link) {
+    if (link.startsWith("@")) {
+      final state = BlocProvider.of<GroupCubit>(context).state;
+      if (state is GroupMembers) {
+        final members = state.members.toList();
+        final user = members.firstWhereOrNull(
+            (element) => element.username == link.replaceAll("@", ""));
+        if (user != null) {
+          push(context: context, page: ProfileScreen(user: user));
+        }
+      }
+    } else {
+      launchIfCan(context, link);
+    }
   }
 }
 

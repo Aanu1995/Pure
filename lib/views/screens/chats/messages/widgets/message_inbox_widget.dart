@@ -68,14 +68,11 @@ class _MessageInputBoxState extends State<MessageInputBox> {
       _isEmptyNotifier.value = widget.controller.text.isEmpty;
       if (widget.userTaggingNotifier != null) {
         final tag = getTheCurrentTag(widget.controller);
-        WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
+        WidgetsBinding.instance!.addPostFrameCallback((_) {
           widget.userTaggingNotifier!.value = tag;
         });
       }
     });
-
-    // // if (tag != null && tag == "@mercy")
-    // //   replaceUserTagOnSelected(widget.controller, tag, "@Wale ");
   }
 
   @override

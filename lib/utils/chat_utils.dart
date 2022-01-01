@@ -112,7 +112,7 @@ List<String> getTaggedUsernames(String text) {
     linkifiers: [UserTagLinkifier()],
   ).where((element) {
     final link = element.text;
-    if (link.startsWith("@")) return true;
+    if (link.trim().startsWith("@")) return true;
     return false;
   }).toList();
   return links.map((e) => e.text).toList();
@@ -123,21 +123,20 @@ void replaceUserTagOnSelected(
   final text = controller.text;
   final offset = (controller.selection.baseOffset - input.length);
 
-  final textSelection = TextSelection(baseOffset: offset, extentOffset: offset);
   final newText = text.replaceRange(
     offset,
     controller.selection.baseOffset,
     selected,
   );
-  final myTextLength = selected.length;
+
   controller.text = newText;
+
+  final textSelection = TextSelection(baseOffset: offset, extentOffset: offset);
+  final selectedTextLength = selected.length;
+
   controller.selection = textSelection.copyWith(
-    baseOffset: textSelection.start + myTextLength,
-    extentOffset: textSelection.start + myTextLength,
-  );
-  controller.selection = textSelection.copyWith(
-    baseOffset: textSelection.start + myTextLength,
-    extentOffset: textSelection.start + myTextLength,
+    baseOffset: textSelection.start + selectedTextLength,
+    extentOffset: textSelection.start + selectedTextLength,
   );
 }
 
@@ -149,6 +148,7 @@ String? getTheCurrentTag(TextEditingController controller) {
   final cursorPosition = controller.selection.baseOffset;
   for (final tag in userTags) {
     final pos = controller.text.indexOf(tag);
+    // print(pos);
     if (pos >= 0) {
       if ((pos + tag.length) == cursorPosition) {
         currentTag = tag.replaceAll("@", "");
@@ -156,5 +156,5 @@ String? getTheCurrentTag(TextEditingController controller) {
       }
     }
   }
-  return currentTag;
+  return currentTag?.trim();
 }
