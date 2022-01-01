@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_chat_types/flutter_chat_types.dart' show PreviewData;
 
 import '../../utils/app_utils.dart';
 import 'attachment_model.dart';
@@ -26,6 +27,7 @@ class MessageModel extends Equatable {
   final DateTime? sentDate;
   final Receipt receipt;
   final List<Attachment>? attachments;
+  final PreviewData? linkPreviewData;
 
   const MessageModel({
     required this.messageId,
@@ -34,19 +36,29 @@ class MessageModel extends Equatable {
     this.sentDate,
     this.receipt = Receipt.Pending,
     this.attachments,
+    this.linkPreviewData,
   });
 
   factory MessageModel.fromMap(Map<String, dynamic> data) {
-    List<Attachment>? attachments;
+    List<Attachment>? _attachments;
+    PreviewData? _linkPreviewData;
 
+    // converts json attachments to model attachments
     final attachmentsJson = data["attachments"] as List?;
     if (attachmentsJson != null) {
-      attachments = [];
+      _attachments = [];
       for (final attachment in attachmentsJson) {
         final result =
             Attachment.getAttachment(attachment as Map<String, dynamic>);
-        if (result != null) attachments.add(result);
+        if (result != null) _attachments.add(result);
       }
+    }
+
+    // converts json linkPreviewDara to model linkPreviewDara
+    final _linkPreviewDataJson =
+        data["link_preview_data"] as Map<String, dynamic>?;
+    if (_linkPreviewDataJson != null) {
+      _linkPreviewData = PreviewData.fromJson(_linkPreviewDataJson);
     }
 
     return MessageModel(
@@ -55,11 +67,12 @@ class MessageModel extends Equatable {
       text: data["text"] as String,
       sentDate: DateTime.parse(data['sentDate'] as String).toLocal(),
       receipt: getReadReceipt(data["status"] as int),
-      attachments: attachments,
+      attachments: _attachments,
+      linkPreviewData: _linkPreviewData,
     );
   }
 
-  MessageModel copyWith({Receipt? newRecept}) {
+  MessageModel copyWith({Receipt? newRecept, PreviewData? linkData}) {
     return MessageModel(
       messageId: messageId,
       senderId: senderId,
@@ -67,6 +80,7 @@ class MessageModel extends Equatable {
       sentDate: sentDate,
       receipt: newRecept ?? Receipt.Failed,
       attachments: attachments,
+      linkPreviewData: linkData ?? linkPreviewData,
     );
   }
 
@@ -80,6 +94,7 @@ class MessageModel extends Equatable {
           ? Receipt.Read
           : msgReceipt,
       attachments: attachments,
+      linkPreviewData: linkPreviewData,
     );
   }
 
@@ -91,6 +106,7 @@ class MessageModel extends Equatable {
       sentDate: sentDate,
       receipt: receipt,
       attachments: attachs,
+      linkPreviewData: linkPreviewData,
     );
   }
 
@@ -124,6 +140,7 @@ class MessageModel extends Equatable {
       "sentDate": sentDate!.toUtc().toIso8601String(),
       "status": 1,
       "attachments": attachments?.map((e) => e.toMap()).toList(),
+      "link_preview_data": linkPreviewData?.toJson(),
     };
   }
 
@@ -147,6 +164,13 @@ class MessageModel extends Equatable {
   }
 
   @override
-  List<Object?> get props =>
-      [messageId, senderId, text, sentDate, receipt, attachments];
+  List<Object?> get props => [
+        messageId,
+        senderId,
+        text,
+        sentDate,
+        receipt,
+        attachments,
+        linkPreviewData
+      ];
 }

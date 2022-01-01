@@ -23,7 +23,7 @@ class AppBase extends StatefulWidget {
 }
 
 class _AppBaseState extends State<AppBase> {
-  static const List<Widget> screens = [
+  final List<Widget> screens = const [
     HomePage(),
     ConnectionsPage(),
     ChatScreen(),

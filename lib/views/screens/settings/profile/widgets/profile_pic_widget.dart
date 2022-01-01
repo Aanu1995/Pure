@@ -176,7 +176,7 @@ class _ImageView extends StatelessWidget {
                   : CachedNetworkImageProvider(imageURL),
             ),
             if (isUploading)
-              Container(
+              DecoratedBox(
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   color: Colors.black38,

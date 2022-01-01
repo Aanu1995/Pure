@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../model/chat/chat_model.dart';
 import '../../../services/chat/chat_service.dart';
-import '../../../utils/app_utils.dart';
+import '../../../utils/chat_utils.dart';
 import '../../../utils/global_utils.dart';
 import 'chat_state.dart';
 

@@ -9,11 +9,12 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../../model/chat/message_model.dart';
 import '../../../../../model/pure_user_model.dart';
 import '../../../../../utils/app_permission.dart';
-import '../../../../../utils/palette.dart';
+import '../../../../../utils/chat_utils.dart';
 import '../../../../../utils/exception.dart';
 import '../../../../../utils/file_utils.dart';
 import '../../../../../utils/global_utils.dart';
 import '../../../../../utils/image_utils.dart';
+import '../../../../../utils/palette.dart';
 import '../../../../../utils/pick_file_dialog.dart';
 import '../../../../widgets/page_transition.dart';
 import '../../../../widgets/snackbars.dart';
@@ -23,10 +24,16 @@ import 'image_preview_screen.dart';
 class MessageInputBox extends StatefulWidget {
   final String chatId;
   final ValueChanged<MessageModel> onSentButtonPressed;
+  final FocusNode inputFocusNode;
+  final ValueNotifier<String?>? userTaggingNotifier;
+  final TextEditingController controller;
   const MessageInputBox({
     Key? key,
     required this.chatId,
+    required this.controller,
     required this.onSentButtonPressed,
+    required this.inputFocusNode,
+    this.userTaggingNotifier,
   }) : super(key: key);
 
   @override
@@ -34,13 +41,14 @@ class MessageInputBox extends StatefulWidget {
 }
 
 class _MessageInputBoxState extends State<MessageInputBox> {
+  late String currentUserId;
   final _imageMethods = ImageUtils();
   final _imagePicker = ImagePicker();
   final _fileUtils = FileUtilsImpl();
 
-  final _controller = TextEditingController();
-  final _focus = FocusNode();
   final _isEmptyNotifier = ValueNotifier<bool>(true);
+
+  PlatformFile? _docfile;
 
   static const _textStyle = TextStyle(
     fontSize: 17,
@@ -48,125 +56,144 @@ class _MessageInputBoxState extends State<MessageInputBox> {
     letterSpacing: 0.15,
   );
 
-  PlatformFile? _docfile;
-
   @override
   void initState() {
     super.initState();
-    _controller.addListener(() {
-      _isEmptyNotifier.value = _controller.text.isEmpty;
+    currentUserId = CurrentUser.currentUserId;
+    initializeController();
+  }
+
+  void initializeController() {
+    widget.controller.addListener(() {
+      _isEmptyNotifier.value = widget.controller.text.isEmpty;
+      if (widget.userTaggingNotifier != null) {
+        final tag = getTheCurrentTag(widget.controller);
+        WidgetsBinding.instance!.addPostFrameCallback((_) {
+          widget.userTaggingNotifier!.value = tag;
+        });
+      }
     });
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    widget.controller.dispose();
     _isEmptyNotifier.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(0, 10, 0, 24),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.secondary,
-        border: Border(
-          top: BorderSide(
-            color:
-                Theme.of(context).colorScheme.primaryVariant.withOpacity(0.2),
+    return AnimatedPadding(
+      duration: Duration(milliseconds: 300),
+      curve: Curves.decelerate,
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.secondary,
+          border: Border(
+            top: BorderSide(
+              color:
+                  Theme.of(context).colorScheme.primaryVariant.withOpacity(0.2),
+            ),
           ),
         ),
-      ),
-      child: _docfile != null
-          ? FilePickedWidget(
-              file: _docfile!,
-              onCancelTap: () => setState(() => _docfile = null),
-              onSendPressed: () => sendMessageWithDocAttached(),
-            )
-          : Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                InkWell(
-                  onTap: () => _attachFile(context),
-                  borderRadius: BorderRadius.circular(500),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8.0,
-                      vertical: 4.0,
-                    ),
-                    child: CircleAvatar(
-                      radius: 16.0,
-                      child: CircleAvatar(
-                        radius: 15.0,
-                        backgroundColor:
-                            Theme.of(context).dialogBackgroundColor,
-                        child: const Icon(Icons.add_outlined),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(0, 10, 0, 24),
+          child: _docfile != null
+              ? FilePickedWidget(
+                  file: _docfile!,
+                  onCancelTap: () => setState(() => _docfile = null),
+                  onSendPressed: () => sendMessageWithDocAttached(),
+                )
+              : Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    InkWell(
+                      onTap: () => _attachFile(context),
+                      borderRadius: BorderRadius.circular(500),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8.0,
+                          vertical: 4.0,
+                        ),
+                        child: CircleAvatar(
+                          radius: 16.0,
+                          child: CircleAvatar(
+                            radius: 15.0,
+                            backgroundColor:
+                                Theme.of(context).dialogBackgroundColor,
+                            child: const Icon(Icons.add_outlined),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-                Expanded(
-                  child: CupertinoTextField(
-                    controller: _controller,
-                    focusNode: _focus,
-                    style: _textStyle.copyWith(
-                      color: Theme.of(context).colorScheme.primaryVariant,
-                    ),
-                    minLines: 1,
-                    maxLines: 5,
-                    textInputAction: TextInputAction.newline,
-                    placeholder: "Write a message...",
-                    placeholderStyle: _textStyle.copyWith(
-                      color: Colors.grey.shade600,
-                    ),
-                    padding: const EdgeInsets.all(10.0),
-                  ),
-                ),
-                ValueListenableBuilder<bool>(
-                  valueListenable: _isEmptyNotifier,
-                  builder: (context, state, _) {
-                    if (state)
-                      return InkWell(
-                        onTap: () {},
-                        borderRadius: BorderRadius.circular(500),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8.0,
-                            vertical: 4.0,
-                          ),
-                          child: Icon(
-                            Icons.mic,
-                            color:
-                                Theme.of(context).colorScheme.secondaryVariant,
-                            size: 28.0,
-                          ),
+                    Expanded(
+                      child: CupertinoTextField(
+                        controller: widget.controller,
+                        focusNode: widget.inputFocusNode,
+                        style: _textStyle.copyWith(
+                          color: Theme.of(context).colorScheme.primaryVariant,
                         ),
-                      );
-                    else
-                      return InkWell(
-                        onTap: () => sendMessageOnly(),
-                        borderRadius: BorderRadius.circular(500),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8.0,
-                            vertical: 4.0,
-                          ),
-                          child: CircleAvatar(
-                            radius: 16.0,
-                            backgroundColor: Palette.tintColor,
-                            child: Icon(
-                              Icons.send,
-                              size: 20.0,
-                              color: Theme.of(context).colorScheme.surface,
+                        minLines: 1,
+                        maxLines: 5,
+                        textInputAction: TextInputAction.newline,
+                        placeholder: "Write a message...",
+                        placeholderStyle: _textStyle.copyWith(
+                          color: Colors.grey.shade600,
+                        ),
+                        padding: const EdgeInsets.all(10.0),
+                      ),
+                    ),
+                    ValueListenableBuilder<bool>(
+                      valueListenable: _isEmptyNotifier,
+                      builder: (context, state, _) {
+                        if (state)
+                          return InkWell(
+                            onTap: () {},
+                            borderRadius: BorderRadius.circular(500),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8.0,
+                                vertical: 4.0,
+                              ),
+                              child: Icon(
+                                Icons.mic,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .secondaryVariant,
+                                size: 28.0,
+                              ),
                             ),
-                          ),
-                        ),
-                      );
-                  },
-                )
-              ],
-            ),
+                          );
+                        else
+                          return InkWell(
+                            onTap: () => sendMessageOnly(),
+                            borderRadius: BorderRadius.circular(500),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8.0,
+                                vertical: 4.0,
+                              ),
+                              child: CircleAvatar(
+                                radius: 16.0,
+                                backgroundColor: Palette.tintColor,
+                                child: Icon(
+                                  Icons.send,
+                                  size: 20.0,
+                                  color: Theme.of(context).colorScheme.surface,
+                                ),
+                              ),
+                            ),
+                          );
+                      },
+                    )
+                  ],
+                ),
+        ),
+      ),
     );
   }
 
@@ -234,7 +261,7 @@ class _MessageInputBoxState extends State<MessageInputBox> {
       PageTransition(
         child: ChatImagePreviewScreen(
           imageFile: imageFile,
-          controller: _controller,
+          controller: widget.controller,
           source: source,
         ),
         type: PageTransitionType.bottomToTop,
@@ -246,13 +273,11 @@ class _MessageInputBoxState extends State<MessageInputBox> {
 
   // send text message
   void sendMessageOnly() {
-    if (_controller.text.trim().isNotEmpty) {
-      final message = MessageModel.newMessage(
-        _controller.text,
-        CurrentUser.currentUserId,
-      );
+    if (widget.controller.text.trim().isNotEmpty) {
+      final message =
+          MessageModel.newMessage(widget.controller.text, currentUserId);
       widget.onSentButtonPressed.call(message);
-      _controller.clear();
+      widget.controller.clear();
     }
   }
 
@@ -260,20 +285,20 @@ class _MessageInputBoxState extends State<MessageInputBox> {
   void sendMessageWithImage(final List<File> imageFiles) async {
     final attachments = await getImageAttachments(imageFiles);
     final message = MessageModel.newMessageWithAttachment(
-      _controller.text,
-      CurrentUser.currentUserId,
+      widget.controller.text,
+      currentUserId,
       attachments,
     );
     widget.onSentButtonPressed.call(message);
-    _controller.clear();
+    widget.controller.clear();
   }
 
   // send documents message
   void sendMessageWithDocAttached() async {
-    _controller.clear();
+    widget.controller.clear();
     final message = MessageModel.newMessageWithAttachment(
-      _controller.text,
-      CurrentUser.currentUserId,
+      widget.controller.text,
+      currentUserId,
       getDocAttachments(_docfile!),
     );
     widget.onSentButtonPressed.call(message);

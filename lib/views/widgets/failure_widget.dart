@@ -37,28 +37,30 @@ class LoadMoreErrorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(16.0),
+    return Align(
       alignment: Alignment.center,
-      child: Center(
-        child: Column(
-          children: [
-            Text(
-              message,
-              style: TextStyle(
-                fontSize: 15.0,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.5,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Center(
+          child: Column(
+            children: [
+              Text(
+                message,
+                style: TextStyle(
+                  fontSize: 15.0,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.5,
+                ),
               ),
-            ),
-            TextButton(
-              onPressed: onTap,
-              child: Text(
-                'Try again',
-                style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500),
+              TextButton(
+                onPressed: onTap,
+                child: Text(
+                  'Try again',
+                  style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

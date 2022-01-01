@@ -38,48 +38,50 @@ class FilePickedWidget extends StatelessWidget {
           ),
         ),
         Expanded(
-          child: Container(
+          child: Padding(
             padding: const EdgeInsets.fromLTRB(8, 6, 8, 4),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10.0),
-              border: Border.all(
-                width: 2.0,
-                color: Theme.of(context).colorScheme.secondaryVariant,
-              ),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.description,
-                  size: 30.0,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10.0),
+                border: Border.all(
+                  width: 2.0,
                   color: Theme.of(context).colorScheme.secondaryVariant,
                 ),
-                const SizedBox(width: 8.0),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(
-                        file.name,
-                        maxLines: 1,
-                        style: TextStyle(
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 4.0),
-                      Text(
-                        "${file.getFileSize} . ${file.extension}",
-                        maxLines: 1,
-                        style: TextStyle(
-                          fontSize: 13.0,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.description,
+                    size: 30.0,
+                    color: Theme.of(context).colorScheme.secondaryVariant,
                   ),
-                ),
-              ],
+                  const SizedBox(width: 8.0),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          file.name,
+                          maxLines: 1,
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 4.0),
+                        Text(
+                          "${file.getFileSize} . ${file.extension}",
+                          maxLines: 1,
+                          style: TextStyle(
+                            fontSize: 13.0,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

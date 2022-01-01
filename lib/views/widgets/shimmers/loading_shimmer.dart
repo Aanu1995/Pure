@@ -31,26 +31,28 @@ class LoadingShimmer extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
+                  SizedBox(
                     width: 150,
                     height: 16.0,
-                    color: Theme.of(context).colorScheme.surface,
+                    child: ColoredBox(
+                        color: Theme.of(context).colorScheme.surface),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 3.0),
-                    child: Container(
+                    child: SizedBox(
                       width: 80,
                       height: 10.0,
-                      color: Theme.of(context).colorScheme.surface,
+                      child: ColoredBox(
+                          color: Theme.of(context).colorScheme.surface),
                     ),
                   ),
                 ],
               ),
               const Spacer(),
-              Container(
+              SizedBox(
                 width: 60,
                 height: 24.0,
-                color: Theme.of(context).colorScheme.surface,
+                child: ColoredBox(color: Theme.of(context).colorScheme.surface),
               ),
             ],
           ),
@@ -83,26 +85,28 @@ class SingleShimmer extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
+                SizedBox(
                   width: 150,
                   height: 16.0,
-                  color: Colors.white,
+                  child: ColoredBox(color: Colors.white),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 3.0),
-                  child: Container(
+                  child: SizedBox(
                     width: 80,
                     height: 10.0,
-                    color: Theme.of(context).colorScheme.surface,
+                    child: ColoredBox(
+                      color: Theme.of(context).colorScheme.surface,
+                    ),
                   ),
                 ),
               ],
             ),
             const Spacer(),
-            Container(
+            SizedBox(
               width: 60,
               height: 24.0,
-              color: Theme.of(context).colorScheme.surface,
+              child: ColoredBox(color: Theme.of(context).colorScheme.surface),
             ),
           ],
         ),
