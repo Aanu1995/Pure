@@ -60,56 +60,58 @@ class _DocFilePreviewWidgetState extends State<DocFilePreviewWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Container(
-            padding: EdgeInsets.symmetric(vertical: 4.0),
-            decoration: BoxDecoration(
-              color: Colors.white10,
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.description, size: 30.0, color: iconColor),
-                const SizedBox(width: 8.0),
-                Expanded(
-                  child: Text(
-                    widget.attachment.name,
-                    style: TextStyle(
-                      fontSize: 14.0,
-                      color: widget.color,
-                      fontWeight: FontWeight.w600,
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: Colors.white10,
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.description, size: 30.0, color: iconColor),
+                  const SizedBox(width: 8.0),
+                  Expanded(
+                    child: Text(
+                      widget.attachment.name,
+                      style: TextStyle(
+                        fontSize: 14.0,
+                        color: widget.color,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
-                ),
-                if (widget.attachment.fileURL != null)
-                  if (!fileExists)
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8.0),
-                      child: ValueListenableBuilder<double>(
-                        valueListenable: _downloadNotifier,
-                        builder: (context, progress, _) {
-                          if (progress >= 0) {
-                            return SizedBox(
-                              height: 25.0,
-                              width: 25.0,
-                              child: CircularProgressIndicator(
-                                value: progress,
-                                strokeWidth: 2.5,
+                  if (widget.attachment.fileURL != null)
+                    if (!fileExists)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: ValueListenableBuilder<double>(
+                          valueListenable: _downloadNotifier,
+                          builder: (context, progress, _) {
+                            if (progress >= 0) {
+                              return SizedBox(
+                                height: 25.0,
+                                width: 25.0,
+                                child: CircularProgressIndicator(
+                                  value: progress,
+                                  strokeWidth: 2.5,
+                                  color: iconColor,
+                                ),
+                              );
+                            }
+                            return IconButton(
+                              onPressed: () => downloadFile(),
+                              icon: Icon(
+                                Icons.cloud_download_outlined,
+                                size: 28.0,
                                 color: iconColor,
                               ),
                             );
-                          }
-                          return IconButton(
-                            onPressed: () => downloadFile(),
-                            icon: Icon(
-                              Icons.cloud_download_outlined,
-                              size: 28.0,
-                              color: iconColor,
-                            ),
-                          );
-                        },
-                      ),
-                    )
-              ],
+                          },
+                        ),
+                      )
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 2.0),

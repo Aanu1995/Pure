@@ -64,63 +64,66 @@ class _ProfileScreenState extends State<ProfileScreen> {
         body: SingleChildScrollView(
           child: Column(
             children: [
-              Container(
+              ColoredBox(
                 color: secondaryColor,
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                child: Column(
-                  children: [
-                    // profile
-                    Center(child: ProfileSection(user: widget.user)),
-                    const SizedBox(height: 16.0),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  child: Column(
+                    children: [
+                      // profile
+                      Center(child: ProfileSection(user: widget.user)),
+                      const SizedBox(height: 16.0),
 
-                    // connections count, connection status
-                    BlocBuilder<UserExtraCubit, UserExtraState>(
-                      builder: (context, state) {
-                        if (state is UserExtraSuccess) {
-                          final mutualConnList = mutualConnections(
-                              state.extraData.connections.toList());
-                          return Row(
-                            children: [
-                              Expanded(
-                                child: _SpecialItem(
-                                  title: "Connections",
-                                  count: state.extraData.totalConnection,
-                                ),
-                              ),
-                              Expanded(
-                                child: InkWell(
-                                  splashColor: Palette.tintColor,
+                      // connections count, connection status
+                      BlocBuilder<UserExtraCubit, UserExtraState>(
+                        builder: (context, state) {
+                          if (state is UserExtraSuccess) {
+                            final mutualConnList = mutualConnections(
+                                state.extraData.connections.toList());
+                            return Row(
+                              children: [
+                                Expanded(
                                   child: _SpecialItem(
-                                    title: "Mutual Connections",
-                                    count: mutualConnList.length,
+                                    title: "Connections",
+                                    count: state.extraData.totalConnection,
                                   ),
-                                  onTap: () =>
-                                      viewMutualConnections(mutualConnList),
                                 ),
-                              ),
-                            ],
-                          );
-                        } else if (state is UserExtraFailure) {
-                          return RefreshFailureWidget(
-                            onTap: () => context
-                                .read<UserExtraCubit>()
-                                .getExtraData(widget.user.id),
-                          );
-                        }
+                                Expanded(
+                                  child: InkWell(
+                                    splashColor: Palette.tintColor,
+                                    child: _SpecialItem(
+                                      title: "Mutual Connections",
+                                      count: mutualConnList.length,
+                                    ),
+                                    onTap: () =>
+                                        viewMutualConnections(mutualConnList),
+                                  ),
+                                ),
+                              ],
+                            );
+                          } else if (state is UserExtraFailure) {
+                            return RefreshFailureWidget(
+                              onTap: () => context
+                                  .read<UserExtraCubit>()
+                                  .getExtraData(widget.user.id),
+                            );
+                          }
 
-                        return Center(child: CustomProgressIndicator(size: 20));
-                      },
-                    ),
-
-                    if (!widget.hideConnectionStatus)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 20.0),
-                        child: ConnectionStatusButton(
-                          user: widget.user,
-                          inviter: widget.inviter,
-                        ),
+                          return Center(
+                              child: CustomProgressIndicator(size: 20));
+                        },
                       ),
-                  ],
+
+                      if (!widget.hideConnectionStatus)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 20.0),
+                          child: ConnectionStatusButton(
+                            user: widget.user,
+                            inviter: widget.inviter,
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 16.0),

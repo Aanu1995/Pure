@@ -1,12 +1,12 @@
 import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pure/utils/chat_utils.dart';
 import '../../../../utils/palette.dart';
 
 import '../../../../blocs/bloc.dart';
 import '../../../../model/chat/chat_model.dart';
 import '../../../../model/pure_user_model.dart';
-import '../../../../utils/app_utils.dart';
 import '../../../../utils/navigate.dart';
 import '../../../widgets/avatar.dart';
 import '../messages/group_chat_message_screen.dart';

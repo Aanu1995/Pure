@@ -1,6 +1,7 @@
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pure/views/widgets/custom_keep_alive.dart';
 
 import '../../../../../blocs/bloc.dart';
 import '../../../../../model/connection_model.dart';
@@ -38,9 +39,8 @@ class ConnectorList extends StatelessWidget {
             return LoadMoreConnectors(onTap: onFetchMorePressed);
           else {
             final connector = connectors[index];
-            return KeepAlive(
+            return CustomKeepAlive(
               key: ValueKey<String>(connector.connectionId),
-              keepAlive: true,
               child: ProfileProvider(
                 userId: connector.connectorId,
                 child: _ConnectorProfile(

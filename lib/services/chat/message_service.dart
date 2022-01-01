@@ -2,9 +2,10 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:pure/model/chat/attachment_model.dart';
 
+import '../../model/chat/attachment_model.dart';
 import '../../model/chat/message_model.dart';
+import '../../utils/chat_utils.dart';
 import '../../utils/exception.dart';
 import '../../utils/global_utils.dart';
 import '../../utils/request_messages.dart';
@@ -18,7 +19,7 @@ abstract class MessageService {
   Future<MessagesModel> getRecentMessages(String chatId);
   Future<MessagesModel> loadMoreMessages(String chatId, DocumentSnapshot doc,
       {int limit = GlobalUtils.messagesLimit});
-  Future<void> sendMessage(String chatId, final MessageModel message);
+  Future<MessageModel> sendMessage(String chatId, final MessageModel message);
   Future<void> setCurrentUserLastReadMessageId(
       String chatId, String userId, String time);
 }
@@ -194,7 +195,8 @@ class MessageServiceImp extends MessageService {
 
   // send text message only
   @override
-  Future<void> sendMessage(String chatId, final MessageModel message) async {
+  Future<MessageModel> sendMessage(
+      String chatId, final MessageModel message) async {
     try {
       if (message.attachments != null) {
         List<Attachment> attachments = [];
@@ -208,9 +210,13 @@ class MessageServiceImp extends MessageService {
 
           if (photoURL != null) attachments.add(attachment.copyWith(photoURL));
         }
-        await _sendMessage(chatId, message.copyWithAttachments(attachments));
+        return await _sendMessage(
+            chatId, message.copyWithAttachments(attachments));
       } else {
-        await _sendMessage(chatId, message);
+        // get the text message link preview data if it contains link
+        final linkPreviewData = await getLinkPreviewData(message.text);
+        return await _sendMessage(
+            chatId, message.copyWith(linkData: linkPreviewData));
       }
     } on TimeoutException catch (_) {
       throw ServerException(message: ErrorMessages.timeoutMessage);
@@ -240,7 +246,8 @@ class MessageServiceImp extends MessageService {
   /// ##################################################################
   ///
 
-  Future<void> _sendMessage(String chatId, final MessageModel message) async {
+  Future<MessageModel> _sendMessage(
+      String chatId, final MessageModel message) async {
     await _firestoreNoPersistence
         .collection(GlobalUtils.chatCollection)
         .doc(chatId)
@@ -248,6 +255,7 @@ class MessageServiceImp extends MessageService {
         .doc(message.messageId)
         .set(message.toMap())
         .timeout(GlobalUtils.updateTimeOutInDuration);
+    return message;
   }
 
   MessagesModel _getMessageModel(final MessagesModel msgModel,

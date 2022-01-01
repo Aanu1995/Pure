@@ -308,7 +308,7 @@ class _GroupedListViewState<T, E> extends State<GroupedListView<T, E>> {
             if (snapshot.hasData) {
               return _showFixedGroupHeader(snapshot.data!);
             }
-            return Container();
+            return Offstage();
           },
         ),
       ],
@@ -380,7 +380,7 @@ class _GroupedListViewState<T, E> extends State<GroupedListView<T, E>> {
         child: _buildGroupSeparator(topElement),
       );
     }
-    return Container();
+    return Offstage();
   }
 
   bool _isListItemRendered(GlobalKey<State<StatefulWidget>> key) {

@@ -1,6 +1,7 @@
 import 'package:flash/flash.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pure/views/widgets/custom_keep_alive.dart';
 
 import '../../../../../../../blocs/bloc.dart';
 import '../../../../../../../model/invitation_model.dart';
@@ -129,9 +130,8 @@ class _SentScreenState extends State<SentScreen>
                             else {
                               final invitee =
                                   state.inviteeModel.invitees[index];
-                              return KeepAlive(
+                              return CustomKeepAlive(
                                 key: ValueKey<String>(invitee.invitationId),
-                                keepAlive: true,
                                 child: ProfileProvider(
                                   userId: invitee.inviteeId,
                                   child: InviteeProfile(

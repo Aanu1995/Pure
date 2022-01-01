@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../../utils/chat_utils.dart';
 
 import '../../../../../blocs/bloc.dart';
 import '../../../../../model/chat/message_model.dart';
 import '../../../../../model/pure_user_model.dart';
-import '../../../../../utils/app_utils.dart';
 import '../../../../widgets/grouped_list/grouped_list.dart';
 import 'date_separator_widget.dart';
 import 'empty_widget.dart';
@@ -17,12 +17,14 @@ class Messagesbody extends StatefulWidget {
   final String chatId;
   final String? firstName;
   final ValueChanged<MessageModel> onSentButtonPressed;
-  const Messagesbody(
-      {Key? key,
-      required this.chatId,
-      this.firstName,
-      required this.onSentButtonPressed})
-      : super(key: key);
+  final FocusNode inputFocusNode;
+  const Messagesbody({
+    Key? key,
+    required this.chatId,
+    this.firstName,
+    required this.onSentButtonPressed,
+    required this.inputFocusNode,
+  }) : super(key: key);
 
   @override
   _MessagesbodyState createState() => _MessagesbodyState();
@@ -31,12 +33,14 @@ class Messagesbody extends StatefulWidget {
 class _MessagesbodyState extends State<Messagesbody> {
   final _controller = ScrollController();
   double lastPos = 0.0;
+  late String currentUserId;
 
   int showNewMessageAtIndex = -1;
 
   @override
   void initState() {
     super.initState();
+    currentUserId = CurrentUser.currentUserId;
     _controller.addListener(_updateMessageOnScroll);
     _controller.addListener(_fetchOldMessagesOnScroll);
   }
@@ -54,10 +58,8 @@ class _MessagesbodyState extends State<Messagesbody> {
 
   void newMessagesListener(BuildContext context, final MessageState state) {
     if (state is MessagesLoaded) {
-      final hasBottomPadding = MediaQuery.of(context).viewInsets.bottom > 0;
-
-      if (hasBottomPadding) {
-        // Occur if user keyboard is open, new messages should be autom
+      if (widget.inputFocusNode.hasFocus) {
+        // Occur if user keyboard is open, new messages should be updated automatically
         _updateLatestMessage(state);
       } else {
         final minScroll = _controller.position.minScrollExtent;
@@ -125,18 +127,14 @@ class _MessagesbodyState extends State<Messagesbody> {
                         return GroupDateSeparator(date: date);
                       },
                       indexedItemBuilder: (context, index) {
-                        if (index == messages.length) {
+                        if (index == messages.length)
                           return LoadMoreMessagesWidget(
                             onTap: () => _fetchMore(tryAgain: true),
                           );
-                        } else {
-                          double spacing = 0.0;
+                        else {
                           final message = messages[index];
-                          final isSelf =
-                              message.isSelf(CurrentUser.currentUserId);
-
-                          if (index > 0)
-                            spacing = isSame(index, messages) ? 4.0 : 16.0;
+                          final isSelf = message.isSelf(currentUserId);
+                          final spacing = isFromSameUser(index, messages);
 
                           return Column(
                             children: [
@@ -246,29 +244,8 @@ class _MessagesbodyState extends State<Messagesbody> {
     }
   }
 
-  bool isSame(final int index, final List<MessageModel> messages) {
-    return messages[index - 1].senderId == messages[index].senderId;
-  }
-
-  bool hideNip(final int index, final List<MessageModel> messages) {
-    if (messages.length >= 2 && index < (messages.length - 1)) {
-      final currentMessage = messages[index];
-      final nextMessage = messages[index + 1];
-      if (groupDate(currentMessage.sentDate!) !=
-          groupDate(nextMessage.sentDate!)) {
-        return false;
-      } else {
-        return currentMessage.senderId == nextMessage.senderId;
-      }
-    }
-    return false;
-  }
-
   void sendMessage(String text) {
-    final message = MessageModel.newMessage(
-      text,
-      CurrentUser.currentUserId,
-    );
+    final message = MessageModel.newMessage(text, currentUserId);
     widget.onSentButtonPressed.call(message);
   }
 }

@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
+import 'package:linkify/linkify.dart';
+import 'package:collection/collection.dart';
+import 'package:pure/utils/navigate.dart';
+import 'package:pure/views/screens/settings/profile/profile_screen.dart';
 
 import '../../../../../blocs/bloc.dart';
 import '../../../../../model/chat/attachment_model.dart';
 import '../../../../../model/chat/message_model.dart';
+import '../../../../../utils/app_utils.dart';
 import '../../../../../utils/file_utils.dart';
+import '../../../../../utils/palette.dart';
 
 class TrailingText extends StatelessWidget {
   final String time;
@@ -115,29 +122,56 @@ class TextWidget extends StatelessWidget {
   const TextWidget({Key? key, required this.text, this.color})
       : super(key: key);
 
+  final _style = const TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w400,
+    letterSpacing: 0.1,
+    fontFamily: Palette.sanFontFamily,
+  );
+
   @override
   Widget build(BuildContext context) {
     if (text.isEmpty) return Offstage();
     return Padding(
       padding: const EdgeInsets.fromLTRB(2, 4, 2, 4),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 16.0,
-          fontWeight: FontWeight.w400,
+      child: SelectableLinkify(
+        text: text,
+        style: _style.copyWith(
           color: color ?? Theme.of(context).colorScheme.secondary,
-          letterSpacing: 0.15,
         ),
+        textScaleFactor: null,
+        linkifiers: const [
+          UrlLinkifier(),
+          EmailLinkifier(),
+          UserTagLinkifier()
+        ],
+        options: LinkifyOptions(humanize: false),
+        linkStyle: _style.copyWith(color: Colors.blueAccent),
+        onOpen: (link) => openLink(context, link.url),
       ),
     );
+  }
+
+  void openLink(BuildContext context, String link) {
+    if (link.startsWith("@")) {
+      final state = BlocProvider.of<GroupCubit>(context).state;
+      if (state is GroupMembers) {
+        final members = state.members.toList();
+        final user = members.firstWhereOrNull(
+            (element) => element.username == link.replaceAll("@", ""));
+        if (user != null) {
+          push(context: context, page: ProfileScreen(user: user));
+        }
+      }
+    } else {
+      launchIfCan(context, link);
+    }
   }
 }
 
 class FailedToDeliverMessageWidget extends StatelessWidget {
   final String chatId;
-  final bool hasAttachments;
-  const FailedToDeliverMessageWidget(
-      {Key? key, required this.chatId, this.hasAttachments = false})
+  const FailedToDeliverMessageWidget({Key? key, required this.chatId})
       : super(key: key);
 
   static final _style = const TextStyle(
@@ -159,16 +193,15 @@ class FailedToDeliverMessageWidget extends StatelessWidget {
         ),
 
         // Try again Button
-        if (hasAttachments)
-          InkWell(
-            borderRadius: BorderRadius.circular(500),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(4, 2, 8, 10),
-              child: Icon(Icons.refresh),
-            ),
-            onTap: () =>
-                context.read<MessageCubit>().resendFailedMessages(chatId),
+        InkWell(
+          borderRadius: BorderRadius.circular(500),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(4, 2, 8, 10),
+            child: Icon(Icons.refresh),
           ),
+          onTap: () =>
+              context.read<MessageCubit>().resendFailedMessages(chatId),
+        ),
       ],
     );
   }

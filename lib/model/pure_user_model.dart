@@ -161,7 +161,8 @@ class PureUser extends Equatable {
 
     return <String, dynamic>{
       'userId': user.uid,
-      'username': '',
+      // retrieves the username from the user email
+      'username': user.email!.split("@").first,
       'email': user.email,
       'firstName': '',
       'lastName': '',

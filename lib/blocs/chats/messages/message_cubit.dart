@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../model/chat/message_model.dart';
 import '../../../services/chat/message_service.dart';
-import '../../../utils/app_utils.dart';
+import '../../../utils/chat_utils.dart';
 import 'message_state.dart';
 
 class MessageCubit extends Cubit<MessageState> {
@@ -27,15 +27,18 @@ class MessageCubit extends Cubit<MessageState> {
   }
 
   Future<void> sendMessage(final String chatId, final MessageModel message,
-      {bool update = true}) async {
+      {bool isFreshMessage = true}) async {
     try {
-      if (update) _updateMessage(message);
-      await messageService.sendMessage(chatId, message);
+      // isFreshMessage is true only when the message is sent by
+      // the user for the first time. it is false if the message is resent
+      // by the user after first failed attempt
+      // if true, the UI is updated to show a message is being sent (Pending)
+      if (isFreshMessage) _updateMessage(message);
+
+      final result = await messageService.sendMessage(chatId, message);
       // update on message sent
-      if (update) {
-        final newMessage = message.copyWith(newRecept: Receipt.Sent);
-        _updateMessage(newMessage, oldMsg: message);
-      }
+      final newMessage = result.copyWith(newRecept: Receipt.Sent);
+      _updateMessage(newMessage, oldMsg: message);
     } catch (e) {
       _onMessageFailed(message);
     }
@@ -108,7 +111,7 @@ class MessageCubit extends Cubit<MessageState> {
 
       // start resending those failed messages
       for (final msg in failedMessages.toList()) {
-        sendMessage(chatId, msg, update: false);
+        sendMessage(chatId, msg, isFreshMessage: false);
       }
     }
   }

@@ -28,7 +28,7 @@ class Participants extends StatefulWidget {
 
 class _ParticipantsState extends State<Participants> {
   final _style = const TextStyle(
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: FontWeight.w600,
     letterSpacing: 0.05,
   );
@@ -88,12 +88,29 @@ class _ParticipantsState extends State<Participants> {
             return ListTile(
               dense: true,
               horizontalTitleGap: 12.0,
-              onTap: () => viewFullProfile(context, index, participant),
+              onTap: () => onUserTapped(context, index, participant),
+              onLongPress: () => onUserLongPressed(context, participant),
               leading: Avartar2(imageURL: participant.photoURL),
-              title: Text(
-                participant.isMe ? "You" : participant.fullName,
+              title: RichText(
                 maxLines: 1,
-                style: _style,
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: participant.isMe ? "You" : participant.fullName,
+                      style: _style.copyWith(
+                        color: Theme.of(context).colorScheme.primaryVariant,
+                      ),
+                    ),
+                    TextSpan(
+                      text: "  @${participant.username}",
+                      style: _style.copyWith(
+                        fontSize: 13.0,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).colorScheme.secondaryVariant,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               trailing: widget.chat.isAdmin(participant.id)
                   ? Text(
@@ -125,7 +142,7 @@ class _ParticipantsState extends State<Participants> {
     );
   }
 
-  void viewFullProfile(
+  void onUserTapped(
       BuildContext context, int index, final PureUser user) async {
     if (!user.isMe) {
       if (widget.chat.isAdmin(CurrentUser.currentUserId)) {
@@ -168,8 +185,14 @@ class _ParticipantsState extends State<Participants> {
               .removeMember(widget.chat.chatId, index, user);
         }
       } else {
-        push(context: context, page: ProfileScreen(user: user));
+        onUserLongPressed(context, user);
       }
+    }
+  }
+
+  void onUserLongPressed(BuildContext context, final PureUser user) {
+    if (!user.isMe) {
+      push(context: context, page: ProfileScreen(user: user));
     }
   }
 }
