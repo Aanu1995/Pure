@@ -70,7 +70,7 @@ class PureLinkPreview extends StatelessWidget {
                     ),
                   ),
                 ),
-              if (linkPreviedData!.title != null)
+              if (linkPreviedData!.description != null)
                 WrappableText(
                   padding: const EdgeInsets.fromLTRB(4, 4, 4, 3),
                   text: TextSpan(

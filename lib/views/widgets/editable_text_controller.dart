@@ -26,7 +26,7 @@ class EditableTextController extends TextEditingController {
     if (state is GroupMembers) {
       final members = state.members.toList();
       members.removeWhere((element) => element.id == CurrentUser.currentUserId);
-      usernames = members.map((e) => e.username).toList();
+      usernames = members.map((e) => e.username.toLowerCase()).toList();
     }
 
     // Validating with REGEX
@@ -38,7 +38,7 @@ class EditableTextController extends TextEditingController {
         return span.toString();
       },
       onMatch: (Match m) {
-        if (usernames.contains(m[0]!.split("@").last)) {
+        if (usernames.contains((m[0]!.split("@")).last.toLowerCase())) {
           children.add(
             TextSpan(text: m[0], style: patternMatchMap.values.first),
           );
