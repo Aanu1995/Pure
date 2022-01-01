@@ -69,7 +69,7 @@ class ChatServiceImp extends ChatService {
       final groupChat = chatModel.copyWith(image: groupImageURL ?? "");
 
       await _chatCollection
-          .doc(chatModel.chatId)
+          .doc(groupChat.chatId)
           .set(groupChat.toMap())
           .timeout(GlobalUtils.timeOutInDuration);
       return groupChat;
