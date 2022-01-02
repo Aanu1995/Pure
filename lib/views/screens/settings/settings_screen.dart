@@ -158,7 +158,6 @@ class _Body extends StatelessWidget {
     BlocProvider.of<ConnectorCubit>(context).dispose();
     BlocProvider.of<ReceivedInvitationCubit>(context).dispose();
     BlocProvider.of<SentInvitationCubit>(context).dispose();
-    await BlocProvider.of<AuthCubit>(context)
-        .signOut(CurrentUser.currentUserId);
+    BlocProvider.of<AuthCubit>(context).signOut(CurrentUser.currentUserId);
   }
 }

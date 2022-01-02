@@ -197,9 +197,7 @@ class _ReceivedScreenState extends State<ReceivedScreen>
   Future<void> onRefresh() async {
     final state = context.read<LoadMoreInviterCubit>().state;
     if (state is! LoadingInviters) {
-      await context
-          .read<LoadMoreInviterCubit>()
-          .refresh(CurrentUser.currentUserId);
+      context.read<LoadMoreInviterCubit>().refresh(CurrentUser.currentUserId);
     }
   }
 
@@ -213,7 +211,7 @@ class _ReceivedScreenState extends State<ReceivedScreen>
 
   Future<void> loadAgain(InviterModel inviterModel) async {
     // call the provider to fetch more users
-    await context
+    context
         .read<LoadMoreInviterCubit>()
         .loadMoreInvitees(CurrentUser.currentUserId, inviterModel);
   }

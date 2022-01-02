@@ -177,13 +177,9 @@ class _SentScreenState extends State<SentScreen>
   }
 
   Future<void> onRefresh() async {
-    // delay is added to enable refresh indicator go round once
-    await Future<void>.delayed(Duration(milliseconds: 300));
     final state = context.read<LoadMoreInviteeCubit>().state;
     if (state is! LoadingInvitees) {
-      await context
-          .read<LoadMoreInviteeCubit>()
-          .refresh(CurrentUser.currentUserId);
+      context.read<LoadMoreInviteeCubit>().refresh(CurrentUser.currentUserId);
     }
   }
 
@@ -197,7 +193,7 @@ class _SentScreenState extends State<SentScreen>
 
   Future<void> loadAgain(InviteeModel inviteeModel) async {
     // call the provider to fetch more users
-    await context
+    context
         .read<LoadMoreInviteeCubit>()
         .loadMoreInvitees(CurrentUser.currentUserId, inviteeModel);
   }

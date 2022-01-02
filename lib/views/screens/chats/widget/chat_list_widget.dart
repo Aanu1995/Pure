@@ -102,7 +102,7 @@ class _ChatListState extends State<ChatList> {
 
   Future<void> loadAgain(final ChatsModel model) async {
     if (model.lastDoc != null) {
-      await context
+      context
           .read<LoadMoreChatsCubit>()
           .loadMoreChats(currentUserId, model.lastDoc!);
     }

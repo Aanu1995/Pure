@@ -235,7 +235,7 @@ class _MessagesbodyState extends State<Messagesbody> {
   Future<void> loadAgain(final MessagesModel model) async {
     // call the provider to fetch more messages
     if (model.lastDoc != null) {
-      await context
+      context
           .read<LoadMoreMessageCubit>()
           .loadMoreMessages(widget.chatId, model.lastDoc!);
     }

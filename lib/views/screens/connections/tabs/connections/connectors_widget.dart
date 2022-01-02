@@ -149,10 +149,7 @@ class _ConnectorsWidgetState extends State<ConnectorsWidget> {
     final state = context.read<LoadMoreConnectorCubit>().state;
     if (state is! LoadingConnections) {
       // delay is added to enable refresh indicator go round once
-      await Future<void>.delayed(Duration(milliseconds: 300));
-      await context
-          .read<LoadMoreConnectorCubit>()
-          .refresh(CurrentUser.currentUserId);
+      context.read<LoadMoreConnectorCubit>().refresh(CurrentUser.currentUserId);
     }
   }
 
@@ -166,7 +163,7 @@ class _ConnectorsWidgetState extends State<ConnectorsWidget> {
 
   Future<void> loadAgain(ConnectionModel connectionModel) async {
     // call the provider to fetch more users
-    await context
+    context
         .read<LoadMoreConnectorCubit>()
         .loadMoreInvitees(CurrentUser.currentUserId, connectionModel);
   }
