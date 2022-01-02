@@ -35,49 +35,6 @@ class _MessagesScreenState extends State<MessagesScreen> {
   }
 
   @override
-  void dispose() {
-    print("dispose");
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          lazy: false,
-          create: (_) => MessageCubit(messageServiceImpl)
-            ..fetchMessages(widget.chatId, CurrentUser.currentUserId),
-        ),
-        BlocProvider(create: (_) => NewMessagesCubit(messageServiceImpl)),
-        BlocProvider(create: (_) => LoadMoreMessageCubit(messageServiceImpl)),
-        if (!widget.hasPresenceActivated)
-          BlocProvider(
-            create: (_) => UserPresenceCubit(UserServiceImpl())
-              ..getUserPresence(widget.receipient.id),
-          ),
-      ],
-      child: _MessagesScreenExtension(
-        chatId: widget.chatId,
-        receipient: widget.receipient,
-        hasPresenceActivated: widget.hasPresenceActivated,
-      ),
-    );
-  }
-}
-
-class _MessagesScreenExtension extends StatelessWidget {
-  final String chatId;
-  final PureUser receipient;
-  final bool hasPresenceActivated;
-  const _MessagesScreenExtension({
-    Key? key,
-    required this.chatId,
-    required this.receipient,
-    this.hasPresenceActivated = false,
-  }) : super(key: key);
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -90,12 +47,31 @@ class _MessagesScreenExtension extends StatelessWidget {
           ),
         ),
         title: MessageAppBarTitle(
-          chatId: chatId,
-          receipient: receipient,
-          hasPresenceActivated: hasPresenceActivated,
+          chatId: widget.chatId,
+          receipient: widget.receipient,
+          hasPresenceActivated: widget.hasPresenceActivated,
         ),
       ),
-      body: MessageBody(chatId: chatId, receipientName: receipient.firstName),
+      body: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            lazy: false,
+            create: (_) => MessageCubit(messageServiceImpl)
+              ..fetchMessages(widget.chatId, CurrentUser.currentUserId),
+          ),
+          BlocProvider(create: (_) => NewMessagesCubit(messageServiceImpl)),
+          BlocProvider(create: (_) => LoadMoreMessageCubit(messageServiceImpl)),
+          if (!widget.hasPresenceActivated)
+            BlocProvider(
+              create: (_) => UserPresenceCubit(UserServiceImpl())
+                ..getUserPresence(widget.receipient.id),
+            ),
+        ],
+        child: MessageBody(
+          chatId: widget.chatId,
+          receipientName: widget.receipient.firstName,
+        ),
+      ),
     );
   }
 }

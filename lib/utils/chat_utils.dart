@@ -130,7 +130,6 @@ void replaceUserTagOnSelected(
   );
 
   controller.text = newText;
-
   final textSelection = TextSelection(baseOffset: offset, extentOffset: offset);
   final selectedTextLength = selected.length;
 

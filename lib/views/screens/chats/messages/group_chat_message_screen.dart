@@ -28,28 +28,6 @@ class _GroupChatMessageScreenState extends State<GroupChatMessageScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          lazy: false,
-          create: (_) => MessageCubit(MessageServiceImp())
-            ..fetchMessages(widget.chatModel.chatId, CurrentUser.currentUserId),
-        ),
-        BlocProvider(create: (_) => NewMessagesCubit(MessageServiceImp())),
-        BlocProvider(create: (_) => LoadMoreMessageCubit(MessageServiceImp())),
-      ],
-      child: _GroupChatMessageScreenExtension(chatModel: widget.chatModel),
-    );
-  }
-}
-
-class _GroupChatMessageScreenExtension extends StatelessWidget {
-  final ChatModel chatModel;
-  const _GroupChatMessageScreenExtension({Key? key, required this.chatModel})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -61,9 +39,22 @@ class _GroupChatMessageScreenExtension extends StatelessWidget {
             color: Theme.of(context).colorScheme.primaryVariant,
           ),
         ),
-        title: GroupMessageAppBarTitle(chat: chatModel),
+        title: GroupMessageAppBarTitle(chat: widget.chatModel),
       ),
-      body: MessageBody(chatId: chatModel.chatId),
+      body: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            lazy: false,
+            create: (_) => MessageCubit(MessageServiceImp())
+              ..fetchMessages(
+                  widget.chatModel.chatId, CurrentUser.currentUserId),
+          ),
+          BlocProvider(create: (_) => NewMessagesCubit(MessageServiceImp())),
+          BlocProvider(
+              create: (_) => LoadMoreMessageCubit(MessageServiceImp())),
+        ],
+        child: MessageBody(chatId: widget.chatModel.chatId),
+      ),
     );
   }
 }
