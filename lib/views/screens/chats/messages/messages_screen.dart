@@ -25,6 +25,8 @@ class MessagesScreen extends StatefulWidget {
 }
 
 class _MessagesScreenState extends State<MessagesScreen> {
+  final messageServiceImpl = MessageServiceImp();
+
   @override
   void initState() {
     super.initState();
@@ -33,16 +35,22 @@ class _MessagesScreenState extends State<MessagesScreen> {
   }
 
   @override
+  void dispose() {
+    print("dispose");
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
           lazy: false,
-          create: (_) => MessageCubit(MessageServiceImp())
+          create: (_) => MessageCubit(messageServiceImpl)
             ..fetchMessages(widget.chatId, CurrentUser.currentUserId),
         ),
-        BlocProvider(create: (_) => NewMessagesCubit(MessageServiceImp())),
-        BlocProvider(create: (_) => LoadMoreMessageCubit(MessageServiceImp())),
+        BlocProvider(create: (_) => NewMessagesCubit(messageServiceImpl)),
+        BlocProvider(create: (_) => LoadMoreMessageCubit(messageServiceImpl)),
         if (!widget.hasPresenceActivated)
           BlocProvider(
             create: (_) => UserPresenceCubit(UserServiceImpl())

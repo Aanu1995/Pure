@@ -136,7 +136,6 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
                       autofocus: true,
                       style: _textStyle,
                       textInputAction: TextInputAction.next,
-                      scrollPadding: const EdgeInsets.only(bottom: 250),
                       decoration: _decoration.copyWith(
                         fillColor: secondaryColor,
                         hintText: 'Current Password',
@@ -160,7 +159,6 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
                       cursorColor: primaryVariantColor,
                       style: _textStyle,
                       textInputAction: TextInputAction.next,
-                      scrollPadding: const EdgeInsets.only(bottom: 250),
                       decoration: _decoration.copyWith(
                         fillColor: secondaryColor,
                         hintText: 'New Password',
@@ -182,7 +180,6 @@ class _UpdatePasswordScreenState extends State<UpdatePasswordScreen> {
                       cursorColor: primaryVariantColor,
                       obscureText: true,
                       style: _textStyle,
-                      scrollPadding: const EdgeInsets.only(bottom: 250),
                       decoration: _decoration.copyWith(
                         fillColor: secondaryColor,
                         hintText: 'Confirm Password',

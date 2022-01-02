@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../blocs/bloc.dart';
-import '../../blocs/chats/chats/unread_chat.dart';
 import '../../repositories/connection.dart';
 import '../../repositories/local_storage.dart';
 import '../../services/chat/chat_service.dart';
@@ -33,7 +32,6 @@ class CustomMultiBlocProvider extends StatelessWidget {
           create: (_) =>
               AuthCubit(FirebaseAuth.instance, _localStorage, _userService),
         ),
-        BlocProvider(create: (_) => BottomBarCubit()),
         BlocProvider(
           create: (_) => ConnectorCubit(
             connectionService: ConnectionServiceImpl(),

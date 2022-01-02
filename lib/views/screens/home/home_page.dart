@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../utils/palette.dart';
-import '../../widgets/bottom_bar.dart';
 import '../../widgets/page_transition.dart';
 import 'posts/create_post_screen.dart';
 
@@ -34,12 +33,11 @@ class _HomePageState extends State<HomePage> {
         ),
         onPressed: () => _onCreatePostTapped(),
       ),
-      bottomNavigationBar: const BottomBar(),
     );
   }
 
   void _onCreatePostTapped() {
-    Navigator.of(context).push<void>(
+    Navigator.of(context, rootNavigator: true).push<void>(
       PageTransition(
         child: CreatePostScreen(),
         type: PageTransitionType.bottomToTop,

@@ -204,6 +204,7 @@ class _ConnectorProfile extends StatelessWidget {
   ) {
     push(
       context: context,
+      rootNavigator: true,
       page: MessagesScreen(chatId: connector.connectionId, receipient: user),
     );
   }

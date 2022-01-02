@@ -6,7 +6,6 @@ import '../../../blocs/bloc.dart';
 import '../../../model/pure_user_model.dart';
 import '../../../services/connection_service.dart';
 import '../../../services/search_service.dart';
-import '../../widgets/bottom_bar.dart';
 import '../../widgets/page_transition.dart';
 import 'search/search_screen.dart';
 import 'tabs/connections/connections_network.dart';
@@ -22,8 +21,7 @@ class _ConnectionsPageState extends State<ConnectionsPage> {
   @override
   void initState() {
     super.initState();
-    BlocProvider.of<ConnectorCubit>(context)
-        .loadConnections(CurrentUser.currentUserId);
+    context.read<ConnectorCubit>().loadConnections(CurrentUser.currentUserId);
   }
 
   @override
@@ -90,7 +88,6 @@ class _ConnectionsPageState extends State<ConnectionsPage> {
           ),
         ),
         body: ConnectionsNetwork(),
-        bottomNavigationBar: const BottomBar(),
       ),
     );
   }

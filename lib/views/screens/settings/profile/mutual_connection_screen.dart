@@ -133,6 +133,7 @@ class _ConnectorProfile extends StatelessWidget {
     );
     push(
       context: context,
+      rootNavigator: true,
       page: MessagesScreen(chatId: chatId, receipient: user),
     );
   }

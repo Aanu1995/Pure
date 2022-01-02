@@ -182,6 +182,7 @@ class _GroupCardState extends State<GroupCard> {
   void pushToMessagesScreen(BuildContext context) {
     push(
       context: context,
+      rootNavigator: true,
       page: BlocProvider.value(
         value: BlocProvider.of<GroupCubit>(context),
         child: GroupChatMessageScreen(chatModel: widget.chat),

@@ -176,6 +176,7 @@ class _OneToOneCardState extends State<OneToOneCard> {
   void pushToMessagesScreen(BuildContext context, PureUser user) {
     push(
       context: context,
+      rootNavigator: true,
       page: BlocProvider.value(
         value: BlocProvider.of<UserPresenceCubit>(context),
         child: MessagesScreen(
