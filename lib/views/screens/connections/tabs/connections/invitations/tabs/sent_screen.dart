@@ -179,7 +179,9 @@ class _SentScreenState extends State<SentScreen>
   Future<void> onRefresh() async {
     final state = context.read<LoadMoreInviteeCubit>().state;
     if (state is! LoadingInvitees) {
-      context.read<LoadMoreInviteeCubit>().refresh(CurrentUser.currentUserId);
+      await context
+          .read<LoadMoreInviteeCubit>()
+          .refresh(CurrentUser.currentUserId);
     }
   }
 
@@ -206,7 +208,7 @@ class _SentScreenState extends State<SentScreen>
       } else {
         final loadMoreState = context.read<LoadMoreInviteeCubit>().state;
         if (loadMoreState is! LoadingInvitees &&
-            state is! InviteeLoadingFailed &&
+            loadMoreState is! InviteeLoadingFailed &&
             state.hasMore) {
           // check is the last documentId is available
           if (state.inviteeModel.lastDocs != null) {

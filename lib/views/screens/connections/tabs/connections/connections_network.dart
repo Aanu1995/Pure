@@ -22,7 +22,11 @@ class ConnectionsNetwork extends StatefulWidget {
 class _ConnectionsNetworkState extends State<ConnectionsNetwork> {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AuthCubit, AuthState>(
+    return BlocConsumer<AuthCubit, AuthState>(
+      listenWhen: (previous, current) =>
+          (previous is Authenticated && current is Authenticated) &&
+          (previous.user.connectionCounter != current.user.connectionCounter),
+      listener: (context, state) {},
       builder: (context, state) {
         if (state is Authenticated) {
           return Column(
@@ -92,7 +96,7 @@ class _ConnectionsNetworkState extends State<ConnectionsNetwork> {
                 height: 12.0,
                 color: Theme.of(context).colorScheme.secondaryVariant,
               ),
-              const Expanded(child: ConnectorsWidget())
+              const Expanded(child: const ConnectorsWidget())
             ],
           );
         }
@@ -104,6 +108,7 @@ class _ConnectionsNetworkState extends State<ConnectionsNetwork> {
   void pushToInvitationScreen() {
     push(
       context: context,
+      rootNavigator: true,
       page: MultiBlocProvider(
         providers: [
           BlocProvider(

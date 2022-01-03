@@ -18,6 +18,8 @@ class ConnectionsPage extends StatefulWidget {
 }
 
 class _ConnectionsPageState extends State<ConnectionsPage> {
+  final connectionService = ConnectionServiceImpl();
+
   @override
   void initState() {
     super.initState();
@@ -28,15 +30,10 @@ class _ConnectionsPageState extends State<ConnectionsPage> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider(create: (_) => LoadMoreConnectorCubit(connectionService)),
+        BlocProvider(create: (_) => RefreshConnectionsCubit(connectionService)),
         BlocProvider(
-          create: (_) => LoadMoreConnectorCubit(
-            connectionService:
-                ConnectionServiceImpl(isPersistentEnabled: false),
-          ),
-        ),
-        BlocProvider(
-          create: (_) => OtherActionsConnectionCubit(
-              ConnectionServiceImpl(isPersistentEnabled: false)),
+          create: (_) => OtherActionsConnectionCubit(connectionService),
         ),
       ],
       child: Scaffold(

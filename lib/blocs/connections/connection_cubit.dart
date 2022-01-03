@@ -1,12 +1,13 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../model/connection_model.dart';
 import '../../model/invitation_model.dart';
 import '../../repositories/local_storage.dart';
 import '../../services/connection_service.dart';
-import '../../utils/exception.dart';
+import '../../utils/connection_utils.dart';
 import '../../utils/global_utils.dart';
 import '../../utils/request_messages.dart';
 import 'connection_state.dart';
@@ -23,84 +24,89 @@ class ConnectorCubit extends Cubit<ConnectorState> {
   StreamSubscription<ConnectionModel?>? _subscription;
 
   Future<void> loadConnections(String userId) async {
-    List? data;
-
-    try {
-      data =
-          await _localStorage.getData(GlobalUtils.connectionsPrefKey) as List?;
-    } catch (e) {}
-
-    // if data is available in local storage, load from local storage first
-    // and then sync the local data with remote data.
-    // else load from remote database directly
-    if (data != null) {
-      try {
-        final currentState = state;
-
-        // load from local storage
-        final connectorList = _mapDataToModel(data);
-
-        if (currentState is ConnectionInitial) {
-          emit(LoadingConnections());
-
-          connectionService.getConnectionList(userId).then((result) {
-            emit(ConnectionsLoaded(
-              connectionModel: result,
-              hasMore: hasMore(result.connectors),
-            ));
-          });
-
-          _subscription?.cancel();
-          _subscription = connectionService
-              .syncLocalDatabaseWithRemote(userId)
-              .listen((user) {});
-        }
-
-        emit(
-          ConnectionsLoaded(
-            connectionModel: ConnectionModel(connectors: connectorList),
-          ),
-        );
-      } catch (e) {
-        emit(ConnectionFailed(ErrorMessages.generalMessage2));
-      }
-    } else {
-      final currentState = state;
-      if (currentState is ConnectionInitial) {
-        // sync data
-        _subscription?.cancel();
-        _subscription = connectionService
-            .syncLocalDatabaseWithRemote(userId)
-            .listen((user) {});
-      }
-
-      // load directly from local storage
-      return loadFromremoteStorage(userId);
-    }
+    // load data from local storage first
+    await _loadDataFromLocalStorage();
+    loadDataFromRemoteStorage(userId);
   }
 
-  Future<void> loadFromremoteStorage(String userId) async {
-    emit(LoadingConnections());
-
+  Future<void> _loadDataFromLocalStorage() async {
     try {
-      // load directly from local storage
-      final result = await connectionService.getConnectionList(userId);
-
-      emit(ConnectionsLoaded(
-        connectionModel: result,
-        hasMore: hasMore(result.connectors),
-      ));
-    } on NetworkException catch (e) {
-      emit(ConnectionFailed(e.message!));
-    } on ServerException catch (e) {
-      emit(ConnectionFailed(e.message!));
-    } catch (_) {
+      // load from local storage
+      final data =
+          await _localStorage.getData(GlobalUtils.connectionsPrefKey) as List?;
+      if (data != null) {
+        final connectorList = _mapDataToModel(data);
+        final connectionModel = ConnectionModel(connectors: connectorList);
+        emit(ConnectionsLoaded(connectionModel: connectionModel));
+      }
+    } catch (e) {
       emit(ConnectionFailed(ErrorMessages.generalMessage2));
     }
   }
 
-  void updateConnection(ConnectionModel connectionModel, bool hasMore) {
-    emit(ConnectionsLoaded(connectionModel: connectionModel, hasMore: hasMore));
+  void loadDataFromRemoteStorage(String userId) {
+    final currentState = state;
+    if (currentState is! ConnectionsLoaded) emit(LoadingConnections());
+
+    try {
+      _subscription?.cancel();
+      _subscription =
+          connectionService.getConnectionList(userId).listen((connectionModel) {
+        List<Connector> newConnectorsList = connectionModel.connectors.toList();
+        List<Connector> oldConnectorsList = [];
+        DocumentSnapshot? oldLastDoc;
+        if (currentState is ConnectionsLoaded) {
+          oldConnectorsList = currentState.connectionModel.connectors;
+          oldLastDoc = currentState.connectionModel.lastDoc;
+        }
+
+        final totalList = [...newConnectorsList, ...oldConnectorsList.toList()];
+        final result = ConnectionModel(
+          connectors: orderedSetForConnections(totalList),
+          lastDoc: newConnectorsList.length > oldConnectorsList.length
+              ? connectionModel.lastDoc
+              : oldLastDoc,
+        );
+        emit(ConnectionsLoaded(connectionModel: result));
+      });
+    } catch (_) {
+      if (currentState is! ConnectionsLoaded)
+        emit(ConnectionFailed(ErrorMessages.generalMessage2));
+    }
+  }
+
+  void updateNewConnection(ConnectionModel connectionModel) {
+    final currentState = state;
+    if (currentState is ConnectionsLoaded) {
+      final docs = currentState.connectionModel.lastDoc;
+      final conns = orderedSetForConnections([
+        ...connectionModel.connectors.toList(),
+        ...currentState.connectionModel.connectors.toList()
+      ]);
+      emit(
+        ConnectionsLoaded(
+          connectionModel: ConnectionModel(connectors: conns, lastDoc: docs),
+          hasMore: currentState.hasMore,
+        ),
+      );
+    }
+  }
+
+  void updateOldConnection(ConnectionModel connectionModel, bool hasMore) {
+    final currentState = state;
+    if (currentState is ConnectionsLoaded) {
+      final doc = connectionModel.lastDoc;
+      final conns = orderedSetForConnections([
+        ...currentState.connectionModel.connectors.toList(),
+        ...connectionModel.connectors.toList(),
+      ]);
+      emit(
+        ConnectionsLoaded(
+          connectionModel: ConnectionModel(connectors: conns, lastDoc: doc),
+          hasMore: hasMore,
+        ),
+      );
+    }
   }
 
   void delete(int index) {
@@ -113,7 +119,7 @@ class ConnectorCubit extends Cubit<ConnectorState> {
       emit(ConnectionsLoaded(
         connectionModel: ConnectionModel(
           connectors: connectionList,
-          lastDocs: currentState.connectionModel.lastDocs,
+          lastDoc: currentState.connectionModel.lastDoc,
         ),
         hasMore: currentState.hasMore,
       ));
@@ -132,7 +138,7 @@ class ConnectorCubit extends Cubit<ConnectorState> {
       emit(ConnectionsLoaded(
         connectionModel: ConnectionModel(
           connectors: connectionList,
-          lastDocs: currentState.connectionModel.lastDocs,
+          lastDoc: currentState.connectionModel.lastDoc,
         ),
         hasMore: currentState.hasMore,
       ));
@@ -149,7 +155,7 @@ class ConnectorCubit extends Cubit<ConnectorState> {
       emit(ConnectionsLoaded(
         connectionModel: ConnectionModel(
           connectors: connectionList,
-          lastDocs: currentState.connectionModel.lastDocs,
+          lastDoc: currentState.connectionModel.lastDoc,
         ),
         hasMore: currentState.hasMore,
       ));
@@ -163,13 +169,6 @@ class ConnectorCubit extends Cubit<ConnectorState> {
   }
 
   /// Helper methods
-
-  bool hasMore(List<Connector> connectorList) {
-    if (connectorList.isEmpty) {
-      return false;
-    }
-    return connectorList.length % GlobalUtils.inviteeListLimit == 0;
-  }
 
   List<Connector> _mapDataToModel(List data) {
     final connectorList = <Connector>[];

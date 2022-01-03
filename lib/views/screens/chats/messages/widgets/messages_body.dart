@@ -53,8 +53,9 @@ class _MessagesbodyState extends State<Messagesbody> {
   }
 
   void oldMessagesListener(BuildContext context, final MessageState state) {
-    if (state is MessagesLoaded)
+    if (state is MessagesLoaded) {
       context.read<MessageCubit>().updateOldMessages(state);
+    }
   }
 
   void newMessagesListener(BuildContext context, final MessageState state) {
@@ -249,7 +250,7 @@ class _MessagesbodyState extends State<Messagesbody> {
       } else {
         final loadMoreState = context.read<LoadMoreMessageCubit>().state;
         if (loadMoreState is! LoadingMessages &&
-            state is! MessagesFailed &&
+            loadMoreState is! MessagesFailed &&
             state.hasMore) {
           loadAgain(state.messagesModel);
         }

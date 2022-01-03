@@ -12,9 +12,9 @@ import '../utils/request_messages.dart';
 abstract class ConnectionService {
   const ConnectionService();
 
-  Future<ConnectionModel> getConnectionList(String userId,
+  Future<ConnectionModel> refresh(String userId,
       {int limit = GlobalUtils.inviteeListLimit});
-  Stream<ConnectionModel?> syncLocalDatabaseWithRemote(String userId,
+  Stream<ConnectionModel> getConnectionList(String userId,
       {int limit = GlobalUtils.inviteeListLimit});
   Future<ConnectionModel> loadMoreConnectionList(
       String userId, DocumentSnapshot doc,
@@ -44,8 +44,7 @@ class ConnectionServiceImpl extends ConnectionService {
   late LocalStorage _localStorage;
 
   @override
-  Future<ConnectionModel> getConnectionList(String userId,
-      {int limit = GlobalUtils.inviteeListLimit}) async {
+  Future<ConnectionModel> refresh(String userId, {int limit = 5}) async {
     List<Connector> connectionList = [];
     DocumentSnapshot? lastDoc;
 
@@ -65,9 +64,7 @@ class ConnectionServiceImpl extends ConnectionService {
           connectionList.add(getConnector(data, userId));
         }
       }
-
-      _saveToStorage(connectionList, GlobalUtils.connectionsPrefKey);
-      return ConnectionModel(connectors: connectionList, lastDocs: lastDoc);
+      return ConnectionModel(connectors: connectionList, lastDoc: lastDoc);
     } on TimeoutException catch (_) {
       throw ServerException(message: ErrorMessages.timeoutMessage);
     } catch (e) {
@@ -102,7 +99,7 @@ class ConnectionServiceImpl extends ConnectionService {
         }
       }
 
-      return ConnectionModel(connectors: connectionList, lastDocs: lastDoc);
+      return ConnectionModel(connectors: connectionList, lastDoc: lastDoc);
     } on TimeoutException catch (_) {
       throw ServerException(message: ErrorMessages.timeoutMessage);
     } catch (e) {
@@ -111,7 +108,7 @@ class ConnectionServiceImpl extends ConnectionService {
   }
 
   @override
-  Stream<ConnectionModel?> syncLocalDatabaseWithRemote(String userId,
+  Stream<ConnectionModel> getConnectionList(String userId,
       {int limit = GlobalUtils.inviteeListLimit}) {
     try {
       return _connectionCollection
@@ -133,7 +130,7 @@ class ConnectionServiceImpl extends ConnectionService {
         return ConnectionModel(connectors: connectionList);
       });
     } catch (e) {
-      return Stream.value(null);
+      throw ServerException(message: ErrorMessages.generalMessage2);
     }
   }
 

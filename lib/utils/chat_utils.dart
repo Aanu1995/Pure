@@ -75,16 +75,16 @@ List<MessageModel> orderedSetForMessages(final List<MessageModel> messages) {
 // this method remove duplicate chats and still main order
 List<ChatModel> orderedSetForChats(final List<ChatModel> chats) {
   final result = chats.toList();
-  final chatIds = Set<String>();
-  result.retainWhere((x) => chatIds.add(x.chatId));
+  final chatsId = Set<String>();
+  result.retainWhere((x) => chatsId.add(x.chatId));
   return result.toList();
 }
 
-// this method remove duplicate Files and still main order
+// this method remove duplicate Files and still maintain order
 List<File> orderedSetForFiles(final List<File> files) {
   final result = files.toList();
-  final chatIds = Set<int>();
-  result.retainWhere((x) => chatIds.add(x.lengthSync()));
+  final filesSize = Set<int>();
+  result.retainWhere((x) => filesSize.add(x.lengthSync()));
   return result.toList();
 }
 

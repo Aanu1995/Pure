@@ -116,7 +116,7 @@ class _ChatListState extends State<ChatList> {
       else {
         final loadMoreState = context.read<LoadMoreChatsCubit>().state;
         if (loadMoreState is! LoadingChats &&
-            state is! ChatsFailed &&
+            loadMoreState is! ChatsFailed &&
             state.hasMore) {
           loadAgain(state.chatsModel);
         }
