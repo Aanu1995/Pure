@@ -8,6 +8,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../blocs/bloc.dart';
 import '../../model/pure_user_model.dart';
 import '../../repositories/push_notification.dart';
+import '../../services/chat/chat_service.dart';
+import '../../services/connection_service.dart';
 import '../../services/user_service.dart';
 import '../../utils/image_utils.dart';
 import '../../utils/palette.dart';
@@ -18,18 +20,39 @@ import 'home/home_page.dart';
 import 'notifications/notifications_screen.dart';
 import 'settings/settings_screen.dart';
 
+class AppBase extends StatelessWidget {
+  const AppBase({Key? key}) : super(key: key);
+
+  static final _chatService = ChatServiceImp();
+  static final _connectionService = ConnectionServiceImpl();
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => ConnectorCubit(connectionService: _connectionService),
+        ),
+        BlocProvider(create: (_) => ChatCubit(_chatService)),
+        BlocProvider(create: (_) => UnReadChatCubit(_chatService)),
+      ],
+      child: AppBaseExtenion(),
+    );
+  }
+}
+
 // This is a global controller to control bottom nav bar from
 // anywhere within the app
 late CupertinoTabController cupertinoTabController;
 
-class AppBase extends StatefulWidget {
-  const AppBase({Key? key}) : super(key: key);
+class AppBaseExtenion extends StatefulWidget {
+  const AppBaseExtenion({Key? key}) : super(key: key);
 
   @override
-  _AppBaseState createState() => _AppBaseState();
+  _AppBaseExtenionState createState() => _AppBaseExtenionState();
 }
 
-class _AppBaseState extends State<AppBase> {
+class _AppBaseExtenionState extends State<AppBaseExtenion> {
   final _style = const TextStyle(
     fontSize: 17,
     fontWeight: FontWeight.w600,

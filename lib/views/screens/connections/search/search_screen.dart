@@ -94,9 +94,7 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
           BlocProvider(create: (_) => LoadMoreUsersCubit(SearchServiceImpl())),
           BlocProvider(
-            create: (_) => SendInvitationCubit(
-              InvitationServiceImp(isPersistentEnabled: false),
-            ),
+            create: (_) => SendInvitationCubit(InvitationServiceImp()),
           )
         ],
         child: SearchAllConnectionResults(title: query),

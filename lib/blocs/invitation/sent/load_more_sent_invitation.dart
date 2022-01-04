@@ -62,7 +62,6 @@ class RefreshInviteeCubit extends Cubit<SentInvitationState> {
     } on ServerException catch (_) {
       emit(InviteeRefreshFailed());
     } catch (_) {
-      print(_);
       emit(InviteeRefreshFailed());
     }
   }

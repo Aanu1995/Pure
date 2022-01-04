@@ -61,10 +61,10 @@ class SentInvitationCubit extends Cubit<SentInvitationState> {
 
   // Preciely used when to update the UI after it is refreshed
   void updateNewInvitees(InviteeModel inviteeModel) {
-    InviteesLoaded(
+    emit(InviteesLoaded(
       inviteeModel: inviteeModel,
       hasMore: hasMore(inviteeModel.invitees),
-    );
+    ));
   }
 
   // Precisely used to update the UI when more invitees are fetched (pagination)
@@ -117,18 +117,9 @@ class SentInvitationCubit extends Cubit<SentInvitationState> {
     }
   }
 
-  // This disposes the stream and initialize the cubit
-  void dispose() {
-    _subscription?.cancel();
-    emit(SentInvitationInitial());
-  }
-
   /// Helper methods
-
   bool hasMore(List<Invitee> inviteeList) {
-    if (inviteeList.isEmpty) {
-      return false;
-    }
+    if (inviteeList.isEmpty) return false;
     return inviteeList.length % GlobalUtils.inviteeListLimit == 0;
   }
 
@@ -139,5 +130,11 @@ class SentInvitationCubit extends Cubit<SentInvitationState> {
     }
 
     return inviteeList;
+  }
+
+  @override
+  Future<void> close() {
+    _subscription?.cancel();
+    return super.close();
   }
 }

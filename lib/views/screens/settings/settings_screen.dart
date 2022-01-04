@@ -154,10 +154,6 @@ class _Body extends StatelessWidget {
 
   Future<void> signOut(BuildContext context) async {
     await PushNotificationImpl.deleteToken();
-    BlocProvider.of<ChatCubit>(context).dispose();
-    BlocProvider.of<ConnectorCubit>(context).dispose();
-    BlocProvider.of<ReceivedInvitationCubit>(context).dispose();
-    BlocProvider.of<SentInvitationCubit>(context).dispose();
     BlocProvider.of<AuthCubit>(context).signOut(CurrentUser.currentUserId);
   }
 }

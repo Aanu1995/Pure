@@ -49,14 +49,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               UserExtraCubit(UserServiceImpl())..getExtraData(widget.user.id),
         ),
         BlocProvider(
-          create: (_) => SendInvitationCubit(
-            InvitationServiceImp(isPersistentEnabled: false),
-          ),
+          create: (_) => SendInvitationCubit(InvitationServiceImp()),
         ),
         BlocProvider(
-          create: (_) => OtherReceivedActionsCubit(
-            InvitationServiceImp(isPersistentEnabled: false),
-          ),
+          create: (_) => OtherReceivedActionsCubit(InvitationServiceImp()),
         ),
       ],
       child: Scaffold(

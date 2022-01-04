@@ -38,14 +38,8 @@ class InvitationServiceImp extends InvitationService {
   final ConnectionRepo? connection;
   final LocalStorage? localStorage;
 
-  InvitationServiceImp({
-    this.firestore,
-    this.connection,
-    this.localStorage,
-    bool isPersistentEnabled = true,
-  }) {
+  InvitationServiceImp({this.firestore, this.connection, this.localStorage}) {
     _firestore = firestore ?? FirebaseFirestore.instance;
-    _firestore.settings = Settings(persistenceEnabled: isPersistentEnabled);
     _invitationCollection =
         _firestore.collection(GlobalUtils.invitationCollection);
     _connection = connection ?? ConnectionRepoImpl();
@@ -228,6 +222,7 @@ class InvitationServiceImp extends InvitationService {
             inviterList.add(Inviter.fromMap(data));
           }
         }
+        print(inviterList.length);
         await _saveInviterToStorage(
             inviterList, GlobalUtils.receivedInvitationPrefKey);
         return InviterModel(inviters: inviterList);

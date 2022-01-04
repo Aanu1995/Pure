@@ -19,11 +19,6 @@ class UnReadChatCubit extends Cubit<int> {
     });
   }
 
-  void dispose() {
-    _subscription?.cancel();
-    emit(0);
-  }
-
   @override
   Future<void> close() {
     _subscription?.cancel();

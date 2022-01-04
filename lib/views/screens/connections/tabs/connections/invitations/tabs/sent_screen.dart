@@ -85,105 +85,91 @@ class _SentScreenState extends State<SentScreen>
   Widget build(BuildContext context) {
     super.build(context);
 
-    return MultiBlocListener(
-      listeners: [
-        BlocListener<LoadMoreInviteeCubit, SentInvitationState>(
-          listener: loadMoreListener,
+    return Column(
+      children: [
+        // shows failure widget when refreshing invitee list failed
+        BlocBuilder<RefreshInviteeCubit, SentInvitationState>(
+          builder: (context, state) {
+            if (state is RefreshingInvitees) {
+              return RefreshLoadingWidget();
+            } else if (state is InviteeRefreshFailed) {
+              return RefreshFailureWidget(onTap: () => onRefreshFailed());
+            }
+            return Offstage();
+          },
         ),
-        BlocListener<RefreshInviteeCubit, SentInvitationState>(
-          listener: refreshListener,
-        ),
-        BlocListener<OtherActionsInvitationCubit, SentInvitationState>(
-          listener: otherActionListener,
-        )
-      ],
-      child: Column(
-        children: [
-          // shows failure widget when refreshing invitee list failed
-          BlocBuilder<RefreshInviteeCubit, SentInvitationState>(
-            builder: (context, state) {
-              if (state is RefreshingInvitees) {
-                return RefreshLoadingWidget();
-              } else if (state is InviteeRefreshFailed) {
-                return RefreshFailureWidget(onTap: () => onRefreshFailed());
-              }
-              return Offstage();
-            },
-          ),
 
-          Expanded(
-            child: BlocBuilder<SentInvitationCubit, SentInvitationState>(
-              builder: (context, state) {
-                if (state is InviteesLoaded) {
-                  final inviteeList = state.inviteeModel.invitees;
-                  if (inviteeList.isEmpty)
-                    return MessageDisplay(
-                      fontSize: 18.0,
-                      title: "You've not sent any invitations",
-                      description:
-                          "Search for connections using the search field",
-                      buttonTitle: "Back",
-                      onPressed: () => Navigator.of(context).pop(),
-                    );
-                  else
-                    return RefreshIndicator(
-                      onRefresh: onRefresh,
-                      child: ListView.custom(
-                        controller: _controller,
-                        padding: EdgeInsets.all(0),
-                        physics: AlwaysScrollableScrollPhysics(),
-                        childrenDelegate: SliverChildBuilderDelegate(
-                          (BuildContext context, int index) {
-                            if (inviteeList.length == index)
-                              return LoadMoreInvitees(
-                                onTap: () => _fetchMore(tryAgain: true),
-                              );
-                            else {
-                              final invitee =
-                                  state.inviteeModel.invitees[index];
-                              return CustomKeepAlive(
-                                key: ValueKey<String>(invitee.invitationId),
-                                child: ProfileProvider(
-                                  userId: invitee.inviteeId,
-                                  child: InviteeProfile(
-                                    invitee: invitee,
-                                    itemIndex: index,
-                                    // only show separator if there is another item below
-                                    showSeparator:
-                                        index < (inviteeList.length - 1),
-                                  ),
-                                ),
-                              );
-                            }
-                          },
-                          childCount: inviteeList.length + 1,
-                          findChildIndexCallback: (Key key) {
-                            final ValueKey<String> valueKey =
-                                key as ValueKey<String>;
-                            final String data = valueKey.value;
-                            return inviteeList
-                                .map((e) => e.invitationId)
-                                .toList()
-                                .indexOf(data);
-                          },
-                        ),
-                      ),
-                    );
-                } else if (state is InviteeLoadingFailed) {
+        Expanded(
+          child: BlocBuilder<SentInvitationCubit, SentInvitationState>(
+            builder: (context, state) {
+              if (state is InviteesLoaded) {
+                final inviteeList = state.inviteeModel.invitees;
+                if (inviteeList.isEmpty)
                   return MessageDisplay(
                     fontSize: 18.0,
-                    title: state.message,
-                    description: "Please check your internet connection",
-                    buttonTitle: "Try again",
-                    onPressed: () => tryAgain(),
+                    title: "You've not sent any invitations",
+                    description:
+                        "Search for connections using the search field",
+                    buttonTitle: "Back",
+                    onPressed: () => Navigator.of(context).pop(),
                   );
-                }
-                return Center(child: const CustomProgressIndicator());
-              },
-            ),
+                else
+                  return RefreshIndicator(
+                    onRefresh: onRefresh,
+                    child: ListView.custom(
+                      controller: _controller,
+                      padding: EdgeInsets.all(0),
+                      physics: AlwaysScrollableScrollPhysics(),
+                      childrenDelegate: SliverChildBuilderDelegate(
+                        (BuildContext context, int index) {
+                          if (inviteeList.length == index)
+                            return LoadMoreInvitees(
+                              onTap: () => _fetchMore(tryAgain: true),
+                            );
+                          else {
+                            final invitee = state.inviteeModel.invitees[index];
+                            return CustomKeepAlive(
+                              key: ValueKey<String>(invitee.invitationId),
+                              child: ProfileProvider(
+                                userId: invitee.inviteeId,
+                                child: InviteeProfile(
+                                  invitee: invitee,
+                                  itemIndex: index,
+                                  // only show separator if there is another item below
+                                  showSeparator:
+                                      index < (inviteeList.length - 1),
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                        childCount: inviteeList.length + 1,
+                        findChildIndexCallback: (Key key) {
+                          final ValueKey<String> valueKey =
+                              key as ValueKey<String>;
+                          final String data = valueKey.value;
+                          return inviteeList
+                              .map((e) => e.invitationId)
+                              .toList()
+                              .indexOf(data);
+                        },
+                      ),
+                    ),
+                  );
+              } else if (state is InviteeLoadingFailed) {
+                return MessageDisplay(
+                  fontSize: 18.0,
+                  title: state.message,
+                  description: "Please check your internet connection",
+                  buttonTitle: "Try again",
+                  onPressed: () => tryAgain(),
+                );
+              }
+              return Center(child: const CustomProgressIndicator());
+            },
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

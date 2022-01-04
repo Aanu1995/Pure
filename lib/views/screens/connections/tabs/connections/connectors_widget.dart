@@ -51,6 +51,15 @@ class _ConnectorsWidgetState extends State<ConnectorsWidget> {
   void otherActionListener(BuildContext context, ConnectorState state) {
     if (state is RemovingConnector) {
       context.read<ConnectorCubit>().delete(state.index);
+    } else if (state is ConnectorRemoved) {
+      final authState = BlocProvider.of<AuthCubit>(context).state;
+      if (authState is Authenticated) {
+        final currentUser = authState.user.copyWith(
+          isRemovedConnection: true,
+          identifier: state.connectorId,
+        );
+        BlocProvider.of<AuthCubit>(context).update(currentUser);
+      }
     } else if (state is ConnectorRemovalFailed) {
       showFailureFlash(
         context,

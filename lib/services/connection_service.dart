@@ -27,13 +27,8 @@ class ConnectionServiceImpl extends ConnectionService {
   final FirebaseFirestore? firestore;
   final LocalStorage? localStorage;
 
-  ConnectionServiceImpl({
-    this.firestore,
-    this.localStorage,
-    bool isPersistentEnabled = true,
-  }) {
+  ConnectionServiceImpl({this.firestore, this.localStorage}) {
     _firestore = firestore ?? FirebaseFirestore.instance;
-    _firestore.settings = Settings(persistenceEnabled: isPersistentEnabled);
     _connectionCollection =
         _firestore.collection(GlobalUtils.connectionCollection);
     _localStorage = localStorage ?? LocalStorageImpl();

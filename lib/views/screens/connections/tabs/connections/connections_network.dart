@@ -20,6 +20,8 @@ class ConnectionsNetwork extends StatefulWidget {
 }
 
 class _ConnectionsNetworkState extends State<ConnectionsNetwork> {
+  final _service = InvitationServiceImp();
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AuthCubit, AuthState>(
@@ -112,23 +114,17 @@ class _ConnectionsNetworkState extends State<ConnectionsNetwork> {
       page: MultiBlocProvider(
         providers: [
           BlocProvider(
-            create: (_) => LoadMoreInviteeCubit(InvitationServiceImp()),
+            create: (_) => ReceivedInvitationCubit(invitationService: _service),
           ),
           BlocProvider(
-            create: (_) => RefreshInviteeCubit(InvitationServiceImp()),
+            create: (_) => SentInvitationCubit(invitationService: _service),
           ),
-          BlocProvider(
-            create: (_) => LoadMoreInviterCubit(InvitationServiceImp()),
-          ),
-          BlocProvider(
-            create: (_) => RefreshInviterCubit(InvitationServiceImp()),
-          ),
-          BlocProvider(
-            create: (_) => OtherActionsInvitationCubit(InvitationServiceImp()),
-          ),
-          BlocProvider(
-            create: (_) => OtherReceivedActionsCubit(InvitationServiceImp()),
-          ),
+          BlocProvider(create: (_) => LoadMoreInviteeCubit(_service)),
+          BlocProvider(create: (_) => RefreshInviteeCubit(_service)),
+          BlocProvider(create: (_) => LoadMoreInviterCubit(_service)),
+          BlocProvider(create: (_) => RefreshInviterCubit(_service)),
+          BlocProvider(create: (_) => OtherActionsInvitationCubit(_service)),
+          BlocProvider(create: (_) => OtherReceivedActionsCubit(_service)),
         ],
         child: const InvitationScreen(),
       ),
@@ -141,9 +137,8 @@ class _ConnectionsNetworkState extends State<ConnectionsNetwork> {
         builder: (_) => MultiBlocProvider(
           providers: [
             BlocProvider(
-              create: (_) => OtherActionsConnectionCubit(
-                ConnectionServiceImpl(isPersistentEnabled: false),
-              ),
+              create: (_) =>
+                  OtherActionsConnectionCubit(ConnectionServiceImpl()),
             ),
             BlocProvider(create: (_) => SearchFriendBloc(SearchServiceImpl())),
           ],

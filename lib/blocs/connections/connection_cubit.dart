@@ -1,13 +1,11 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../model/connection_model.dart';
 import '../../model/invitation_model.dart';
 import '../../repositories/local_storage.dart';
 import '../../services/connection_service.dart';
-import '../../utils/connection_utils.dart';
 import '../../utils/global_utils.dart';
 import '../../utils/request_messages.dart';
 import 'connection_state.dart';
@@ -21,7 +19,7 @@ class ConnectorCubit extends Cubit<ConnectorState> {
   }
 
   late LocalStorage _localStorage;
-  StreamSubscription<ConnectionModel?>? _subscription;
+  StreamSubscription<ConnectionModel>? _subscription;
 
   Future<void> loadConnections(String userId) async {
     // load data from local storage first
@@ -45,31 +43,15 @@ class ConnectorCubit extends Cubit<ConnectorState> {
   }
 
   void loadDataFromRemoteStorage(String userId) {
-    final currentState = state;
-    if (currentState is! ConnectionsLoaded) emit(LoadingConnections());
-
     try {
       _subscription?.cancel();
       _subscription =
           connectionService.getConnectionList(userId).listen((connectionModel) {
-        List<Connector> newConnectorsList = connectionModel.connectors.toList();
-        List<Connector> oldConnectorsList = [];
-        DocumentSnapshot? oldLastDoc;
-        if (currentState is ConnectionsLoaded) {
-          oldConnectorsList = currentState.connectionModel.connectors;
-          oldLastDoc = currentState.connectionModel.lastDoc;
-        }
-
-        final totalList = [...newConnectorsList, ...oldConnectorsList.toList()];
-        final result = ConnectionModel(
-          connectors: orderedSetForConnections(totalList),
-          lastDoc: newConnectorsList.length > oldConnectorsList.length
-              ? connectionModel.lastDoc
-              : oldLastDoc,
-        );
-        emit(ConnectionsLoaded(connectionModel: result));
+        _subscription?.cancel();
+        emit(ConnectionsLoaded(connectionModel: connectionModel));
       });
     } catch (_) {
+      final currentState = state;
       if (currentState is! ConnectionsLoaded)
         emit(ConnectionFailed(ErrorMessages.generalMessage2));
     }
@@ -77,20 +59,10 @@ class ConnectorCubit extends Cubit<ConnectorState> {
 
   // Preciely used when to update the UI after it is refreshed
   void updateNewConnection(ConnectionModel connectionModel) {
-    final currentState = state;
-    if (currentState is ConnectionsLoaded) {
-      final docs = currentState.connectionModel.lastDoc;
-      final conns = orderedSetForConnections([
-        ...connectionModel.connectors.toList(),
-        ...currentState.connectionModel.connectors.toList()
-      ]);
-      emit(
-        ConnectionsLoaded(
-          connectionModel: ConnectionModel(connectors: conns, lastDoc: docs),
-          hasMore: currentState.hasMore,
-        ),
-      );
-    }
+    emit(ConnectionsLoaded(
+      connectionModel: connectionModel,
+      hasMore: hasMore(connectionModel.connectors),
+    ));
   }
 
   // Precisely used to update the UI when more connections are fetched (pagination)
@@ -98,16 +70,13 @@ class ConnectorCubit extends Cubit<ConnectorState> {
     final currentState = state;
     if (currentState is ConnectionsLoaded) {
       final doc = connectionModel.lastDoc;
-      final conns = orderedSetForConnections([
+      final totalConnections = [
         ...currentState.connectionModel.connectors.toList(),
         ...connectionModel.connectors.toList(),
-      ]);
-      emit(
-        ConnectionsLoaded(
-          connectionModel: ConnectionModel(connectors: conns, lastDoc: doc),
-          hasMore: hasMore,
-        ),
-      );
+      ];
+
+      final model = ConnectionModel(connectors: totalConnections, lastDoc: doc);
+      emit(ConnectionsLoaded(connectionModel: model, hasMore: hasMore));
     }
   }
 
@@ -164,13 +133,12 @@ class ConnectorCubit extends Cubit<ConnectorState> {
     }
   }
 
-  // This disposes the stream and initialize the cubit
-  void dispose() {
-    _subscription?.cancel();
-    emit(ConnectionInitial());
-  }
-
   /// Helper methods
+
+  bool hasMore(List<Connector> connectorList) {
+    if (connectorList.isEmpty) return false;
+    return connectorList.length % GlobalUtils.inviteeListLimit == 0;
+  }
 
   List<Connector> _mapDataToModel(List data) {
     final connectorList = <Connector>[];
@@ -180,5 +148,11 @@ class ConnectorCubit extends Cubit<ConnectorState> {
     }
 
     return connectorList;
+  }
+
+  @override
+  Future<void> close() {
+    _subscription?.cancel();
+    return super.close();
   }
 }
