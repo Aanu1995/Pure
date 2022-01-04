@@ -17,12 +17,12 @@ class ConnectionModel extends Equatable {
 
 class InviteeModel extends Equatable {
   final List<Invitee> invitees;
-  final DocumentSnapshot? lastDocs;
+  final DocumentSnapshot? lastDoc;
 
-  const InviteeModel({required this.invitees, this.lastDocs});
+  const InviteeModel({required this.invitees, this.lastDoc});
 
   @override
-  List<Object?> get props => [invitees, lastDocs];
+  List<Object?> get props => [invitees, lastDoc];
 }
 
 class InviterModel extends Equatable {

@@ -75,6 +75,7 @@ class ConnectorCubit extends Cubit<ConnectorState> {
     }
   }
 
+  // Preciely used when to update the UI after it is refreshed
   void updateNewConnection(ConnectionModel connectionModel) {
     final currentState = state;
     if (currentState is ConnectionsLoaded) {
@@ -92,6 +93,7 @@ class ConnectorCubit extends Cubit<ConnectorState> {
     }
   }
 
+  // Precisely used to update the UI when more connections is fetched (pagination)
   void updateOldConnection(ConnectionModel connectionModel, bool hasMore) {
     final currentState = state;
     if (currentState is ConnectionsLoaded) {

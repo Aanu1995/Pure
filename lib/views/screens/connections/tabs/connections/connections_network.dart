@@ -112,20 +112,19 @@ class _ConnectionsNetworkState extends State<ConnectionsNetwork> {
       page: MultiBlocProvider(
         providers: [
           BlocProvider(
-            create: (_) => LoadMoreInviteeCubit(
-                InvitationServiceImp(isPersistentEnabled: false)),
+            create: (_) => LoadMoreInviteeCubit(InvitationServiceImp()),
           ),
           BlocProvider(
-            create: (_) => LoadMoreInviterCubit(
-                InvitationServiceImp(isPersistentEnabled: false)),
+            create: (_) => RefreshInviteeCubit(InvitationServiceImp()),
           ),
           BlocProvider(
-            create: (_) => OtherActionsInvitationCubit(
-                InvitationServiceImp(isPersistentEnabled: false)),
+            create: (_) => LoadMoreInviterCubit(InvitationServiceImp()),
           ),
           BlocProvider(
-            create: (_) => OtherReceivedActionsCubit(
-                InvitationServiceImp(isPersistentEnabled: false)),
+            create: (_) => OtherActionsInvitationCubit(InvitationServiceImp()),
+          ),
+          BlocProvider(
+            create: (_) => OtherReceivedActionsCubit(InvitationServiceImp()),
           ),
         ],
         child: const InvitationScreen(),

@@ -15,7 +15,8 @@ abstract class InvitationService {
   const InvitationService();
 
   Future<void> sendInvitation(Map<String, dynamic> data);
-  Future<InviteeModel> getSentInvitationList(String userId, {int limit = 20});
+  Future<InviteeModel> refresh(String userId,
+      {int limit = GlobalUtils.inviteeListLimit});
   Future<void> withdrawInvitation(String invitationId);
   Future<InviterModel> getReceivedInvitationList(String userId,
       {int limit = GlobalUtils.inviterListLimit});
@@ -28,7 +29,7 @@ abstract class InvitationService {
       String userId, DocumentSnapshot doc,
       {int limit = GlobalUtils.inviterListLimit});
 
-  Stream<InviteeModel?> syncInviteesLocalDatabaseWithRemote(String userId,
+  Stream<InviteeModel> getSentInvitationList(String userId,
       {int limit = GlobalUtils.inviteeListLimit});
 
   Stream<InviterModel?> syncInvitersLocalDatabaseWithRemote(String userId,
@@ -79,7 +80,7 @@ class InvitationServiceImp extends InvitationService {
   }
 
   @override
-  Future<InviteeModel> getSentInvitationList(String userId,
+  Future<InviteeModel> refresh(String userId,
       {int limit = GlobalUtils.inviteeListLimit}) async {
     // check internet connection
     await _connection.checkConnectivity();
@@ -106,7 +107,7 @@ class InvitationServiceImp extends InvitationService {
       }
 
       _saveToStorage(inviteeList, GlobalUtils.sentInvitationPrefKey);
-      return InviteeModel(invitees: inviteeList, lastDocs: lastDoc);
+      return InviteeModel(invitees: inviteeList, lastDoc: lastDoc);
     } on TimeoutException catch (_) {
       throw ServerException(message: ErrorMessages.timeoutMessage);
     } catch (e) {
@@ -115,7 +116,7 @@ class InvitationServiceImp extends InvitationService {
   }
 
   @override
-  Stream<InviteeModel?> syncInviteesLocalDatabaseWithRemote(String userId,
+  Stream<InviteeModel> getSentInvitationList(String userId,
       {int limit = GlobalUtils.inviteeListLimit}) {
     try {
       return _invitationCollection
@@ -135,7 +136,7 @@ class InvitationServiceImp extends InvitationService {
         return InviteeModel(invitees: inviteeList);
       });
     } catch (e) {
-      return Stream.value(null);
+      throw ServerException(message: ErrorMessages.generalMessage2);
     }
   }
 
@@ -151,8 +152,8 @@ class InvitationServiceImp extends InvitationService {
     try {
       final querySnapshot = await _invitationCollection
               .where("senderId", isEqualTo: userId)
-              .startAfterDocument(doc)
               .orderBy('sentDate', descending: true)
+              .startAfterDocument(doc)
               .limit(limit)
               .get()
               .timeout(GlobalUtils.timeOutInDuration)
@@ -168,10 +169,11 @@ class InvitationServiceImp extends InvitationService {
         }
       }
 
-      return InviteeModel(invitees: inviteeList, lastDocs: lastDoc);
+      return InviteeModel(invitees: inviteeList, lastDoc: lastDoc);
     } on TimeoutException catch (_) {
       throw ServerException(message: ErrorMessages.timeoutMessage);
     } catch (e) {
+      print(e);
       throw ServerException(message: ErrorMessages.generalMessage2);
     }
   }
@@ -250,8 +252,8 @@ class InvitationServiceImp extends InvitationService {
     try {
       final querySnapshot = await _invitationCollection
               .where("receiverId", isEqualTo: userId)
-              .startAfterDocument(doc)
               .orderBy('sentDate', descending: true)
+              .startAfterDocument(doc)
               .limit(limit)
               .get()
               .timeout(GlobalUtils.timeOutInDuration)

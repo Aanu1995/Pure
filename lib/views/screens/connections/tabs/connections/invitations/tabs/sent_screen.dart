@@ -1,11 +1,11 @@
 import 'package:flash/flash.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pure/views/widgets/custom_keep_alive.dart';
 
 import '../../../../../../../blocs/bloc.dart';
 import '../../../../../../../model/invitation_model.dart';
 import '../../../../../../../model/pure_user_model.dart';
+import '../../../../../../widgets/custom_keep_alive.dart';
 import '../../../../../../widgets/failure_widget.dart';
 import '../../../../../../widgets/message_widget.dart';
 import '../../../../../../widgets/progress_indicator.dart';
@@ -24,14 +24,28 @@ class SentScreen extends StatefulWidget {
 class _SentScreenState extends State<SentScreen>
     with AutomaticKeepAliveClientMixin {
   ScrollController _controller = ScrollController();
+  late String currentuserId;
 
   ///  Listeners
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_onScroll);
+    currentuserId = CurrentUser.currentUserId;
+  }
 
   void loadMoreListener(BuildContext context, SentInvitationState state) {
     if (state is InviteesLoaded) {
       context
           .read<SentInvitationCubit>()
-          .updateInvitees(state.inviteeModel, state.hasMore);
+          .updateOldInvitees(state.inviteeModel, state.hasMore);
+    }
+  }
+
+  void refreshListener(BuildContext context, SentInvitationState state) {
+    if (state is InviteesLoaded) {
+      context.read<SentInvitationCubit>().updateNewInvitees(state.inviteeModel);
     }
   }
 
@@ -59,12 +73,6 @@ class _SentScreenState extends State<SentScreen>
   }
 
   @override
-  void initState() {
-    super.initState();
-    _controller.addListener(_onScroll);
-  }
-
-  @override
   void dispose() {
     _controller.dispose();
     super.dispose();
@@ -82,6 +90,9 @@ class _SentScreenState extends State<SentScreen>
         BlocListener<LoadMoreInviteeCubit, SentInvitationState>(
           listener: loadMoreListener,
         ),
+        BlocListener<RefreshInviteeCubit, SentInvitationState>(
+          listener: refreshListener,
+        ),
         BlocListener<OtherActionsInvitationCubit, SentInvitationState>(
           listener: otherActionListener,
         )
@@ -89,7 +100,7 @@ class _SentScreenState extends State<SentScreen>
       child: Column(
         children: [
           // shows failure widget when refreshing invitee list failed
-          BlocBuilder<LoadMoreInviteeCubit, SentInvitationState>(
+          BlocBuilder<RefreshInviteeCubit, SentInvitationState>(
             builder: (context, state) {
               if (state is RefreshingInvitees) {
                 return RefreshLoadingWidget();
@@ -179,9 +190,7 @@ class _SentScreenState extends State<SentScreen>
   Future<void> onRefresh() async {
     final state = context.read<LoadMoreInviteeCubit>().state;
     if (state is! LoadingInvitees) {
-      await context
-          .read<LoadMoreInviteeCubit>()
-          .refresh(CurrentUser.currentUserId);
+      await context.read<RefreshInviteeCubit>().refresh(currentuserId);
     }
   }
 
@@ -197,7 +206,7 @@ class _SentScreenState extends State<SentScreen>
     // call the provider to fetch more users
     context
         .read<LoadMoreInviteeCubit>()
-        .loadMoreInvitees(CurrentUser.currentUserId, inviteeModel);
+        .loadMoreInvitees(currentuserId, inviteeModel.lastDoc!);
   }
 
   Future<void> _fetchMore({bool tryAgain = false}) async {
@@ -211,7 +220,7 @@ class _SentScreenState extends State<SentScreen>
             loadMoreState is! InviteeLoadingFailed &&
             state.hasMore) {
           // check is the last documentId is available
-          if (state.inviteeModel.lastDocs != null) {
+          if (state.inviteeModel.lastDoc != null) {
             loadAgain(state.inviteeModel);
           } else {
             onRefresh();
@@ -222,13 +231,14 @@ class _SentScreenState extends State<SentScreen>
   }
 
   void tryAgain() {
-    BlocProvider.of<SentInvitationCubit>(context)
-        .loadFromremoteStorage(CurrentUser.currentUserId);
+    context
+        .read<SentInvitationCubit>()
+        .loadDataFromRemoteStorage(currentuserId);
   }
 
   void onRefreshFailed() {
     context
-        .read<LoadMoreInviteeCubit>()
-        .refresh(CurrentUser.currentUserId, showIndicator: true);
+        .read<RefreshInviteeCubit>()
+        .refresh(currentuserId, showIndicator: true);
   }
 }

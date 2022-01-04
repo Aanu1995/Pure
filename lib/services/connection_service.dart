@@ -44,7 +44,8 @@ class ConnectionServiceImpl extends ConnectionService {
   late LocalStorage _localStorage;
 
   @override
-  Future<ConnectionModel> refresh(String userId, {int limit = 5}) async {
+  Future<ConnectionModel> refresh(String userId,
+      {int limit = GlobalUtils.inviteeListLimit}) async {
     List<Connector> connectionList = [];
     DocumentSnapshot? lastDoc;
 
@@ -64,6 +65,7 @@ class ConnectionServiceImpl extends ConnectionService {
           connectionList.add(getConnector(data, userId));
         }
       }
+      await _saveToStorage(connectionList, GlobalUtils.connectionsPrefKey);
       return ConnectionModel(connectors: connectionList, lastDoc: lastDoc);
     } on TimeoutException catch (_) {
       throw ServerException(message: ErrorMessages.timeoutMessage);
@@ -98,7 +100,6 @@ class ConnectionServiceImpl extends ConnectionService {
           connectionList.add(getConnector(data, userId));
         }
       }
-
       return ConnectionModel(connectors: connectionList, lastDoc: lastDoc);
     } on TimeoutException catch (_) {
       throw ServerException(message: ErrorMessages.timeoutMessage);
@@ -125,7 +126,6 @@ class ConnectionServiceImpl extends ConnectionService {
             connectionList.add(getConnector(data, userId));
           }
         }
-
         await _saveToStorage(connectionList, GlobalUtils.connectionsPrefKey);
         return ConnectionModel(connectors: connectionList);
       });
