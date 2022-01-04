@@ -21,7 +21,7 @@ class LoadMoreInviterCubit extends Cubit<ReceivedInvitationState> {
 
     try {
       final result = await invitationService.loadMoreReceivedInvitationList(
-          userId, inviterModel.lastDocs!);
+          userId, inviterModel.lastDoc!);
 
       List<Inviter> newData = [
         ...inviterModel.inviters.toList(),
@@ -31,7 +31,7 @@ class LoadMoreInviterCubit extends Cubit<ReceivedInvitationState> {
       emit(InvitersLoaded(
         inviterModel: InviterModel(
           inviters: newData,
-          lastDocs: result.lastDocs,
+          lastDoc: result.lastDoc,
         ),
         hasMore: hasMore(result.inviters),
       ));
@@ -44,6 +44,19 @@ class LoadMoreInviterCubit extends Cubit<ReceivedInvitationState> {
     }
   }
 
+  bool hasMore(List<Inviter> inviterList) {
+    if (inviterList.isEmpty) {
+      return false;
+    }
+    return inviterList.length % GlobalUtils.inviterListLimit == 0;
+  }
+}
+
+class RefreshInviterCubit extends Cubit<ReceivedInvitationState> {
+  final InvitationService invitationService;
+  RefreshInviterCubit(this.invitationService)
+      : super(ReceivedInvitationInitial());
+
   Future<void> refresh(String userId, {bool showIndicator = false}) async {
     if (showIndicator) {
       emit(RefreshingInviters());
@@ -52,12 +65,9 @@ class LoadMoreInviterCubit extends Cubit<ReceivedInvitationState> {
     }
 
     try {
-      final result = await invitationService.getReceivedInvitationList(userId);
+      final result = await invitationService.refreshInviters(userId);
 
-      emit(InvitersLoaded(
-        inviterModel: result,
-        hasMore: hasMore(result.inviters),
-      ));
+      emit(InvitersLoaded(inviterModel: result));
     } on NetworkException catch (_) {
       emit(InviterRefreshFailed());
     } on ServerException catch (_) {
@@ -65,13 +75,6 @@ class LoadMoreInviterCubit extends Cubit<ReceivedInvitationState> {
     } catch (_) {
       emit(InviterRefreshFailed());
     }
-  }
-
-  bool hasMore(List<Inviter> inviterList) {
-    if (inviterList.isEmpty) {
-      return false;
-    }
-    return inviterList.length % GlobalUtils.inviterListLimit == 0;
   }
 }
 

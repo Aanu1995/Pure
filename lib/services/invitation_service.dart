@@ -15,24 +15,21 @@ abstract class InvitationService {
   const InvitationService();
 
   Future<void> sendInvitation(Map<String, dynamic> data);
-  Future<InviteeModel> refresh(String userId,
+  Future<InviteeModel> refreshInvitees(String userId,
       {int limit = GlobalUtils.inviteeListLimit});
   Future<void> withdrawInvitation(String invitationId);
-  Future<InviterModel> getReceivedInvitationList(String userId,
-      {int limit = GlobalUtils.inviterListLimit});
-  Future<void> acceptInvitation(String invitationId);
   Future<InviteeModel> loadMoreSentInvitationList(
       String userId, DocumentSnapshot doc,
       {int limit = GlobalUtils.inviteeListLimit});
-
+  Stream<InviteeModel> getSentInvitationList(String userId,
+      {int limit = GlobalUtils.inviteeListLimit});
+  Future<void> acceptInvitation(String invitationId);
+  Future<InviterModel> refreshInviters(String userId,
+      {int limit = GlobalUtils.inviterListLimit});
   Future<InviterModel> loadMoreReceivedInvitationList(
       String userId, DocumentSnapshot doc,
       {int limit = GlobalUtils.inviterListLimit});
-
-  Stream<InviteeModel> getSentInvitationList(String userId,
-      {int limit = GlobalUtils.inviteeListLimit});
-
-  Stream<InviterModel?> syncInvitersLocalDatabaseWithRemote(String userId,
+  Stream<InviterModel> getReceivedInvitationList(String userId,
       {int limit = GlobalUtils.inviteeListLimit});
 }
 
@@ -80,7 +77,7 @@ class InvitationServiceImp extends InvitationService {
   }
 
   @override
-  Future<InviteeModel> refresh(String userId,
+  Future<InviteeModel> refreshInvitees(String userId,
       {int limit = GlobalUtils.inviteeListLimit}) async {
     // check internet connection
     await _connection.checkConnectivity();
@@ -106,7 +103,7 @@ class InvitationServiceImp extends InvitationService {
         }
       }
 
-      _saveToStorage(inviteeList, GlobalUtils.sentInvitationPrefKey);
+      _saveInviteeToStorage(inviteeList, GlobalUtils.sentInvitationPrefKey);
       return InviteeModel(invitees: inviteeList, lastDoc: lastDoc);
     } on TimeoutException catch (_) {
       throw ServerException(message: ErrorMessages.timeoutMessage);
@@ -132,7 +129,8 @@ class InvitationServiceImp extends InvitationService {
             inviteeList.add(Invitee.fromMap(data));
           }
         }
-        await _saveToStorage(inviteeList, GlobalUtils.sentInvitationPrefKey);
+        await _saveInviteeToStorage(
+            inviteeList, GlobalUtils.sentInvitationPrefKey);
         return InviteeModel(invitees: inviteeList);
       });
     } catch (e) {
@@ -173,13 +171,12 @@ class InvitationServiceImp extends InvitationService {
     } on TimeoutException catch (_) {
       throw ServerException(message: ErrorMessages.timeoutMessage);
     } catch (e) {
-      print(e);
       throw ServerException(message: ErrorMessages.generalMessage2);
     }
   }
 
   @override
-  Future<InviterModel> getReceivedInvitationList(String userId,
+  Future<InviterModel> refreshInviters(String userId,
       {int limit = GlobalUtils.inviterListLimit}) async {
     // check internet connection
     await _connection.checkConnectivity();
@@ -206,7 +203,7 @@ class InvitationServiceImp extends InvitationService {
       }
 
       _saveInviterToStorage(inviterList, GlobalUtils.receivedInvitationPrefKey);
-      return InviterModel(inviters: inviterList, lastDocs: lastDoc);
+      return InviterModel(inviters: inviterList, lastDoc: lastDoc);
     } on TimeoutException catch (_) {
       throw ServerException(message: ErrorMessages.timeoutMessage);
     } catch (e) {
@@ -215,7 +212,7 @@ class InvitationServiceImp extends InvitationService {
   }
 
   @override
-  Stream<InviterModel?> syncInvitersLocalDatabaseWithRemote(String userId,
+  Stream<InviterModel> getReceivedInvitationList(String userId,
       {int limit = GlobalUtils.inviteeListLimit}) {
     try {
       return _invitationCollection
@@ -236,7 +233,7 @@ class InvitationServiceImp extends InvitationService {
         return InviterModel(inviters: inviterList);
       });
     } catch (e) {
-      return Stream.value(null);
+      throw ServerException(message: ErrorMessages.generalMessage2);
     }
   }
 
@@ -269,7 +266,7 @@ class InvitationServiceImp extends InvitationService {
         }
       }
 
-      return InviterModel(inviters: inviterList, lastDocs: lastDoc);
+      return InviterModel(inviters: inviterList, lastDoc: lastDoc);
     } on TimeoutException catch (_) {
       throw ServerException(message: ErrorMessages.timeoutMessage);
     } catch (e) {
@@ -314,7 +311,8 @@ class InvitationServiceImp extends InvitationService {
   // helper Methods
 
   // save latest data to database
-  Future<void> _saveToStorage(List<Invitee> users, String databaseKey) async {
+  Future<void> _saveInviteeToStorage(
+      List<Invitee> users, String databaseKey) async {
     List<Map<String, dynamic>> data = [];
 
     for (final user in users) {

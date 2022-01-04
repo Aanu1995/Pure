@@ -1,13 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pure/utils/palette.dart';
 
 import '../../../../../blocs/bloc.dart';
 import '../../../../../services/connection_service.dart';
 import '../../../../../services/invitation_service.dart';
 import '../../../../../services/search_service.dart';
 import '../../../../../utils/navigate.dart';
+import '../../../../../utils/palette.dart';
 import '../../search/search_friends_screen.dart';
 import 'connectors_widget.dart';
 import 'invitations/invitation_screen.dart';
@@ -119,6 +119,9 @@ class _ConnectionsNetworkState extends State<ConnectionsNetwork> {
           ),
           BlocProvider(
             create: (_) => LoadMoreInviterCubit(InvitationServiceImp()),
+          ),
+          BlocProvider(
+            create: (_) => RefreshInviterCubit(InvitationServiceImp()),
           ),
           BlocProvider(
             create: (_) => OtherActionsInvitationCubit(InvitationServiceImp()),

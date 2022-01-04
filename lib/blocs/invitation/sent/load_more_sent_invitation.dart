@@ -54,7 +54,7 @@ class RefreshInviteeCubit extends Cubit<SentInvitationState> {
     }
 
     try {
-      final result = await invitationService.refresh(userId);
+      final result = await invitationService.refreshInvitees(userId);
 
       emit(InviteesLoaded(inviteeModel: result));
     } on NetworkException catch (_) {

@@ -25,7 +25,15 @@ class ReceivedScreen extends StatefulWidget {
 class _ReceivedScreenState extends State<ReceivedScreen>
     with AutomaticKeepAliveClientMixin {
   ScrollController _controller = ScrollController();
+  late String currentuserId;
   final _desc = "You wil get notification when you receive an invitation";
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_onScroll);
+    currentuserId = CurrentUser.currentUserId;
+  }
 
   ///  Listeners
 
@@ -33,7 +41,15 @@ class _ReceivedScreenState extends State<ReceivedScreen>
     if (state is InvitersLoaded) {
       context
           .read<ReceivedInvitationCubit>()
-          .updateInviters(state.inviterModel, state.hasMore);
+          .updateOldInviters(state.inviterModel, state.hasMore);
+    }
+  }
+
+  void refreshListener(BuildContext context, ReceivedInvitationState state) {
+    if (state is InvitersLoaded) {
+      context
+          .read<ReceivedInvitationCubit>()
+          .updateNewInviters(state.inviterModel);
     }
   }
 
@@ -77,12 +93,6 @@ class _ReceivedScreenState extends State<ReceivedScreen>
   }
 
   @override
-  void initState() {
-    super.initState();
-    _controller.addListener(_onScroll);
-  }
-
-  @override
   void dispose() {
     _controller.dispose();
     super.dispose();
@@ -100,6 +110,9 @@ class _ReceivedScreenState extends State<ReceivedScreen>
         BlocListener<LoadMoreInviterCubit, ReceivedInvitationState>(
           listener: loadMoreListener,
         ),
+        BlocListener<RefreshInviterCubit, ReceivedInvitationState>(
+          listener: refreshListener,
+        ),
         BlocListener<OtherReceivedActionsCubit, ReceivedInvitationState>(
           listener: otherActionListener,
         )
@@ -107,7 +120,7 @@ class _ReceivedScreenState extends State<ReceivedScreen>
       child: Column(
         children: [
           // shows failure widget when refreshing invitee list failed
-          BlocBuilder<LoadMoreInviterCubit, ReceivedInvitationState>(
+          BlocBuilder<RefreshInviterCubit, ReceivedInvitationState>(
             builder: (context, state) {
               if (state is RefreshingInviters) {
                 return RefreshLoadingWidget();
@@ -198,7 +211,7 @@ class _ReceivedScreenState extends State<ReceivedScreen>
     final state = context.read<LoadMoreInviterCubit>().state;
     if (state is! LoadingInviters) {
       await context
-          .read<LoadMoreInviterCubit>()
+          .read<RefreshInviterCubit>()
           .refresh(CurrentUser.currentUserId);
     }
   }
@@ -229,7 +242,7 @@ class _ReceivedScreenState extends State<ReceivedScreen>
             loadMoreState is! InviterLoadingFailed &&
             state.hasMore) {
           // check is the last documentId is available
-          if (state.inviterModel.lastDocs != null) {
+          if (state.inviterModel.lastDoc != null) {
             loadAgain(state.inviterModel);
           } else {
             onRefresh();
@@ -241,12 +254,12 @@ class _ReceivedScreenState extends State<ReceivedScreen>
 
   void tryAgain() {
     BlocProvider.of<ReceivedInvitationCubit>(context)
-        .loadFromremoteStorage(CurrentUser.currentUserId);
+        .loadDataFromRemoteStorage(CurrentUser.currentUserId);
   }
 
   void onRefreshFailed() {
     context
-        .read<LoadMoreInviterCubit>()
+        .read<RefreshInviterCubit>()
         .refresh(CurrentUser.currentUserId, showIndicator: true);
   }
 }

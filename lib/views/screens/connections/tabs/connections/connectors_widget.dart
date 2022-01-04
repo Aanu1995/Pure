@@ -148,11 +148,10 @@ class _ConnectorsWidgetState extends State<ConnectorsWidget> {
   }
 
   Future<void> onRefresh() async {
-    print("Pressed twice");
-    // final state = context.read<LoadMoreConnectorCubit>().state;
-    // if (state is! LoadingConnections) {
-    //   await context.read<RefreshConnectionsCubit>().refresh(currentuserId);
-    // }
+    final state = context.read<LoadMoreConnectorCubit>().state;
+    if (state is! LoadingConnections) {
+      await context.read<RefreshConnectionsCubit>().refresh(currentuserId);
+    }
   }
 
   void _onScroll() async {

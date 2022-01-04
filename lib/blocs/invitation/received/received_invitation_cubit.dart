@@ -6,7 +6,6 @@ import '../../../model/invitation_model.dart';
 import '../../../model/inviter_model.dart';
 import '../../../repositories/local_storage.dart';
 import '../../../services/invitation_service.dart';
-import '../../../utils/exception.dart';
 import '../../../utils/global_utils.dart';
 import '../../../utils/request_messages.dart';
 import 'received_invitation_state.dart';
@@ -20,85 +19,67 @@ class ReceivedInvitationCubit extends Cubit<ReceivedInvitationState> {
   }
 
   late LocalStorage _localStorage;
-  StreamSubscription<InviterModel?>? _subscription;
+  StreamSubscription<InviterModel>? _subscription;
 
   Future<void> loadInviters(String userId) async {
-    List? data;
-
-    try {
-      data = await _localStorage.getData(GlobalUtils.receivedInvitationPrefKey)
-          as List?;
-    } catch (e) {}
-
-    // if data is available in local storage, load from local storage first
-    // and then sync the local data with remote data.
-    // else load from remote database directly
-    if (data != null) {
-      try {
-        final currentState = state;
-
-        // load from local storage
-        final inviterList = _mapDataToModel(data);
-
-        if (currentState is ReceivedInvitationInitial) {
-          emit(LoadingInviters());
-
-          invitationService.getReceivedInvitationList(userId).then((result) {
-            emit(InvitersLoaded(
-              inviterModel: result,
-              hasMore: hasMore(result.inviters),
-            ));
-          });
-
-          // sync data
-          _subscription?.cancel();
-          _subscription = invitationService
-              .syncInvitersLocalDatabaseWithRemote(userId)
-              .listen((user) {});
-        }
-
-        emit(
-          InvitersLoaded(inviterModel: InviterModel(inviters: inviterList)),
-        );
-      } catch (e) {
-        emit(InviterLoadingFailed(ErrorMessages.generalMessage2));
-      }
-    } else {
-      final currentState = state;
-      if (currentState is ReceivedInvitationInitial) {
-        // sync data
-        _subscription?.cancel();
-        _subscription = invitationService
-            .syncInvitersLocalDatabaseWithRemote(userId)
-            .listen((user) {});
-      }
-      // load directly from local storage
-      return loadFromremoteStorage(userId);
-    }
+    // load data from local storage first
+    await _loadDataFromLocalStorage();
+    loadDataFromRemoteStorage(userId);
   }
 
-  Future<void> loadFromremoteStorage(String userId) async {
-    emit(LoadingInviters());
-
+  Future<void> _loadDataFromLocalStorage() async {
     try {
-      // load directly from local storage
-      final result = await invitationService.getReceivedInvitationList(userId);
-
-      emit(InvitersLoaded(
-        inviterModel: result,
-        hasMore: hasMore(result.inviters),
-      ));
-    } on NetworkException catch (e) {
-      emit(InviterLoadingFailed(e.message!));
-    } on ServerException catch (e) {
-      emit(InviterLoadingFailed(e.message!));
-    } catch (_) {
+      // load from local storage
+      final data = await _localStorage
+          .getData(GlobalUtils.receivedInvitationPrefKey) as List?;
+      if (data != null) {
+        final inviterList = _mapDataToModel(data);
+        final inviterModel = InviterModel(inviters: inviterList);
+        emit(InvitersLoaded(inviterModel: inviterModel));
+      }
+    } catch (e) {
       emit(InviterLoadingFailed(ErrorMessages.generalMessage2));
     }
   }
 
-  void updateInviters(InviterModel inviterModel, bool hasMore) {
-    emit(InvitersLoaded(inviterModel: inviterModel, hasMore: hasMore));
+  void loadDataFromRemoteStorage(String userId) {
+    try {
+      _subscription?.cancel();
+      _subscription = invitationService
+          .getReceivedInvitationList(userId)
+          .listen((inviterModel) {
+        _subscription?.cancel();
+        emit(InvitersLoaded(inviterModel: inviterModel));
+      });
+    } catch (_) {
+      final currentState = state;
+      if (currentState is! InvitersLoaded)
+        emit(InviterLoadingFailed(ErrorMessages.generalMessage2));
+    }
+  }
+
+// Preciely used when to update the UI after it is refreshed
+  void updateNewInviters(InviterModel inviterModel) {
+    InvitersLoaded(
+      inviterModel: inviterModel,
+      hasMore: hasMore(inviterModel.inviters),
+    );
+  }
+
+  // Precisely used to update the UI when more inviters are fetched (pagination)
+  void updateOldInviters(InviterModel inviterModel, bool hasMore) {
+    final currentState = state;
+    if (currentState is InvitersLoaded) {
+      final totalInviters = [
+        ...currentState.inviterModel.inviters.toList(),
+        ...inviterModel.inviters.toList()
+      ];
+      final model = InviterModel(
+        inviters: totalInviters,
+        lastDoc: inviterModel.lastDoc,
+      );
+      emit(InvitersLoaded(inviterModel: model, hasMore: hasMore));
+    }
   }
 
   void delete(int index) {
@@ -111,7 +92,7 @@ class ReceivedInvitationCubit extends Cubit<ReceivedInvitationState> {
       emit(InvitersLoaded(
         inviterModel: InviterModel(
           inviters: inviterList,
-          lastDocs: currentState.inviterModel.lastDocs,
+          lastDoc: currentState.inviterModel.lastDoc,
         ),
         hasMore: currentState.hasMore,
       ));
@@ -128,7 +109,7 @@ class ReceivedInvitationCubit extends Cubit<ReceivedInvitationState> {
       emit(InvitersLoaded(
         inviterModel: InviterModel(
           inviters: inviterList,
-          lastDocs: currentState.inviterModel.lastDocs,
+          lastDoc: currentState.inviterModel.lastDoc,
         ),
         hasMore: currentState.hasMore,
       ));

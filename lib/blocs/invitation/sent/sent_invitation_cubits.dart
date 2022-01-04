@@ -19,7 +19,7 @@ class SentInvitationCubit extends Cubit<SentInvitationState> {
   }
 
   late LocalStorage _localStorage;
-  StreamSubscription<InviteeModel?>? _subscription;
+  StreamSubscription<InviteeModel>? _subscription;
 
   Future<void> loadInvitees(String userId) async {
     // load data from local storage first
@@ -67,7 +67,7 @@ class SentInvitationCubit extends Cubit<SentInvitationState> {
     );
   }
 
-  // Precisely used to update the UI when more invitees is fetched (pagination)
+  // Precisely used to update the UI when more invitees are fetched (pagination)
   void updateOldInvitees(InviteeModel inviteeModel, bool hasMore) {
     final currentState = state;
     if (currentState is InviteesLoaded) {

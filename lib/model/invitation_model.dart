@@ -27,12 +27,12 @@ class InviteeModel extends Equatable {
 
 class InviterModel extends Equatable {
   final List<Inviter> inviters;
-  final DocumentSnapshot? lastDocs;
+  final DocumentSnapshot? lastDoc;
 
-  const InviterModel({required this.inviters, this.lastDocs});
+  const InviterModel({required this.inviters, this.lastDoc});
 
   @override
-  List<Object?> get props => [inviters, lastDocs];
+  List<Object?> get props => [inviters, lastDoc];
 }
 
 class InvitationModel {
