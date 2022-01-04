@@ -117,6 +117,7 @@ class InvitationServiceImp extends InvitationService {
           .snapshots()
           .asyncMap((querySnapshot) async {
         List<Invitee> inviteeList = [];
+
         if (querySnapshot.docs.isNotEmpty) {
           for (final querySnap in querySnapshot.docs) {
             final data = querySnap.data()! as Map<String, dynamic>;
@@ -124,8 +125,13 @@ class InvitationServiceImp extends InvitationService {
           }
         }
         await _saveInviteeToStorage(
-            inviteeList, GlobalUtils.sentInvitationPrefKey);
-        return InviteeModel(invitees: inviteeList);
+          inviteeList,
+          GlobalUtils.sentInvitationPrefKey,
+        );
+        return InviteeModel(
+          invitees: inviteeList,
+          lastDoc: querySnapshot.docs.last,
+        );
       });
     } catch (e) {
       throw ServerException(message: ErrorMessages.generalMessage2);
@@ -216,16 +222,19 @@ class InvitationServiceImp extends InvitationService {
           .snapshots()
           .asyncMap((querySnapshot) async {
         List<Inviter> inviterList = [];
+
         if (querySnapshot.docs.isNotEmpty) {
           for (final querySnap in querySnapshot.docs) {
             final data = querySnap.data()! as Map<String, dynamic>;
             inviterList.add(Inviter.fromMap(data));
           }
         }
-        print(inviterList.length);
         await _saveInviterToStorage(
             inviterList, GlobalUtils.receivedInvitationPrefKey);
-        return InviterModel(inviters: inviterList);
+        return InviterModel(
+          inviters: inviterList,
+          lastDoc: querySnapshot.docs.last,
+        );
       });
     } catch (e) {
       throw ServerException(message: ErrorMessages.generalMessage2);
@@ -271,9 +280,6 @@ class InvitationServiceImp extends InvitationService {
 
   @override
   Future<void> acceptInvitation(String invitationId) async {
-    // check internet connection
-    await _connection.checkConnectivity();
-
     try {
       await _invitationCollection.doc(invitationId).update({
         "isAccepted": true,
@@ -288,9 +294,6 @@ class InvitationServiceImp extends InvitationService {
 
   @override
   Future<void> withdrawInvitation(String invitationId) async {
-    // check internet connection
-    await _connection.checkConnectivity();
-
     try {
       await _invitationCollection
           .doc(invitationId)

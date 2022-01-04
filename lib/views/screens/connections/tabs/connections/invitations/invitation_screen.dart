@@ -25,7 +25,6 @@ class _InvitationScreenState extends State<InvitationScreen>
   void initState() {
     super.initState();
     final currentUserId = CurrentUser.currentUserId;
-    context.read<ReceivedInvitationCubit>().loadInviters(currentUserId);
     context.read<SentInvitationCubit>().loadInvitees(currentUserId);
     _controller = TabController(length: 2, vsync: this);
   }

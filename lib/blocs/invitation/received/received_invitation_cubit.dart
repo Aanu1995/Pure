@@ -48,7 +48,6 @@ class ReceivedInvitationCubit extends Cubit<ReceivedInvitationState> {
       _subscription = invitationService
           .getReceivedInvitationList(userId)
           .listen((inviterModel) {
-        _subscription?.cancel();
         emit(InvitersLoaded(inviterModel: inviterModel));
       });
     } catch (_) {

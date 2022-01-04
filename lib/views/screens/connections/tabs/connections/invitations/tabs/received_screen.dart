@@ -26,13 +26,13 @@ class _ReceivedScreenState extends State<ReceivedScreen>
     with AutomaticKeepAliveClientMixin {
   ScrollController _controller = ScrollController();
   late String currentuserId;
-  final _desc = "You wil get notification when you receive an invitation";
+  final _desc = "You will be notified when an invitation arrives";
 
   @override
   void initState() {
     super.initState();
-    _controller.addListener(_onScroll);
     currentuserId = CurrentUser.currentUserId;
+    _controller.addListener(_onScroll);
   }
 
   ///  Listeners
@@ -105,90 +105,105 @@ class _ReceivedScreenState extends State<ReceivedScreen>
   Widget build(BuildContext context) {
     super.build(context);
 
-    return Column(
-      children: [
-        // shows failure widget when refreshing invitee list failed
-        BlocBuilder<RefreshInviterCubit, ReceivedInvitationState>(
-          builder: (context, state) {
-            if (state is RefreshingInviters) {
-              return RefreshLoadingWidget();
-            } else if (state is InviterRefreshFailed) {
-              return RefreshFailureWidget(onTap: () => onRefreshFailed());
-            }
-            return Offstage();
-          },
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<LoadMoreInviterCubit, ReceivedInvitationState>(
+          listener: loadMoreListener,
         ),
-
-        Expanded(
-          child: BlocBuilder<ReceivedInvitationCubit, ReceivedInvitationState>(
+        BlocListener<RefreshInviterCubit, ReceivedInvitationState>(
+          listener: refreshListener,
+        ),
+        BlocListener<OtherReceivedActionsCubit, ReceivedInvitationState>(
+          listener: otherActionListener,
+        )
+      ],
+      child: Column(
+        children: [
+          // shows failure widget when refreshing invitee list failed
+          BlocBuilder<RefreshInviterCubit, ReceivedInvitationState>(
             builder: (context, state) {
-              if (state is InvitersLoaded) {
-                final inviterList = state.inviterModel.inviters;
-                if (inviterList.isEmpty)
-                  return MessageDisplay(
-                    fontSize: 18.0,
-                    title: "You've not received any invitations yet",
-                    description: _desc,
-                    buttonTitle: "Back",
-                    onPressed: () => Navigator.of(context).pop(),
-                  );
-                else
-                  return RefreshIndicator(
-                    onRefresh: onRefresh,
-                    child: ListView.custom(
-                      controller: _controller,
-                      padding: EdgeInsets.all(0),
-                      physics: AlwaysScrollableScrollPhysics(),
-                      childrenDelegate: SliverChildBuilderDelegate(
-                        (BuildContext context, int index) {
-                          if (inviterList.length == index)
-                            return LoadMoreInviters(
-                              onTap: () => _fetchMore(tryAgain: true),
-                            );
-                          else {
-                            final inviter = state.inviterModel.inviters[index];
-                            return CustomKeepAlive(
-                              key: ValueKey<String>(inviter.invitationId),
-                              child: ProfileProvider(
-                                userId: inviter.inviterId,
-                                child: InviterProfile(
-                                  inviter: inviter,
-                                  itemIndex: index,
-                                  // only show separator if there is another item below
-                                  showSeparator:
-                                      index < (inviterList.length - 1),
-                                ),
-                              ),
-                            );
-                          }
-                        },
-                        childCount: inviterList.length + 1,
-                        findChildIndexCallback: (Key key) {
-                          final ValueKey<String> valueKey =
-                              key as ValueKey<String>;
-                          final String data = valueKey.value;
-                          return inviterList
-                              .map((e) => e.invitationId)
-                              .toList()
-                              .indexOf(data);
-                        },
-                      ),
-                    ),
-                  );
-              } else if (state is InviterLoadingFailed) {
-                return MessageDisplay(
-                  fontSize: 18.0,
-                  title: state.message,
-                  description: "Please check your internet connection",
-                  buttonTitle: "Try again",
-                  onPressed: () => tryAgain(),
-                );
+              if (state is RefreshingInviters) {
+                return RefreshLoadingWidget();
+              } else if (state is InviterRefreshFailed) {
+                return RefreshFailureWidget(onTap: () => onRefreshFailed());
               }
-              return Center(child: const CustomProgressIndicator());
+              return Offstage();
             },
           ),
-        ),
-      ],
+
+          Expanded(
+            child:
+                BlocBuilder<ReceivedInvitationCubit, ReceivedInvitationState>(
+              builder: (context, state) {
+                if (state is InvitersLoaded) {
+                  final inviterList = state.inviterModel.inviters;
+                  if (inviterList.isEmpty)
+                    return MessageDisplay(
+                      fontSize: 18.0,
+                      title: "You've not received any invitations yet",
+                      description: _desc,
+                      buttonTitle: "Back",
+                      onPressed: () => Navigator.of(context).pop(),
+                    );
+                  else
+                    return RefreshIndicator(
+                      onRefresh: onRefresh,
+                      child: ListView.custom(
+                        controller: _controller,
+                        padding: EdgeInsets.all(0),
+                        physics: AlwaysScrollableScrollPhysics(),
+                        childrenDelegate: SliverChildBuilderDelegate(
+                          (BuildContext context, int index) {
+                            if (inviterList.length == index)
+                              return LoadMoreInviters(
+                                onTap: () => _fetchMore(tryAgain: true),
+                              );
+                            else {
+                              final inviter =
+                                  state.inviterModel.inviters[index];
+                              return CustomKeepAlive(
+                                key: ValueKey<String>(inviter.invitationId),
+                                child: ProfileProvider(
+                                  userId: inviter.inviterId,
+                                  child: InviterProfile(
+                                    inviter: inviter,
+                                    itemIndex: index,
+                                    // only show separator if there is another item below
+                                    showSeparator:
+                                        index < (inviterList.length - 1),
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                          childCount: inviterList.length + 1,
+                          findChildIndexCallback: (Key key) {
+                            final ValueKey<String> valueKey =
+                                key as ValueKey<String>;
+                            final String data = valueKey.value;
+                            return inviterList
+                                .map((e) => e.invitationId)
+                                .toList()
+                                .indexOf(data);
+                          },
+                        ),
+                      ),
+                    );
+                } else if (state is InviterLoadingFailed) {
+                  return MessageDisplay(
+                    fontSize: 18.0,
+                    title: state.message,
+                    description: "Please check your internet connection",
+                    buttonTitle: "Try again",
+                    onPressed: () => tryAgain(),
+                  );
+                }
+                return Center(child: const CustomProgressIndicator());
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 

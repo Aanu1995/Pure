@@ -122,7 +122,10 @@ class ConnectionServiceImpl extends ConnectionService {
           }
         }
         await _saveToStorage(connectionList, GlobalUtils.connectionsPrefKey);
-        return ConnectionModel(connectors: connectionList);
+        return ConnectionModel(
+          connectors: connectionList,
+          lastDoc: querySnapshot.docs.last,
+        );
       });
     } catch (e) {
       throw ServerException(message: ErrorMessages.generalMessage2);

@@ -47,7 +47,6 @@ class ConnectorCubit extends Cubit<ConnectorState> {
       _subscription?.cancel();
       _subscription =
           connectionService.getConnectionList(userId).listen((connectionModel) {
-        _subscription?.cancel();
         emit(ConnectionsLoaded(connectionModel: connectionModel));
       });
     } catch (_) {

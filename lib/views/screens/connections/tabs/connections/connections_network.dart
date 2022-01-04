@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pure/model/pure_user_model.dart';
 
 import '../../../../../blocs/bloc.dart';
 import '../../../../../services/connection_service.dart';
@@ -21,6 +22,13 @@ class ConnectionsNetwork extends StatefulWidget {
 
 class _ConnectionsNetworkState extends State<ConnectionsNetwork> {
   final _service = InvitationServiceImp();
+  late String currentUserId;
+
+  @override
+  void initState() {
+    super.initState();
+    currentUserId = CurrentUser.currentUserId;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +122,8 @@ class _ConnectionsNetworkState extends State<ConnectionsNetwork> {
       page: MultiBlocProvider(
         providers: [
           BlocProvider(
-            create: (_) => ReceivedInvitationCubit(invitationService: _service),
+            create: (_) => ReceivedInvitationCubit(invitationService: _service)
+              ..loadInviters(currentUserId),
           ),
           BlocProvider(
             create: (_) => SentInvitationCubit(invitationService: _service),
