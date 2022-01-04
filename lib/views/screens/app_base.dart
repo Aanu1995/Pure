@@ -53,12 +53,6 @@ class AppBaseExtenion extends StatefulWidget {
 }
 
 class _AppBaseExtenionState extends State<AppBaseExtenion> {
-  final _style = const TextStyle(
-    fontSize: 17,
-    fontWeight: FontWeight.w600,
-    letterSpacing: 0.05,
-  );
-
   @override
   void initState() {
     super.initState();
@@ -87,81 +81,58 @@ class _AppBaseExtenionState extends State<AppBaseExtenion> {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoTabScaffold(
-      controller: cupertinoTabController,
-      tabBar: CupertinoTabBar(
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        activeColor: Palette.tintColor,
-        inactiveColor: Theme.of(context).colorScheme.secondaryVariant,
-        iconSize: 24,
-        items: [
-          BottomNavigationBarItem(
-            icon: ImageIcon(AssetImage(ImageUtils.home)),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: ImageIcon(AssetImage(ImageUtils.friends)),
-            label: 'Connections',
-          ),
-          BottomNavigationBarItem(
-            label: 'Chats',
-            icon: Stack(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: ImageIcon(AssetImage(ImageUtils.message)),
-                ),
-                Positioned(
-                  top: -2.0,
-                  right: 10.0,
-                  child: BlocBuilder<UnReadChatCubit, int>(
-                    builder: (context, state) {
-                      if (state > 0) {
-                        return Badge(
-                          badgeColor: Colors.red,
-                          elevation: 0.0,
-                          padding: EdgeInsets.all(6.0),
-                          animationType: BadgeAnimationType.fade,
-                          badgeContent: Text(
-                            state.toString(),
-                            style: _style.copyWith(
-                              color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                        );
-                      }
-                      return Offstage();
-                    },
-                  ),
-                )
-              ],
-            ),
-          ),
-          BottomNavigationBarItem(
-            icon: ImageIcon(AssetImage(ImageUtils.notifications)),
-            label: 'Notifications',
-          ),
-          BottomNavigationBarItem(
-            icon: ImageIcon(AssetImage(ImageUtils.settings)),
-            label: 'Settings',
-          ),
-        ],
-      ),
-      tabBuilder: (context, index) {
-        return CupertinoTabView(
-          builder: (context) {
-            return const [
-              HomePage(),
-              ConnectionsPage(),
-              ChatScreen(),
-              NotificationsScreen(),
-              SettingsScreen(),
-            ][index];
-          },
-        );
+    return WillPopScope(
+      onWillPop: () async {
+        if (cupertinoTabController.index > 0) {
+          cupertinoTabController.index = 0;
+          return false;
+        }
+        return true;
       },
+      child: CupertinoTabScaffold(
+        controller: cupertinoTabController,
+        tabBar: CupertinoTabBar(
+          backgroundColor: Theme.of(context).colorScheme.secondary,
+          activeColor: Palette.tintColor,
+          inactiveColor: Theme.of(context).colorScheme.secondaryVariant,
+          iconSize: 24,
+          items: [
+            BottomNavigationBarItem(
+              icon: ImageIcon(AssetImage(ImageUtils.home)),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: ImageIcon(AssetImage(ImageUtils.friends)),
+              label: 'Connections',
+            ),
+            BottomNavigationBarItem(
+              icon: _NotificationCouterWidget(),
+              label: 'Chats',
+            ),
+            BottomNavigationBarItem(
+              icon: ImageIcon(AssetImage(ImageUtils.notifications)),
+              label: 'Notifications',
+            ),
+            BottomNavigationBarItem(
+              icon: ImageIcon(AssetImage(ImageUtils.settings)),
+              label: 'Settings',
+            ),
+          ],
+        ),
+        tabBuilder: (context, index) {
+          return CupertinoTabView(
+            builder: (context) {
+              return const [
+                HomePage(),
+                ConnectionsPage(),
+                ChatScreen(),
+                NotificationsScreen(),
+                SettingsScreen(),
+              ][index];
+            },
+          );
+        },
+      ),
     );
   }
 
@@ -188,5 +159,52 @@ class _AppBaseExtenionState extends State<AppBaseExtenion> {
         }
       });
     }
+  }
+}
+
+class _NotificationCouterWidget extends StatelessWidget {
+  const _NotificationCouterWidget({Key? key}) : super(key: key);
+
+  final _style = const TextStyle(
+    fontSize: 17,
+    fontWeight: FontWeight.w600,
+    letterSpacing: 0.05,
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: ImageIcon(AssetImage(ImageUtils.message)),
+        ),
+        Positioned(
+          top: -2.0,
+          right: 10.0,
+          child: BlocBuilder<UnReadChatCubit, int>(
+            builder: (context, state) {
+              if (state > 0) {
+                return Badge(
+                  badgeColor: Colors.red,
+                  elevation: 0.0,
+                  padding: EdgeInsets.all(6.0),
+                  animationType: BadgeAnimationType.fade,
+                  badgeContent: Text(
+                    state.toString(),
+                    style: _style.copyWith(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                );
+              }
+              return Offstage();
+            },
+          ),
+        )
+      ],
+    );
   }
 }
