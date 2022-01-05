@@ -18,9 +18,10 @@ class LoadMoreInvitees extends StatelessWidget {
           builder: (context, state) {
             if (state is LoadingInvitees) {
               return SizedBox(
-                  width: 20.0,
-                  height: 20.0,
-                  child: CustomProgressIndicator(size: 16.0));
+                width: 20.0,
+                height: 20.0,
+                child: CustomProgressIndicator(size: 16.0),
+              );
             } else if (state is InviteeLoadingFailed) {
               return LoadMoreErrorWidget(
                 onTap: onTap,
@@ -44,14 +45,15 @@ class LoadMoreInviters extends StatelessWidget {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: BlocBuilder<LoadMoreInviteeCubit, SentInvitationState>(
+        child: BlocBuilder<LoadMoreInviterCubit, ReceivedInvitationState>(
           builder: (context, state) {
-            if (state is LoadingInvitees) {
+            if (state is LoadingInviters) {
               return SizedBox(
-                  width: 20.0,
-                  height: 20.0,
-                  child: CustomProgressIndicator(size: 16.0));
-            } else if (state is InviteeLoadingFailed) {
+                width: 20.0,
+                height: 20.0,
+                child: CustomProgressIndicator(size: 16.0),
+              );
+            } else if (state is InviterLoadingFailed) {
               return LoadMoreErrorWidget(
                 onTap: onTap,
                 message: "Failed to load more",
@@ -78,9 +80,10 @@ class LoadMoreConnectors extends StatelessWidget {
           builder: (context, state) {
             if (state is LoadingConnections) {
               return SizedBox(
-                  width: 20.0,
-                  height: 20.0,
-                  child: CustomProgressIndicator(size: 16.0));
+                width: 20.0,
+                height: 20.0,
+                child: CustomProgressIndicator(size: 16.0),
+              );
             } else if (state is ConnectionFailed) {
               return LoadMoreErrorWidget(
                 onTap: onTap,

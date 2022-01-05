@@ -10,7 +10,6 @@ import '../../../services/search_service.dart';
 import '../../../services/user_service.dart';
 import '../../../utils/image_utils.dart';
 import '../../../utils/navigate.dart';
-import '../../widgets/bottom_bar.dart';
 import 'account_screen.dart';
 import 'profile/edit_profile_screen.dart';
 import 'update_username_screen.dart';
@@ -31,7 +30,6 @@ class SettingsScreen extends StatelessWidget {
           child: _Body(),
         ),
       ),
-      bottomNavigationBar: hidBottomNav ? null : const BottomBar(),
     );
   }
 }
@@ -42,7 +40,6 @@ class _Body extends StatelessWidget {
   void signOutListener(BuildContext context, AuthState authState) {
     if (authState is UnAuthenticated) {
       GoRouter.of(context).goNamed("social");
-      context.read<BottomBarCubit>().reset();
     }
   }
 
@@ -157,11 +154,6 @@ class _Body extends StatelessWidget {
 
   Future<void> signOut(BuildContext context) async {
     await PushNotificationImpl.deleteToken();
-    BlocProvider.of<ChatCubit>(context).dispose();
-    BlocProvider.of<ConnectorCubit>(context).dispose();
-    BlocProvider.of<ReceivedInvitationCubit>(context).dispose();
-    BlocProvider.of<SentInvitationCubit>(context).dispose();
-    await BlocProvider.of<AuthCubit>(context)
-        .signOut(CurrentUser.currentUserId);
+    BlocProvider.of<AuthCubit>(context).signOut(CurrentUser.currentUserId);
   }
 }

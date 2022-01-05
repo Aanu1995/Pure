@@ -1,7 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../model/connection_model.dart';
-import '../../model/invitation_model.dart';
 import '../../services/connection_service.dart';
 import '../../utils/exception.dart';
 import '../../utils/global_utils.dart';
@@ -11,27 +11,18 @@ import 'connection_state.dart';
 class LoadMoreConnectorCubit extends Cubit<ConnectorState> {
   final ConnectionService connectionService;
 
-  LoadMoreConnectorCubit({required this.connectionService})
-      : super(ConnectionInitial());
+  LoadMoreConnectorCubit(this.connectionService) : super(ConnectionInitial());
 
-  Future<void> loadMoreInvitees(
-      String userId, ConnectionModel connectionModel) async {
+  Future<void> loadMoreConnections(
+      String userId, DocumentSnapshot lastDoc) async {
     emit(LoadingConnections());
 
     try {
-      final result = await connectionService.loadMoreConnectionList(
-          userId, connectionModel.lastDocs!);
-
-      List<Connector> newData = [
-        ...connectionModel.connectors.toList(),
-        ...result.connectors
-      ];
+      final result =
+          await connectionService.loadMoreConnectionList(userId, lastDoc);
 
       emit(ConnectionsLoaded(
-        connectionModel: ConnectionModel(
-          connectors: newData,
-          lastDocs: result.lastDocs,
-        ),
+        connectionModel: result,
         hasMore: hasMore(result.connectors),
       ));
     } on NetworkException catch (e) {
@@ -43,6 +34,19 @@ class LoadMoreConnectorCubit extends Cubit<ConnectorState> {
     }
   }
 
+  bool hasMore(List<Connector> connectorList) {
+    if (connectorList.isEmpty) {
+      return false;
+    }
+    return connectorList.length % GlobalUtils.inviteeListLimit == 0;
+  }
+}
+
+class RefreshConnectionsCubit extends Cubit<ConnectorState> {
+  final ConnectionService connectionService;
+
+  RefreshConnectionsCubit(this.connectionService) : super(ConnectionInitial());
+
   Future<void> refresh(String userId, {bool showIndicator = false}) async {
     if (showIndicator) {
       emit(RefreshingConnectors());
@@ -51,12 +55,9 @@ class LoadMoreConnectorCubit extends Cubit<ConnectorState> {
     }
 
     try {
-      final result = await connectionService.getConnectionList(userId);
+      final result = await connectionService.refresh(userId);
 
-      emit(ConnectionsLoaded(
-        connectionModel: result,
-        hasMore: hasMore(result.connectors),
-      ));
+      emit(ConnectionsLoaded(connectionModel: result));
     } on NetworkException catch (_) {
       emit(ConnectorsRefreshFailed());
     } on ServerException catch (_) {
@@ -64,13 +65,6 @@ class LoadMoreConnectorCubit extends Cubit<ConnectorState> {
     } catch (_) {
       emit(ConnectorsRefreshFailed());
     }
-  }
-
-  bool hasMore(List<Connector> connectorList) {
-    if (connectorList.isEmpty) {
-      return false;
-    }
-    return connectorList.length % GlobalUtils.inviteeListLimit == 0;
   }
 }
 

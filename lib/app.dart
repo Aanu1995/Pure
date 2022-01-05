@@ -7,8 +7,6 @@ import 'utils/flavors.dart';
 import 'utils/routing.dart';
 import 'views/widgets/custom_multi_bloc_provider.dart';
 
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-
 class App extends StatelessWidget {
   const App({Key? key}) : super(key: key);
 

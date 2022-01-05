@@ -116,11 +116,6 @@ class MessageCubit extends Cubit<MessageState> {
     }
   }
 
-  @override
-  Future<void> close() {
-    return super.close();
-  }
-
   // #######################################################################
   // #######################################################################
   // Helper Methods

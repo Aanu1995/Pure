@@ -37,7 +37,7 @@ class _SearchAllConnectionResultsState
       final loadMoreState = BlocProvider.of<LoadMoreUsersCubit>(context).state;
       if (loadMoreState is! SearchConnLoading && state.hasMore) {
         // call the provider to fetch more users
-        await BlocProvider.of<LoadMoreUsersCubit>(context).loadMoreUsers(
+        BlocProvider.of<LoadMoreUsersCubit>(context).loadMoreUsers(
           state.users,
           state.query,
           state.currentPageNumber + 1,

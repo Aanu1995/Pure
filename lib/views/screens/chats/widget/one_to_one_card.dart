@@ -142,7 +142,7 @@ class _OneToOneCardState extends State<OneToOneCard> {
                               elevation: 0.0,
                               animationType: BadgeAnimationType.fade,
                               animationDuration:
-                                  const Duration(milliseconds: 300),
+                                  const Duration(milliseconds: 200),
                               badgeContent: Text(
                                 state.toString(),
                                 style: _style.copyWith(
@@ -176,6 +176,7 @@ class _OneToOneCardState extends State<OneToOneCard> {
   void pushToMessagesScreen(BuildContext context, PureUser user) {
     push(
       context: context,
+      rootNavigator: true,
       page: BlocProvider.value(
         value: BlocProvider.of<UserPresenceCubit>(context),
         child: MessagesScreen(
