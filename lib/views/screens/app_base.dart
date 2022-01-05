@@ -55,7 +55,7 @@ class _AppBaseExtension extends StatefulWidget {
 class __AppBaseExtensionState extends State<_AppBaseExtension> {
   // creates list of key for each tab
   // This is required to handle backbutton in android
-  List<GlobalKey<NavigatorState>> tabKeys = [
+  final tabKeys = [
     GlobalKey<NavigatorState>(),
     GlobalKey<NavigatorState>(),
     GlobalKey<NavigatorState>(),
