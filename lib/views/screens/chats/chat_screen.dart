@@ -6,7 +6,6 @@ import '../../../model/pure_user_model.dart';
 import '../../../services/chat/chat_service.dart';
 import '../../../services/search_service.dart';
 import '../../../utils/navigate.dart';
-import '../../widgets/bottom_bar.dart';
 import 'group/search_friend_chat.dart';
 import 'widget/chat_list_widget.dart';
 
@@ -21,13 +20,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    fetchChats();
-  }
-
-  void fetchChats() {
-    final chatState = context.read<ChatCubit>().state;
-    if (chatState is ChatInitial)
-      context.read<ChatCubit>().fetchChats(CurrentUser.currentUserId);
+    context.read<ChatCubit>().fetchChats(CurrentUser.currentUserId);
   }
 
   @override
@@ -53,7 +46,6 @@ class _ChatScreenState extends State<ChatScreen> {
           ],
         ),
         body: ChatList(),
-        bottomNavigationBar: const BottomBar(),
       ),
     );
   }
@@ -61,6 +53,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<void> pushToCreateNewGroupScreen() async {
     push(
       context: context,
+      rootNavigator: true,
       page: MultiBlocProvider(
         providers: [
           BlocProvider(create: (_) => GroupCubit(ChatServiceImp())),

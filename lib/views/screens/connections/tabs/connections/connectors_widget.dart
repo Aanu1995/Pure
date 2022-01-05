@@ -1,10 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flash/flash.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../blocs/bloc.dart';
-import '../../../../../model/invitation_model.dart';
 import '../../../../../model/pure_user_model.dart';
 import '../../../../../services/search_service.dart';
 import '../../../../widgets/failure_widget.dart';
@@ -24,13 +24,28 @@ class ConnectorsWidget extends StatefulWidget {
 
 class _ConnectorsWidgetState extends State<ConnectorsWidget> {
   ScrollController _controller = ScrollController();
+  late String currentuserId;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_onScroll);
+    currentuserId = CurrentUser.currentUserId;
+    refreshData(); // refreshes data to be in sync with remote data
+  }
 
   ///  Listeners
   void loadMoreListener(BuildContext context, ConnectorState state) {
     if (state is ConnectionsLoaded) {
       context
           .read<ConnectorCubit>()
-          .updateConnection(state.connectionModel, state.hasMore);
+          .updateOldConnection(state.connectionModel, state.hasMore);
+    }
+  }
+
+  void refreshListener(BuildContext context, ConnectorState state) {
+    if (state is ConnectionsLoaded) {
+      context.read<ConnectorCubit>().updateNewConnection(state.connectionModel);
     }
   }
 
@@ -60,12 +75,6 @@ class _ConnectorsWidgetState extends State<ConnectorsWidget> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    _controller.addListener(_onScroll);
-  }
-
-  @override
   void dispose() {
     _controller.dispose();
     super.dispose();
@@ -78,6 +87,9 @@ class _ConnectorsWidgetState extends State<ConnectorsWidget> {
         BlocListener<LoadMoreConnectorCubit, ConnectorState>(
           listener: loadMoreListener,
         ),
+        BlocListener<RefreshConnectionsCubit, ConnectorState>(
+          listener: refreshListener,
+        ),
         BlocListener<OtherActionsConnectionCubit, ConnectorState>(
           listener: otherActionListener,
         )
@@ -85,12 +97,12 @@ class _ConnectorsWidgetState extends State<ConnectorsWidget> {
       child: Column(
         children: [
           // shows failure widget when refreshing invitee list failed
-          BlocBuilder<LoadMoreConnectorCubit, ConnectorState>(
+          BlocBuilder<RefreshConnectionsCubit, ConnectorState>(
             builder: (context, state) {
               if (state is RefreshingConnectors) {
                 return RefreshLoadingWidget();
-              } else if (state is InviteeRefreshFailed) {
-                return RefreshFailureWidget(onTap: () => onRefreshFailed());
+              } else if (state is ConnectorsRefreshFailed) {
+                return RefreshFailureWidget(onTap: () => refreshData());
               }
               return const Offstage();
             },
@@ -118,7 +130,7 @@ class _ConnectorsWidgetState extends State<ConnectorsWidget> {
                     );
                   else
                     return RefreshIndicator(
-                      onRefresh: onRefresh,
+                      onRefresh: onRefreshActivated,
                       child: ConnectorList(
                         controller: _controller,
                         connectors: connectorList,
@@ -132,7 +144,7 @@ class _ConnectorsWidgetState extends State<ConnectorsWidget> {
                       title: state.message,
                       description: "Please check your internet connection",
                       buttonTitle: "Try again",
-                      onPressed: () => tryAgain(),
+                      onPressed: () => refreshData(),
                     ),
                   );
                 }
@@ -145,15 +157,17 @@ class _ConnectorsWidgetState extends State<ConnectorsWidget> {
     );
   }
 
-  Future<void> onRefresh() async {
+  Future<void> onRefreshActivated() async {
     final state = context.read<LoadMoreConnectorCubit>().state;
     if (state is! LoadingConnections) {
-      // delay is added to enable refresh indicator go round once
-      await Future<void>.delayed(Duration(milliseconds: 300));
-      await context
-          .read<LoadMoreConnectorCubit>()
-          .refresh(CurrentUser.currentUserId);
+      await context.read<RefreshConnectionsCubit>().refresh(currentuserId);
     }
+  }
+
+  void refreshData() {
+    context
+        .read<RefreshConnectionsCubit>()
+        .refresh(currentuserId, showIndicator: true);
   }
 
   void _onScroll() async {
@@ -164,37 +178,33 @@ class _ConnectorsWidgetState extends State<ConnectorsWidget> {
     }
   }
 
-  Future<void> loadAgain(ConnectionModel connectionModel) async {
+  Future<void> loadMoreConnections(DocumentSnapshot lastDoc) async {
     // call the provider to fetch more users
-    await context
+    context
         .read<LoadMoreConnectorCubit>()
-        .loadMoreInvitees(CurrentUser.currentUserId, connectionModel);
+        .loadMoreConnections(currentuserId, lastDoc);
   }
 
   Future<void> _fetchMore({bool tryAgain = false}) async {
     final state = context.read<ConnectorCubit>().state;
     if (state is ConnectionsLoaded) {
       if (tryAgain) {
-        loadAgain(state.connectionModel);
+        loadMoreConnections(state.connectionModel.lastDoc!);
       } else {
         final loadMoreState = context.read<LoadMoreConnectorCubit>().state;
         if (loadMoreState is! LoadingConnections &&
-            state is! ConnectionFailed &&
+            loadMoreState is! ConnectionFailed &&
             state.hasMore) {
           // check is the last documentId is available
-          if (state.connectionModel.lastDocs != null) {
-            loadAgain(state.connectionModel);
+          final lastDoc = state.connectionModel.lastDoc;
+          if (lastDoc != null) {
+            loadMoreConnections(lastDoc);
           } else {
-            onRefresh();
+            onRefreshActivated();
           }
         }
       }
     }
-  }
-
-  void tryAgain() {
-    BlocProvider.of<ConnectorCubit>(context)
-        .loadFromremoteStorage(CurrentUser.currentUserId);
   }
 
   void _onSearchTapped() {
@@ -207,11 +217,5 @@ class _ConnectorsWidgetState extends State<ConnectorsWidget> {
         type: PageTransitionType.bottomToTop,
       ),
     );
-  }
-
-  void onRefreshFailed() {
-    context
-        .read<LoadMoreConnectorCubit>()
-        .refresh(CurrentUser.currentUserId, showIndicator: true);
   }
 }

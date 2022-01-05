@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../../utils/chat_utils.dart';
 
 import '../../../../../blocs/bloc.dart';
 import '../../../../../model/chat/message_model.dart';
 import '../../../../../model/pure_user_model.dart';
+import '../../../../../utils/chat_utils.dart';
 import '../../../../widgets/grouped_list/grouped_list.dart';
 import 'date_separator_widget.dart';
 import 'empty_widget.dart';
 import 'load_more_widgets.dart';
+import 'message_widgets.dart';
 import 'new_message_widget.dart';
 import 'receipient_message_widget.dart';
 import 'user_message_widget.dart';
@@ -52,8 +53,9 @@ class _MessagesbodyState extends State<Messagesbody> {
   }
 
   void oldMessagesListener(BuildContext context, final MessageState state) {
-    if (state is MessagesLoaded)
+    if (state is MessagesLoaded) {
       context.read<MessageCubit>().updateOldMessages(state);
+    }
   }
 
   void newMessagesListener(BuildContext context, final MessageState state) {
@@ -113,63 +115,75 @@ class _MessagesbodyState extends State<Messagesbody> {
                       onPressed: (String text) => sendMessage(text),
                     );
                   else {
-                    return GroupedListView(
-                      controller: _controller,
-                      elements: messages,
-                      padding: EdgeInsets.symmetric(vertical: 8.0),
-                      groupBy: (MessageModel element) => DateTime(
-                        element.sentDate!.year,
-                        element.sentDate!.month,
-                        element.sentDate!.day,
-                      ),
-                      reverse: true,
-                      groupSeparatorBuilder: (DateTime date) {
-                        return GroupDateSeparator(date: date);
-                      },
-                      indexedItemBuilder: (context, index) {
-                        if (index == messages.length)
-                          return LoadMoreMessagesWidget(
-                            onTap: () => _fetchMore(tryAgain: true),
-                          );
-                        else {
-                          final message = messages[index];
-                          final isSelf = message.isSelf(currentUserId);
-                          final spacing = isFromSameUser(index, messages);
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Expanded(
+                          child: GroupedListView(
+                            controller: _controller,
+                            elements: messages,
+                            padding: EdgeInsets.symmetric(vertical: 8.0),
+                            groupBy: (MessageModel element) => DateTime(
+                              element.sentDate!.year,
+                              element.sentDate!.month,
+                              element.sentDate!.day,
+                            ),
+                            reverse: true,
+                            groupSeparatorBuilder: (DateTime date) {
+                              return GroupDateSeparator(date: date);
+                            },
+                            indexedItemBuilder: (context, index) {
+                              if (index == messages.length)
+                                return LoadMoreMessagesWidget(
+                                  onTap: () => _fetchMore(tryAgain: true),
+                                );
+                              else {
+                                final message = messages[index];
+                                final isSelf = message.isSelf(currentUserId);
+                                final spacing = isFromSameUser(index, messages);
 
-                          return Column(
-                            children: [
-                              // this displays new message header to user
-                              if (showNewMessageAtIndex == index)
-                                Builder(builder: (context) {
-                                  showNewMessageAtIndex = -1;
-                                  return const NewMessageSeparator();
-                                }),
-                              Padding(
-                                key: ValueKey(message),
-                                padding: EdgeInsets.only(
-                                  bottom: spacing,
-                                  left: 8.0,
-                                  right: 8.0,
-                                ),
-                                child: isSelf
-                                    ? UserMessage(
-                                        key: ValueKey(message),
-                                        hideNip: hideNip(index, messages),
-                                        chatId: widget.chatId,
-                                        message: message,
-                                      )
-                                    : ReceipientMessage(
-                                        key: ValueKey(message),
-                                        hideNip: hideNip(index, messages),
-                                        message: message,
-                                        isGroupMessage:
-                                            widget.firstName == null,
+                                return Column(
+                                  children: [
+                                    // this displays new message header to user
+                                    if (showNewMessageAtIndex == index)
+                                      Builder(builder: (context) {
+                                        showNewMessageAtIndex = -1;
+                                        return const NewMessageSeparator();
+                                      }),
+                                    Padding(
+                                      key: ValueKey(message),
+                                      padding: EdgeInsets.only(
+                                        bottom: spacing,
+                                        left: 8.0,
+                                        right: 8.0,
                                       ),
-                              ),
-                            ],
-                          );
-                        }
-                      },
+                                      child: isSelf
+                                          ? UserMessage(
+                                              key: ValueKey(message),
+                                              hideNip: hideNip(index, messages),
+                                              chatId: widget.chatId,
+                                              message: message,
+                                            )
+                                          : ReceipientMessage(
+                                              key: ValueKey(message),
+                                              hideNip: hideNip(index, messages),
+                                              message: message,
+                                              isGroupMessage:
+                                                  widget.firstName == null,
+                                            ),
+                                    ),
+                                  ],
+                                );
+                              }
+                            },
+                          ),
+                        ),
+
+                        // shows failed to deliver message
+                        if (hasFailedMessages(messages.toList()))
+                          FailedToDeliverMessageWidget(chatId: widget.chatId)
+                      ],
                     );
                   }
                 }
@@ -222,7 +236,7 @@ class _MessagesbodyState extends State<Messagesbody> {
   Future<void> loadAgain(final MessagesModel model) async {
     // call the provider to fetch more messages
     if (model.lastDoc != null) {
-      await context
+      context
           .read<LoadMoreMessageCubit>()
           .loadMoreMessages(widget.chatId, model.lastDoc!);
     }
@@ -236,7 +250,7 @@ class _MessagesbodyState extends State<Messagesbody> {
       } else {
         final loadMoreState = context.read<LoadMoreMessageCubit>().state;
         if (loadMoreState is! LoadingMessages &&
-            state is! MessagesFailed &&
+            loadMoreState is! MessagesFailed &&
             state.hasMore) {
           loadAgain(state.messagesModel);
         }

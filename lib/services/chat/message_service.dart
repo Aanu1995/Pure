@@ -28,22 +28,14 @@ class MessageServiceImp extends MessageService {
   final FirebaseFirestore? firestore;
   final RemoteStorage? remoteStorageImpl;
 
-  MessageServiceImp({
-    this.firestore,
-    this.remoteStorageImpl,
-    bool isPersistentEnabled = true,
-  }) {
+  MessageServiceImp({this.firestore, this.remoteStorageImpl}) {
     _firestore = firestore ?? FirebaseFirestore.instance;
-    _firestore.settings = Settings(persistenceEnabled: isPersistentEnabled);
     _chatCollection = _firestore.collection(GlobalUtils.chatCollection);
     _receiptCollection = _firestore.collection(GlobalUtils.receiptCollection);
-    _firestoreNoPersistence = FirebaseFirestore.instance;
-    _firestoreNoPersistence.settings = Settings(persistenceEnabled: false);
     _remoteStorage = remoteStorageImpl ?? RemoteStorageImpl();
   }
 
   late FirebaseFirestore _firestore;
-  late FirebaseFirestore _firestoreNoPersistence;
   late CollectionReference _chatCollection;
   late CollectionReference _receiptCollection;
   late RemoteStorage _remoteStorage;
@@ -248,7 +240,7 @@ class MessageServiceImp extends MessageService {
 
   Future<MessageModel> _sendMessage(
       String chatId, final MessageModel message) async {
-    await _firestoreNoPersistence
+    await _firestore
         .collection(GlobalUtils.chatCollection)
         .doc(chatId)
         .collection(GlobalUtils.messageCollection)

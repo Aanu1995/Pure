@@ -146,8 +146,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               textInputAction: TextInputAction.next,
                               validator: Validators.validateInput(
                                   error: "Enter a valid name"),
-                              scrollPadding:
-                                  const EdgeInsets.only(bottom: 250.0),
                               decoration: _decoration.copyWith(
                                 fillColor: secondaryColor,
                                 hintText: 'First Name',
@@ -168,8 +166,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               controller: _lastNameController,
                               focusNode: _lastNameNode,
                               style: _textStyle,
-                              scrollPadding:
-                                  const EdgeInsets.only(bottom: 250.0),
                               validator: Validators.validateInput(
                                   error: "Enter a valid name"),
                               textInputAction: TextInputAction.next,
@@ -192,8 +188,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               controller: _locationController,
                               focusNode: _locationNode,
                               style: _textStyle,
-                              scrollPadding:
-                                  const EdgeInsets.only(bottom: 250.0),
                               validator: Validators.validateInput(
                                   error: "Enter a valid location"),
                               textInputAction: TextInputAction.next,
@@ -219,7 +213,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               maxLines: 20,
                               minLines: 2,
                               maxLength: 600,
-                              scrollPadding: EdgeInsets.only(bottom: 250),
                               // buildCounter: counterText,
                               textInputAction: TextInputAction.newline,
                               style: _textStyle,

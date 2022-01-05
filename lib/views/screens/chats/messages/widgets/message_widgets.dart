@@ -189,7 +189,7 @@ class FailedToDeliverMessageWidget extends StatelessWidget {
         // Text Message
         Padding(
           padding: const EdgeInsets.only(top: 2.0, bottom: 10.0),
-          child: Text("Not Delivered", style: _style),
+          child: Text("Messages Not Delivered", style: _style),
         ),
 
         // Try again Button

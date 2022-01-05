@@ -15,24 +15,18 @@ abstract class InvitationService {
   const InvitationService();
 
   Future<void> sendInvitation(Map<String, dynamic> data);
-  Future<InviteeModel> getSentInvitationList(String userId, {int limit = 20});
+  Future<InviteeModel> refreshInvitees(String userId,
+      {int limit = GlobalUtils.inviteeListLimit});
   Future<void> withdrawInvitation(String invitationId);
-  Future<InviterModel> getReceivedInvitationList(String userId,
-      {int limit = GlobalUtils.inviterListLimit});
-  Future<void> acceptInvitation(String invitationId);
   Future<InviteeModel> loadMoreSentInvitationList(
       String userId, DocumentSnapshot doc,
       {int limit = GlobalUtils.inviteeListLimit});
-
+  Future<void> acceptInvitation(String invitationId);
+  Future<InviterModel> refreshInviters(String userId,
+      {int limit = GlobalUtils.inviterListLimit});
   Future<InviterModel> loadMoreReceivedInvitationList(
       String userId, DocumentSnapshot doc,
       {int limit = GlobalUtils.inviterListLimit});
-
-  Stream<InviteeModel?> syncInviteesLocalDatabaseWithRemote(String userId,
-      {int limit = GlobalUtils.inviteeListLimit});
-
-  Stream<InviterModel?> syncInvitersLocalDatabaseWithRemote(String userId,
-      {int limit = GlobalUtils.inviteeListLimit});
 }
 
 class InvitationServiceImp extends InvitationService {
@@ -40,14 +34,8 @@ class InvitationServiceImp extends InvitationService {
   final ConnectionRepo? connection;
   final LocalStorage? localStorage;
 
-  InvitationServiceImp({
-    this.firestore,
-    this.connection,
-    this.localStorage,
-    bool isPersistentEnabled = true,
-  }) {
+  InvitationServiceImp({this.firestore, this.connection, this.localStorage}) {
     _firestore = firestore ?? FirebaseFirestore.instance;
-    _firestore.settings = Settings(persistenceEnabled: isPersistentEnabled);
     _invitationCollection =
         _firestore.collection(GlobalUtils.invitationCollection);
     _connection = connection ?? ConnectionRepoImpl();
@@ -79,7 +67,7 @@ class InvitationServiceImp extends InvitationService {
   }
 
   @override
-  Future<InviteeModel> getSentInvitationList(String userId,
+  Future<InviteeModel> refreshInvitees(String userId,
       {int limit = GlobalUtils.inviteeListLimit}) async {
     // check internet connection
     await _connection.checkConnectivity();
@@ -105,37 +93,12 @@ class InvitationServiceImp extends InvitationService {
         }
       }
 
-      _saveToStorage(inviteeList, GlobalUtils.sentInvitationPrefKey);
-      return InviteeModel(invitees: inviteeList, lastDocs: lastDoc);
+      _saveInviteeToStorage(inviteeList, GlobalUtils.sentInvitationPrefKey);
+      return InviteeModel(invitees: inviteeList, lastDoc: lastDoc);
     } on TimeoutException catch (_) {
       throw ServerException(message: ErrorMessages.timeoutMessage);
     } catch (e) {
       throw ServerException(message: ErrorMessages.generalMessage2);
-    }
-  }
-
-  @override
-  Stream<InviteeModel?> syncInviteesLocalDatabaseWithRemote(String userId,
-      {int limit = GlobalUtils.inviteeListLimit}) {
-    try {
-      return _invitationCollection
-          .where("senderId", isEqualTo: userId)
-          .orderBy('sentDate', descending: true)
-          .limit(limit)
-          .snapshots()
-          .asyncMap((querySnapshot) async {
-        List<Invitee> inviteeList = [];
-        if (querySnapshot.docs.isNotEmpty) {
-          for (final querySnap in querySnapshot.docs) {
-            final data = querySnap.data()! as Map<String, dynamic>;
-            inviteeList.add(Invitee.fromMap(data));
-          }
-        }
-        await _saveToStorage(inviteeList, GlobalUtils.sentInvitationPrefKey);
-        return InviteeModel(invitees: inviteeList);
-      });
-    } catch (e) {
-      return Stream.value(null);
     }
   }
 
@@ -151,8 +114,8 @@ class InvitationServiceImp extends InvitationService {
     try {
       final querySnapshot = await _invitationCollection
               .where("senderId", isEqualTo: userId)
-              .startAfterDocument(doc)
               .orderBy('sentDate', descending: true)
+              .startAfterDocument(doc)
               .limit(limit)
               .get()
               .timeout(GlobalUtils.timeOutInDuration)
@@ -168,7 +131,7 @@ class InvitationServiceImp extends InvitationService {
         }
       }
 
-      return InviteeModel(invitees: inviteeList, lastDocs: lastDoc);
+      return InviteeModel(invitees: inviteeList, lastDoc: lastDoc);
     } on TimeoutException catch (_) {
       throw ServerException(message: ErrorMessages.timeoutMessage);
     } catch (e) {
@@ -177,7 +140,7 @@ class InvitationServiceImp extends InvitationService {
   }
 
   @override
-  Future<InviterModel> getReceivedInvitationList(String userId,
+  Future<InviterModel> refreshInviters(String userId,
       {int limit = GlobalUtils.inviterListLimit}) async {
     // check internet connection
     await _connection.checkConnectivity();
@@ -204,37 +167,11 @@ class InvitationServiceImp extends InvitationService {
       }
 
       _saveInviterToStorage(inviterList, GlobalUtils.receivedInvitationPrefKey);
-      return InviterModel(inviters: inviterList, lastDocs: lastDoc);
+      return InviterModel(inviters: inviterList, lastDoc: lastDoc);
     } on TimeoutException catch (_) {
       throw ServerException(message: ErrorMessages.timeoutMessage);
     } catch (e) {
       throw ServerException(message: ErrorMessages.generalMessage2);
-    }
-  }
-
-  @override
-  Stream<InviterModel?> syncInvitersLocalDatabaseWithRemote(String userId,
-      {int limit = GlobalUtils.inviteeListLimit}) {
-    try {
-      return _invitationCollection
-          .where("receiverId", isEqualTo: userId)
-          .orderBy('sentDate', descending: true)
-          .limit(limit)
-          .snapshots()
-          .asyncMap((querySnapshot) async {
-        List<Inviter> inviterList = [];
-        if (querySnapshot.docs.isNotEmpty) {
-          for (final querySnap in querySnapshot.docs) {
-            final data = querySnap.data()! as Map<String, dynamic>;
-            inviterList.add(Inviter.fromMap(data));
-          }
-        }
-        await _saveInviterToStorage(
-            inviterList, GlobalUtils.receivedInvitationPrefKey);
-        return InviterModel(inviters: inviterList);
-      });
-    } catch (e) {
-      return Stream.value(null);
     }
   }
 
@@ -250,8 +187,8 @@ class InvitationServiceImp extends InvitationService {
     try {
       final querySnapshot = await _invitationCollection
               .where("receiverId", isEqualTo: userId)
-              .startAfterDocument(doc)
               .orderBy('sentDate', descending: true)
+              .startAfterDocument(doc)
               .limit(limit)
               .get()
               .timeout(GlobalUtils.timeOutInDuration)
@@ -267,7 +204,7 @@ class InvitationServiceImp extends InvitationService {
         }
       }
 
-      return InviterModel(inviters: inviterList, lastDocs: lastDoc);
+      return InviterModel(inviters: inviterList, lastDoc: lastDoc);
     } on TimeoutException catch (_) {
       throw ServerException(message: ErrorMessages.timeoutMessage);
     } catch (e) {
@@ -277,9 +214,6 @@ class InvitationServiceImp extends InvitationService {
 
   @override
   Future<void> acceptInvitation(String invitationId) async {
-    // check internet connection
-    await _connection.checkConnectivity();
-
     try {
       await _invitationCollection.doc(invitationId).update({
         "isAccepted": true,
@@ -294,9 +228,6 @@ class InvitationServiceImp extends InvitationService {
 
   @override
   Future<void> withdrawInvitation(String invitationId) async {
-    // check internet connection
-    await _connection.checkConnectivity();
-
     try {
       await _invitationCollection
           .doc(invitationId)
@@ -312,7 +243,8 @@ class InvitationServiceImp extends InvitationService {
   // helper Methods
 
   // save latest data to database
-  Future<void> _saveToStorage(List<Invitee> users, String databaseKey) async {
+  Future<void> _saveInviteeToStorage(
+      List<Invitee> users, String databaseKey) async {
     List<Map<String, dynamic>> data = [];
 
     for (final user in users) {

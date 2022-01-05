@@ -123,7 +123,6 @@ class _UpdateUsernameScreenState extends State<UpdateUsernameScreen> {
                           color: textColor(value),
                         ),
                         textInputAction: TextInputAction.search,
-                        scrollPadding: const EdgeInsets.only(bottom: 250.0),
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(
                             RegExp(r'[a-zA-Z0-9_]'),

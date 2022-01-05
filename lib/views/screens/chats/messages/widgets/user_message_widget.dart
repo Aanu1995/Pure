@@ -25,22 +25,14 @@ class UserMessage extends StatelessWidget {
       alignment: Alignment.centerRight,
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: 1.sw * 0.72),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Bubble(
-              elevation: 0.0,
-              margin: BubbleEdges.only(right: hideNip ? 8.0 : 0.0),
-              padding: const BubbleEdges.all(3.0),
-              stick: true,
-              nip: hideNip ? null : BubbleNip.rightTop,
-              color: Theme.of(context).primaryColor,
-              child: _MessageBody(message: message),
-            ),
-            // shows failed to deliver message
-            if (message.receipt == Receipt.Failed)
-              FailedToDeliverMessageWidget(chatId: chatId)
-          ],
+        child: Bubble(
+          elevation: 0.0,
+          margin: BubbleEdges.only(right: hideNip ? 8.0 : 0.0),
+          padding: const BubbleEdges.all(3.0),
+          stick: true,
+          nip: hideNip ? null : BubbleNip.rightTop,
+          color: Theme.of(context).primaryColor,
+          child: _MessageBody(message: message),
         ),
       ),
     );

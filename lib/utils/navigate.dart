@@ -1,18 +1,27 @@
 import 'package:flutter/material.dart';
 
-void push({required BuildContext context, required Widget page}) {
-  Navigator.of(context).push<void>(
+void push(
+    {required BuildContext context,
+    bool rootNavigator = false,
+    required Widget page}) {
+  Navigator.of(context, rootNavigator: rootNavigator).push<void>(
     MaterialPageRoute(builder: (context) => page),
   );
 }
 
-void pushNamed({required BuildContext context, required String page}) {
-  Navigator.of(context).pushNamed(page);
+void pushNamed(
+    {required BuildContext context,
+    bool rootNavigator = false,
+    required String page}) {
+  Navigator.of(context, rootNavigator: rootNavigator).pushNamed(page);
 }
 
 void pushReplacementNamed(
-    {required BuildContext context, required String page}) {
-  Navigator.of(context).pushReplacementNamed(page);
+    {required BuildContext context,
+    bool rootNavigator = false,
+    required String page}) {
+  Navigator.of(context, rootNavigator: rootNavigator)
+      .pushReplacementNamed(page);
 }
 
 void pushReplacement({required BuildContext context, required Widget page}) {
@@ -20,18 +29,24 @@ void pushReplacement({required BuildContext context, required Widget page}) {
       MaterialPageRoute(builder: (context) => page));
 }
 
-void pushAndRemoveUntil({required BuildContext context, required Widget page}) {
-  Navigator.of(context).pushAndRemoveUntil<void>(
+void pushAndRemoveUntil(
+    {required BuildContext context,
+    bool rootNavigator = false,
+    required Widget page}) {
+  Navigator.of(context, rootNavigator: rootNavigator).pushAndRemoveUntil<void>(
     MaterialPageRoute(builder: (context) => page),
     (Route<dynamic> route) => false,
   );
 }
 
 void pushNamedAndRemoveUntil(
-    {required BuildContext context, required String page}) {
-  Navigator.of(context).pushNamedAndRemoveUntil(page, (route) => false);
+    {required BuildContext context,
+    required String page,
+    bool rootNavigator = false}) {
+  Navigator.of(context, rootNavigator: rootNavigator)
+      .pushNamedAndRemoveUntil(page, (route) => false);
 }
 
-void pop({required BuildContext context}) {
-  Navigator.of(context).pop();
+void pop({required BuildContext context, bool rootNavigator = false}) {
+  Navigator.of(context, rootNavigator: rootNavigator).pop();
 }

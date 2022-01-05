@@ -10,12 +10,13 @@ import '../../../../blocs/bloc.dart';
 import '../../../../model/chat/chat_model.dart';
 import '../../../../model/pure_user_model.dart';
 import '../../../../utils/app_permission.dart';
-import '../../../../utils/palette.dart';
 import '../../../../utils/app_utils.dart';
 import '../../../../utils/image_utils.dart';
 import '../../../../utils/navigate.dart';
+import '../../../../utils/palette.dart';
 import '../../../../utils/pick_file_dialog.dart';
 import '../../../widgets/snackbars.dart';
+import '../../../widgets/user_profile_provider.dart';
 import '../messages/group_chat_message_screen.dart';
 import 'friend_profile.dart';
 
@@ -75,7 +76,10 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
 
       push(
         context: context,
-        page: GroupChatMessageScreen(chatModel: state.chatModel),
+        page: GroupMembersProvider(
+          members: state.chatModel.members,
+          child: GroupChatMessageScreen(chatModel: state.chatModel),
+        ),
       );
     } else if (state is GroupChatsFailed) {
       EasyLoading.dismiss();
@@ -207,6 +211,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
   }
 
   void createGroupChat() {
+    FocusScope.of(context).unfocus();
     final currentState = context.read<GroupCubit>().state;
     if (currentState is GroupMembers) {
       List<String> members = currentState.members.map((e) => e.id).toList();
@@ -221,6 +226,8 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
         groupCreatedBy: CurrentUser.currentUserId,
         members: members,
         updateDate: DateTime.now(),
+        groupDescription: "",
+        groupImage: "",
       );
 
       context.read<GroupChatCubit>().createGroupChat(chatModel, imageFile);
