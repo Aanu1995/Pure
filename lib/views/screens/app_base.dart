@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:badges/badges.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,12 +12,17 @@ import '../../services/connection_service.dart';
 import '../../services/user_service.dart';
 import '../../utils/image_utils.dart';
 import '../../utils/palette.dart';
+import '../widgets/nav_bar_notification.dart';
 import '../widgets/push_notification_navigation.dart';
 import 'chats/chat_screen.dart';
 import 'connections/connections_page.dart';
 import 'home/home_page.dart';
 import 'notifications/notifications_screen.dart';
 import 'settings/settings_screen.dart';
+
+// This is a global controller to control bottom nav bar from
+// anywhere within the app
+late CupertinoTabController cupertinoTabController;
 
 class AppBase extends StatelessWidget {
   const AppBase({Key? key}) : super(key: key);
@@ -36,35 +40,35 @@ class AppBase extends StatelessWidget {
         BlocProvider(create: (_) => ChatCubit(_chatService)),
         BlocProvider(create: (_) => UnReadChatCubit(_chatService)),
       ],
-      child: AppBaseExtenion(),
+      child: _AppBaseExtension(),
     );
   }
 }
 
-// This is a global controller to control bottom nav bar from
-// anywhere within the app
-late CupertinoTabController cupertinoTabController;
-
-class AppBaseExtenion extends StatefulWidget {
-  const AppBaseExtenion({Key? key}) : super(key: key);
+class _AppBaseExtension extends StatefulWidget {
+  const _AppBaseExtension({Key? key}) : super(key: key);
 
   @override
-  _AppBaseExtenionState createState() => _AppBaseExtenionState();
+  __AppBaseExtensionState createState() => __AppBaseExtensionState();
 }
 
-class _AppBaseExtenionState extends State<AppBaseExtenion> {
+class __AppBaseExtensionState extends State<_AppBaseExtension> {
+  // creates list of key for each tab
+  // This is required to handle backbutton in android
+  List<GlobalKey<NavigatorState>> tabKeys = [
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>()
+  ];
+
   @override
   void initState() {
     super.initState();
     cupertinoTabController = CupertinoTabController();
     initialize();
     initializePushNotificationMethods();
-  }
-
-  @override
-  void dispose() {
-    cupertinoTabController.dispose();
-    super.dispose();
   }
 
   void initialize() {
@@ -80,15 +84,15 @@ class _AppBaseExtenionState extends State<AppBaseExtenion> {
   }
 
   @override
+  void dispose() {
+    cupertinoTabController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () async {
-        if (cupertinoTabController.index > 0) {
-          cupertinoTabController.index = 0;
-          return false;
-        }
-        return true;
-      },
+      onWillPop: onWillPop,
       child: CupertinoTabScaffold(
         controller: cupertinoTabController,
         tabBar: CupertinoTabBar(
@@ -96,7 +100,7 @@ class _AppBaseExtenionState extends State<AppBaseExtenion> {
           activeColor: Palette.tintColor,
           inactiveColor: Theme.of(context).colorScheme.secondaryVariant,
           iconSize: 24,
-          items: [
+          items: const [
             BottomNavigationBarItem(
               icon: ImageIcon(AssetImage(ImageUtils.home)),
               label: 'Home',
@@ -106,7 +110,7 @@ class _AppBaseExtenionState extends State<AppBaseExtenion> {
               label: 'Connections',
             ),
             BottomNavigationBarItem(
-              icon: _NotificationCouterWidget(),
+              icon: NotificationCouterWidget(),
               label: 'Chats',
             ),
             BottomNavigationBarItem(
@@ -121,6 +125,7 @@ class _AppBaseExtenionState extends State<AppBaseExtenion> {
         ),
         tabBuilder: (context, index) {
           return CupertinoTabView(
+            navigatorKey: tabKeys[index],
             builder: (context) {
               return const [
                 HomePage(),
@@ -134,6 +139,23 @@ class _AppBaseExtenionState extends State<AppBaseExtenion> {
         },
       ),
     );
+  }
+
+  // This method is required to handle back button pressed in android
+  // The logic also handle ability to exit the app only when the app
+  // is in the home tab
+  Future<bool> onWillPop() async {
+    final result =
+        await tabKeys[cupertinoTabController.index].currentState!.maybePop();
+    if (result)
+      return false;
+    else {
+      if (cupertinoTabController.index != 0) {
+        cupertinoTabController.index = 0;
+        return false;
+      }
+      return true;
+    }
   }
 
   // Push Notifications
@@ -159,52 +181,5 @@ class _AppBaseExtenionState extends State<AppBaseExtenion> {
         }
       });
     }
-  }
-}
-
-class _NotificationCouterWidget extends StatelessWidget {
-  const _NotificationCouterWidget({Key? key}) : super(key: key);
-
-  final _style = const TextStyle(
-    fontSize: 17,
-    fontWeight: FontWeight.w600,
-    letterSpacing: 0.05,
-  );
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: ImageIcon(AssetImage(ImageUtils.message)),
-        ),
-        Positioned(
-          top: -2.0,
-          right: 10.0,
-          child: BlocBuilder<UnReadChatCubit, int>(
-            builder: (context, state) {
-              if (state > 0) {
-                return Badge(
-                  badgeColor: Colors.red,
-                  elevation: 0.0,
-                  padding: EdgeInsets.all(6.0),
-                  animationType: BadgeAnimationType.fade,
-                  badgeContent: Text(
-                    state.toString(),
-                    style: _style.copyWith(
-                      color: Colors.white,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                );
-              }
-              return Offstage();
-            },
-          ),
-        )
-      ],
-    );
   }
 }

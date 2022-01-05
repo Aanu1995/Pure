@@ -114,18 +114,17 @@ class ConnectionServiceImpl extends ConnectionService {
           .snapshots()
           .asyncMap((querySnapshot) async {
         List<Connector> connectionList = [];
+        QueryDocumentSnapshot? lastDoc;
 
         if (querySnapshot.docs.isNotEmpty) {
+          lastDoc = querySnapshot.docs.last;
           for (final querySnap in querySnapshot.docs) {
             final data = querySnap.data()! as Map<String, dynamic>;
             connectionList.add(getConnector(data, userId));
           }
         }
         await _saveToStorage(connectionList, GlobalUtils.connectionsPrefKey);
-        return ConnectionModel(
-          connectors: connectionList,
-          lastDoc: querySnapshot.docs.last,
-        );
+        return ConnectionModel(connectors: connectionList, lastDoc: lastDoc);
       });
     } catch (e) {
       throw ServerException(message: ErrorMessages.generalMessage2);

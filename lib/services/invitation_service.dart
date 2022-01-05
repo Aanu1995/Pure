@@ -117,8 +117,10 @@ class InvitationServiceImp extends InvitationService {
           .snapshots()
           .asyncMap((querySnapshot) async {
         List<Invitee> inviteeList = [];
+        QueryDocumentSnapshot? lastDoc;
 
         if (querySnapshot.docs.isNotEmpty) {
+          lastDoc = querySnapshot.docs.last;
           for (final querySnap in querySnapshot.docs) {
             final data = querySnap.data()! as Map<String, dynamic>;
             inviteeList.add(Invitee.fromMap(data));
@@ -128,10 +130,7 @@ class InvitationServiceImp extends InvitationService {
           inviteeList,
           GlobalUtils.sentInvitationPrefKey,
         );
-        return InviteeModel(
-          invitees: inviteeList,
-          lastDoc: querySnapshot.docs.last,
-        );
+        return InviteeModel(invitees: inviteeList, lastDoc: lastDoc);
       });
     } catch (e) {
       throw ServerException(message: ErrorMessages.generalMessage2);
@@ -222,8 +221,10 @@ class InvitationServiceImp extends InvitationService {
           .snapshots()
           .asyncMap((querySnapshot) async {
         List<Inviter> inviterList = [];
+        QueryDocumentSnapshot? lastDoc;
 
         if (querySnapshot.docs.isNotEmpty) {
+          lastDoc = querySnapshot.docs.last;
           for (final querySnap in querySnapshot.docs) {
             final data = querySnap.data()! as Map<String, dynamic>;
             inviterList.add(Inviter.fromMap(data));
@@ -231,10 +232,7 @@ class InvitationServiceImp extends InvitationService {
         }
         await _saveInviterToStorage(
             inviterList, GlobalUtils.receivedInvitationPrefKey);
-        return InviterModel(
-          inviters: inviterList,
-          lastDoc: querySnapshot.docs.last,
-        );
+        return InviterModel(inviters: inviterList, lastDoc: lastDoc);
       });
     } catch (e) {
       throw ServerException(message: ErrorMessages.generalMessage2);

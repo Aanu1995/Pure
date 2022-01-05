@@ -28,15 +28,16 @@ class ReceivedInvitationCubit extends Cubit<ReceivedInvitationState> {
   }
 
   Future<void> _loadDataFromLocalStorage() async {
+    InviterModel inviterModel = InviterModel(inviters: []);
     try {
       // load from local storage
       final data = await _localStorage
           .getData(GlobalUtils.receivedInvitationPrefKey) as List?;
       if (data != null) {
         final inviterList = _mapDataToModel(data);
-        final inviterModel = InviterModel(inviters: inviterList);
-        emit(InvitersLoaded(inviterModel: inviterModel));
+        inviterModel = InviterModel(inviters: inviterList);
       }
+      emit(InvitersLoaded(inviterModel: inviterModel));
     } catch (e) {
       emit(InviterLoadingFailed(ErrorMessages.generalMessage2));
     }

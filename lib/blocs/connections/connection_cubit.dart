@@ -28,15 +28,16 @@ class ConnectorCubit extends Cubit<ConnectorState> {
   }
 
   Future<void> _loadDataFromLocalStorage() async {
+    ConnectionModel connectionModel = ConnectionModel(connectors: []);
     try {
       // load from local storage
       final data =
           await _localStorage.getData(GlobalUtils.connectionsPrefKey) as List?;
       if (data != null) {
         final connectorList = _mapDataToModel(data);
-        final connectionModel = ConnectionModel(connectors: connectorList);
-        emit(ConnectionsLoaded(connectionModel: connectionModel));
+        connectionModel = ConnectionModel(connectors: connectorList);
       }
+      emit(ConnectionsLoaded(connectionModel: connectionModel));
     } catch (e) {
       emit(ConnectionFailed(ErrorMessages.generalMessage2));
     }
