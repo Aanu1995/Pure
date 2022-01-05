@@ -142,7 +142,7 @@ class _OneToOneCardState extends State<OneToOneCard> {
                               elevation: 0.0,
                               animationType: BadgeAnimationType.fade,
                               animationDuration:
-                                  const Duration(milliseconds: 300),
+                                  const Duration(milliseconds: 200),
                               badgeContent: Text(
                                 state.toString(),
                                 style: _style.copyWith(

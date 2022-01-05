@@ -153,7 +153,7 @@ class _GroupCardState extends State<GroupCard> {
                       badgeColor: Theme.of(context).primaryColor,
                       elevation: 0.0,
                       animationType: BadgeAnimationType.fade,
-                      animationDuration: const Duration(milliseconds: 300),
+                      animationDuration: const Duration(milliseconds: 200),
                       badgeContent: Text(
                         state.toString(),
                         style: _style.copyWith(
