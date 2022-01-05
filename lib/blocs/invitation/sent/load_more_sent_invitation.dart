@@ -1,8 +1,8 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../model/invitation_model.dart';
 import '../../../model/invitee_model.dart';
 import '../../../services/invitation_service.dart';
 import '../../../utils/exception.dart';
@@ -14,24 +14,15 @@ class LoadMoreInviteeCubit extends Cubit<SentInvitationState> {
   final InvitationService invitationService;
   LoadMoreInviteeCubit(this.invitationService) : super(SentInvitationInitial());
 
-  Future<void> loadMoreInvitees(
-      String userId, InviteeModel inviteeModel) async {
+  Future<void> loadMoreInvitees(String userId, DocumentSnapshot lastDoc) async {
     emit(LoadingInvitees());
 
     try {
-      final result = await invitationService.loadMoreSentInvitationList(
-          userId, inviteeModel.lastDocs!);
-
-      List<Invitee> newData = [
-        ...inviteeModel.invitees.toList(),
-        ...result.invitees
-      ];
+      final result =
+          await invitationService.loadMoreSentInvitationList(userId, lastDoc);
 
       emit(InviteesLoaded(
-        inviteeModel: InviteeModel(
-          invitees: newData,
-          lastDocs: result.lastDocs,
-        ),
+        inviteeModel: result,
         hasMore: hasMore(result.invitees),
       ));
     } on NetworkException catch (e) {
@@ -43,6 +34,18 @@ class LoadMoreInviteeCubit extends Cubit<SentInvitationState> {
     }
   }
 
+  bool hasMore(List<Invitee> inviteeList) {
+    if (inviteeList.isEmpty) {
+      return false;
+    }
+    return inviteeList.length % GlobalUtils.inviteeListLimit == 0;
+  }
+}
+
+class RefreshInviteeCubit extends Cubit<SentInvitationState> {
+  final InvitationService invitationService;
+  RefreshInviteeCubit(this.invitationService) : super(SentInvitationInitial());
+
   Future<void> refresh(String userId, {bool showIndicator = false}) async {
     if (showIndicator) {
       emit(RefreshingInvitees());
@@ -51,12 +54,9 @@ class LoadMoreInviteeCubit extends Cubit<SentInvitationState> {
     }
 
     try {
-      final result = await invitationService.getSentInvitationList(userId);
+      final result = await invitationService.refreshInvitees(userId);
 
-      emit(InviteesLoaded(
-        inviteeModel: result,
-        hasMore: hasMore(result.invitees),
-      ));
+      emit(InviteesLoaded(inviteeModel: result));
     } on NetworkException catch (_) {
       emit(InviteeRefreshFailed());
     } on ServerException catch (_) {
@@ -64,13 +64,6 @@ class LoadMoreInviteeCubit extends Cubit<SentInvitationState> {
     } catch (_) {
       emit(InviteeRefreshFailed());
     }
-  }
-
-  bool hasMore(List<Invitee> inviteeList) {
-    if (inviteeList.isEmpty) {
-      return false;
-    }
-    return inviteeList.length % GlobalUtils.inviteeListLimit == 0;
   }
 }
 

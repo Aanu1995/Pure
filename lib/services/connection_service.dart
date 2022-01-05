@@ -12,9 +12,7 @@ import '../utils/request_messages.dart';
 abstract class ConnectionService {
   const ConnectionService();
 
-  Future<ConnectionModel> getConnectionList(String userId,
-      {int limit = GlobalUtils.inviteeListLimit});
-  Stream<ConnectionModel?> syncLocalDatabaseWithRemote(String userId,
+  Future<ConnectionModel> refresh(String userId,
       {int limit = GlobalUtils.inviteeListLimit});
   Future<ConnectionModel> loadMoreConnectionList(
       String userId, DocumentSnapshot doc,
@@ -27,13 +25,8 @@ class ConnectionServiceImpl extends ConnectionService {
   final FirebaseFirestore? firestore;
   final LocalStorage? localStorage;
 
-  ConnectionServiceImpl({
-    this.firestore,
-    this.localStorage,
-    bool isPersistentEnabled = true,
-  }) {
+  ConnectionServiceImpl({this.firestore, this.localStorage}) {
     _firestore = firestore ?? FirebaseFirestore.instance;
-    _firestore.settings = Settings(persistenceEnabled: isPersistentEnabled);
     _connectionCollection =
         _firestore.collection(GlobalUtils.connectionCollection);
     _localStorage = localStorage ?? LocalStorageImpl();
@@ -44,7 +37,7 @@ class ConnectionServiceImpl extends ConnectionService {
   late LocalStorage _localStorage;
 
   @override
-  Future<ConnectionModel> getConnectionList(String userId,
+  Future<ConnectionModel> refresh(String userId,
       {int limit = GlobalUtils.inviteeListLimit}) async {
     List<Connector> connectionList = [];
     DocumentSnapshot? lastDoc;
@@ -65,9 +58,8 @@ class ConnectionServiceImpl extends ConnectionService {
           connectionList.add(getConnector(data, userId));
         }
       }
-
-      _saveToStorage(connectionList, GlobalUtils.connectionsPrefKey);
-      return ConnectionModel(connectors: connectionList, lastDocs: lastDoc);
+      await _saveToStorage(connectionList, GlobalUtils.connectionsPrefKey);
+      return ConnectionModel(connectors: connectionList, lastDoc: lastDoc);
     } on TimeoutException catch (_) {
       throw ServerException(message: ErrorMessages.timeoutMessage);
     } catch (e) {
@@ -101,39 +93,11 @@ class ConnectionServiceImpl extends ConnectionService {
           connectionList.add(getConnector(data, userId));
         }
       }
-
-      return ConnectionModel(connectors: connectionList, lastDocs: lastDoc);
+      return ConnectionModel(connectors: connectionList, lastDoc: lastDoc);
     } on TimeoutException catch (_) {
       throw ServerException(message: ErrorMessages.timeoutMessage);
     } catch (e) {
       throw ServerException(message: ErrorMessages.generalMessage2);
-    }
-  }
-
-  @override
-  Stream<ConnectionModel?> syncLocalDatabaseWithRemote(String userId,
-      {int limit = GlobalUtils.inviteeListLimit}) {
-    try {
-      return _connectionCollection
-          .where("members", arrayContains: userId)
-          .orderBy('date', descending: true)
-          .limit(limit)
-          .snapshots()
-          .asyncMap((querySnapshot) async {
-        List<Connector> connectionList = [];
-
-        if (querySnapshot.docs.isNotEmpty) {
-          for (final querySnap in querySnapshot.docs) {
-            final data = querySnap.data()! as Map<String, dynamic>;
-            connectionList.add(getConnector(data, userId));
-          }
-        }
-
-        await _saveToStorage(connectionList, GlobalUtils.connectionsPrefKey);
-        return ConnectionModel(connectors: connectionList);
-      });
-    } catch (e) {
-      return Stream.value(null);
     }
   }
 

@@ -6,7 +6,6 @@ import '../../../blocs/bloc.dart';
 import '../../../model/pure_user_model.dart';
 import '../../../services/connection_service.dart';
 import '../../../services/search_service.dart';
-import '../../widgets/bottom_bar.dart';
 import '../../widgets/page_transition.dart';
 import 'search/search_screen.dart';
 import 'tabs/connections/connections_network.dart';
@@ -19,26 +18,22 @@ class ConnectionsPage extends StatefulWidget {
 }
 
 class _ConnectionsPageState extends State<ConnectionsPage> {
+  final connectionService = ConnectionServiceImpl();
+
   @override
   void initState() {
     super.initState();
-    BlocProvider.of<ConnectorCubit>(context)
-        .loadConnections(CurrentUser.currentUserId);
+    context.read<ConnectorCubit>().loadConnections(CurrentUser.currentUserId);
   }
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider(create: (_) => LoadMoreConnectorCubit(connectionService)),
+        BlocProvider(create: (_) => RefreshConnectionsCubit(connectionService)),
         BlocProvider(
-          create: (_) => LoadMoreConnectorCubit(
-            connectionService:
-                ConnectionServiceImpl(isPersistentEnabled: false),
-          ),
-        ),
-        BlocProvider(
-          create: (_) => OtherActionsConnectionCubit(
-              ConnectionServiceImpl(isPersistentEnabled: false)),
+          create: (_) => OtherActionsConnectionCubit(connectionService),
         ),
       ],
       child: Scaffold(
@@ -90,7 +85,6 @@ class _ConnectionsPageState extends State<ConnectionsPage> {
           ),
         ),
         body: ConnectionsNetwork(),
-        bottomNavigationBar: const BottomBar(),
       ),
     );
   }

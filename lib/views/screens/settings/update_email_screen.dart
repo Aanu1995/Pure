@@ -131,7 +131,6 @@ class _UpdateEmailScreenState extends State<UpdateEmailScreen> {
                       cursorColor: primaryVariantColor,
                       style: _textStyle,
                       textInputAction: TextInputAction.next,
-                      scrollPadding: const EdgeInsets.only(bottom: 250),
                       decoration: _decoration.copyWith(
                         fillColor: secondaryColor,
                         hintText: 'Current Password',
@@ -154,7 +153,6 @@ class _UpdateEmailScreenState extends State<UpdateEmailScreen> {
                       style: _textStyle,
                       cursorColor: primaryVariantColor,
                       keyboardType: TextInputType.emailAddress,
-                      scrollPadding: const EdgeInsets.only(bottom: 250),
                       decoration: _decoration.copyWith(
                         fillColor: secondaryColor,
                         hintText: 'Email Address',

@@ -7,32 +7,32 @@ import 'inviter_model.dart';
 
 class ConnectionModel extends Equatable {
   final List<Connector> connectors;
-  final DocumentSnapshot? lastDocs;
+  final DocumentSnapshot? lastDoc;
 
-  const ConnectionModel({required this.connectors, this.lastDocs});
+  const ConnectionModel({required this.connectors, this.lastDoc});
 
   @override
-  List<Object?> get props => [connectors, lastDocs];
+  List<Object?> get props => [connectors, lastDoc];
 }
 
 class InviteeModel extends Equatable {
   final List<Invitee> invitees;
-  final DocumentSnapshot? lastDocs;
+  final DocumentSnapshot? lastDoc;
 
-  const InviteeModel({required this.invitees, this.lastDocs});
+  const InviteeModel({required this.invitees, this.lastDoc});
 
   @override
-  List<Object?> get props => [invitees, lastDocs];
+  List<Object?> get props => [invitees, lastDoc];
 }
 
 class InviterModel extends Equatable {
   final List<Inviter> inviters;
-  final DocumentSnapshot? lastDocs;
+  final DocumentSnapshot? lastDoc;
 
-  const InviterModel({required this.inviters, this.lastDocs});
+  const InviterModel({required this.inviters, this.lastDoc});
 
   @override
-  List<Object?> get props => [inviters, lastDocs];
+  List<Object?> get props => [inviters, lastDoc];
 }
 
 class InvitationModel {

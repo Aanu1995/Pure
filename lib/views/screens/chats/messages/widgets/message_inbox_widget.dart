@@ -77,7 +77,6 @@ class _MessageInputBoxState extends State<MessageInputBox> {
 
   @override
   void dispose() {
-    widget.controller.dispose();
     _isEmptyNotifier.dispose();
     super.dispose();
   }

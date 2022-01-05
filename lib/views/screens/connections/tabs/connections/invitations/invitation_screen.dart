@@ -24,10 +24,8 @@ class _InvitationScreenState extends State<InvitationScreen>
   @override
   void initState() {
     super.initState();
-    BlocProvider.of<ReceivedInvitationCubit>(context)
-        .loadInviters(CurrentUser.currentUserId);
-    BlocProvider.of<SentInvitationCubit>(context)
-        .loadInvitees(CurrentUser.currentUserId);
+    final currentUserId = CurrentUser.currentUserId;
+    context.read<SentInvitationCubit>().loadInvitees(currentUserId);
     _controller = TabController(length: 2, vsync: this);
   }
 

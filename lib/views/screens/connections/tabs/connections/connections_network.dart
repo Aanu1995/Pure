@@ -1,13 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pure/utils/palette.dart';
 
 import '../../../../../blocs/bloc.dart';
+import '../../../../../model/pure_user_model.dart';
 import '../../../../../services/connection_service.dart';
 import '../../../../../services/invitation_service.dart';
 import '../../../../../services/search_service.dart';
 import '../../../../../utils/navigate.dart';
+import '../../../../../utils/palette.dart';
 import '../../search/search_friends_screen.dart';
 import 'connectors_widget.dart';
 import 'invitations/invitation_screen.dart';
@@ -20,9 +21,26 @@ class ConnectionsNetwork extends StatefulWidget {
 }
 
 class _ConnectionsNetworkState extends State<ConnectionsNetwork> {
+  final _service = InvitationServiceImp();
+  late String currentUserId;
+
+  @override
+  void initState() {
+    super.initState();
+    currentUserId = CurrentUser.currentUserId;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AuthCubit, AuthState>(
+    return BlocConsumer<AuthCubit, AuthState>(
+      listenWhen: (previous, current) =>
+          (previous is Authenticated && current is Authenticated) &&
+          (previous.user.connectionCounter != current.user.connectionCounter),
+      listener: (context, state) {
+        context
+            .read<RefreshConnectionsCubit>()
+            .refresh(CurrentUser.currentUserId);
+      },
       builder: (context, state) {
         if (state is Authenticated) {
           return Column(
@@ -92,7 +110,7 @@ class _ConnectionsNetworkState extends State<ConnectionsNetwork> {
                 height: 12.0,
                 color: Theme.of(context).colorScheme.secondaryVariant,
               ),
-              const Expanded(child: ConnectorsWidget())
+              const Expanded(child: const ConnectorsWidget())
             ],
           );
         }
@@ -104,24 +122,22 @@ class _ConnectionsNetworkState extends State<ConnectionsNetwork> {
   void pushToInvitationScreen() {
     push(
       context: context,
+      rootNavigator: true,
       page: MultiBlocProvider(
         providers: [
           BlocProvider(
-            create: (_) => LoadMoreInviteeCubit(
-                InvitationServiceImp(isPersistentEnabled: false)),
+            create: (_) => ReceivedInvitationCubit(invitationService: _service)
+              ..loadInviters(currentUserId),
           ),
           BlocProvider(
-            create: (_) => LoadMoreInviterCubit(
-                InvitationServiceImp(isPersistentEnabled: false)),
+            create: (_) => SentInvitationCubit(invitationService: _service),
           ),
-          BlocProvider(
-            create: (_) => OtherActionsInvitationCubit(
-                InvitationServiceImp(isPersistentEnabled: false)),
-          ),
-          BlocProvider(
-            create: (_) => OtherReceivedActionsCubit(
-                InvitationServiceImp(isPersistentEnabled: false)),
-          ),
+          BlocProvider(create: (_) => LoadMoreInviteeCubit(_service)),
+          BlocProvider(create: (_) => RefreshInviteeCubit(_service)),
+          BlocProvider(create: (_) => LoadMoreInviterCubit(_service)),
+          BlocProvider(create: (_) => RefreshInviterCubit(_service)),
+          BlocProvider(create: (_) => OtherActionsInvitationCubit(_service)),
+          BlocProvider(create: (_) => OtherReceivedActionsCubit(_service)),
         ],
         child: const InvitationScreen(),
       ),
@@ -134,9 +150,8 @@ class _ConnectionsNetworkState extends State<ConnectionsNetwork> {
         builder: (_) => MultiBlocProvider(
           providers: [
             BlocProvider(
-              create: (_) => OtherActionsConnectionCubit(
-                ConnectionServiceImpl(isPersistentEnabled: false),
-              ),
+              create: (_) =>
+                  OtherActionsConnectionCubit(ConnectionServiceImpl()),
             ),
             BlocProvider(create: (_) => SearchFriendBloc(SearchServiceImpl())),
           ],
