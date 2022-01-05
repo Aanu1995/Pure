@@ -6,12 +6,13 @@ class RefreshFailureWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const Text(
-          'Oops! something went wrong',
+          'Oops! something went wrong.',
           style: TextStyle(
-            fontSize: 15.0,
+            fontSize: 15.5,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.4,
           ),
@@ -20,7 +21,7 @@ class RefreshFailureWidget extends StatelessWidget {
           onPressed: onTap,
           child: const Text(
             'Try again',
-            style: TextStyle(fontSize: 14.0),
+            style: TextStyle(fontSize: 14.0, color: Colors.red),
           ),
         ),
       ],

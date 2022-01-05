@@ -21,16 +21,12 @@ abstract class InvitationService {
   Future<InviteeModel> loadMoreSentInvitationList(
       String userId, DocumentSnapshot doc,
       {int limit = GlobalUtils.inviteeListLimit});
-  Stream<InviteeModel> getSentInvitationList(String userId,
-      {int limit = GlobalUtils.inviteeListLimit});
   Future<void> acceptInvitation(String invitationId);
   Future<InviterModel> refreshInviters(String userId,
       {int limit = GlobalUtils.inviterListLimit});
   Future<InviterModel> loadMoreReceivedInvitationList(
       String userId, DocumentSnapshot doc,
       {int limit = GlobalUtils.inviterListLimit});
-  Stream<InviterModel> getReceivedInvitationList(String userId,
-      {int limit = GlobalUtils.inviteeListLimit});
 }
 
 class InvitationServiceImp extends InvitationService {
@@ -107,37 +103,6 @@ class InvitationServiceImp extends InvitationService {
   }
 
   @override
-  Stream<InviteeModel> getSentInvitationList(String userId,
-      {int limit = GlobalUtils.inviteeListLimit}) {
-    try {
-      return _invitationCollection
-          .where("senderId", isEqualTo: userId)
-          .orderBy('sentDate', descending: true)
-          .limit(limit)
-          .snapshots()
-          .asyncMap((querySnapshot) async {
-        List<Invitee> inviteeList = [];
-        QueryDocumentSnapshot? lastDoc;
-
-        if (querySnapshot.docs.isNotEmpty) {
-          lastDoc = querySnapshot.docs.last;
-          for (final querySnap in querySnapshot.docs) {
-            final data = querySnap.data()! as Map<String, dynamic>;
-            inviteeList.add(Invitee.fromMap(data));
-          }
-        }
-        await _saveInviteeToStorage(
-          inviteeList,
-          GlobalUtils.sentInvitationPrefKey,
-        );
-        return InviteeModel(invitees: inviteeList, lastDoc: lastDoc);
-      });
-    } catch (e) {
-      throw ServerException(message: ErrorMessages.generalMessage2);
-    }
-  }
-
-  @override
   Future<InviteeModel> loadMoreSentInvitationList(
       String userId, DocumentSnapshot doc,
       {int limit = GlobalUtils.inviteeListLimit}) async {
@@ -205,35 +170,6 @@ class InvitationServiceImp extends InvitationService {
       return InviterModel(inviters: inviterList, lastDoc: lastDoc);
     } on TimeoutException catch (_) {
       throw ServerException(message: ErrorMessages.timeoutMessage);
-    } catch (e) {
-      throw ServerException(message: ErrorMessages.generalMessage2);
-    }
-  }
-
-  @override
-  Stream<InviterModel> getReceivedInvitationList(String userId,
-      {int limit = GlobalUtils.inviteeListLimit}) {
-    try {
-      return _invitationCollection
-          .where("receiverId", isEqualTo: userId)
-          .orderBy('sentDate', descending: true)
-          .limit(limit)
-          .snapshots()
-          .asyncMap((querySnapshot) async {
-        List<Inviter> inviterList = [];
-        QueryDocumentSnapshot? lastDoc;
-
-        if (querySnapshot.docs.isNotEmpty) {
-          lastDoc = querySnapshot.docs.last;
-          for (final querySnap in querySnapshot.docs) {
-            final data = querySnap.data()! as Map<String, dynamic>;
-            inviterList.add(Inviter.fromMap(data));
-          }
-        }
-        await _saveInviterToStorage(
-            inviterList, GlobalUtils.receivedInvitationPrefKey);
-        return InviterModel(inviters: inviterList, lastDoc: lastDoc);
-      });
     } catch (e) {
       throw ServerException(message: ErrorMessages.generalMessage2);
     }

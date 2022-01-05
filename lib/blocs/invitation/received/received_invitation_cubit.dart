@@ -19,15 +19,8 @@ class ReceivedInvitationCubit extends Cubit<ReceivedInvitationState> {
   }
 
   late LocalStorage _localStorage;
-  StreamSubscription<InviterModel>? _subscription;
 
   Future<void> loadInviters(String userId) async {
-    // load data from local storage first
-    await _loadDataFromLocalStorage();
-    loadDataFromRemoteStorage(userId);
-  }
-
-  Future<void> _loadDataFromLocalStorage() async {
     InviterModel inviterModel = InviterModel(inviters: []);
     try {
       // load from local storage
@@ -40,21 +33,6 @@ class ReceivedInvitationCubit extends Cubit<ReceivedInvitationState> {
       emit(InvitersLoaded(inviterModel: inviterModel));
     } catch (e) {
       emit(InviterLoadingFailed(ErrorMessages.generalMessage2));
-    }
-  }
-
-  void loadDataFromRemoteStorage(String userId) {
-    try {
-      _subscription?.cancel();
-      _subscription = invitationService
-          .getReceivedInvitationList(userId)
-          .listen((inviterModel) {
-        emit(InvitersLoaded(inviterModel: inviterModel));
-      });
-    } catch (_) {
-      final currentState = state;
-      if (currentState is! InvitersLoaded)
-        emit(InviterLoadingFailed(ErrorMessages.generalMessage2));
     }
   }
 
@@ -130,11 +108,5 @@ class ReceivedInvitationCubit extends Cubit<ReceivedInvitationState> {
     }
 
     return inviterList;
-  }
-
-  @override
-  Future<void> close() {
-    _subscription?.cancel();
-    return super.close();
   }
 }

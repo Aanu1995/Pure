@@ -14,8 +14,6 @@ abstract class ConnectionService {
 
   Future<ConnectionModel> refresh(String userId,
       {int limit = GlobalUtils.inviteeListLimit});
-  Stream<ConnectionModel> getConnectionList(String userId,
-      {int limit = GlobalUtils.inviteeListLimit});
   Future<ConnectionModel> loadMoreConnectionList(
       String userId, DocumentSnapshot doc,
       {int limit = GlobalUtils.inviteeListLimit});
@@ -98,34 +96,6 @@ class ConnectionServiceImpl extends ConnectionService {
       return ConnectionModel(connectors: connectionList, lastDoc: lastDoc);
     } on TimeoutException catch (_) {
       throw ServerException(message: ErrorMessages.timeoutMessage);
-    } catch (e) {
-      throw ServerException(message: ErrorMessages.generalMessage2);
-    }
-  }
-
-  @override
-  Stream<ConnectionModel> getConnectionList(String userId,
-      {int limit = GlobalUtils.inviteeListLimit}) {
-    try {
-      return _connectionCollection
-          .where("members", arrayContains: userId)
-          .orderBy('date', descending: true)
-          .limit(limit)
-          .snapshots()
-          .asyncMap((querySnapshot) async {
-        List<Connector> connectionList = [];
-        QueryDocumentSnapshot? lastDoc;
-
-        if (querySnapshot.docs.isNotEmpty) {
-          lastDoc = querySnapshot.docs.last;
-          for (final querySnap in querySnapshot.docs) {
-            final data = querySnap.data()! as Map<String, dynamic>;
-            connectionList.add(getConnector(data, userId));
-          }
-        }
-        await _saveToStorage(connectionList, GlobalUtils.connectionsPrefKey);
-        return ConnectionModel(connectors: connectionList, lastDoc: lastDoc);
-      });
     } catch (e) {
       throw ServerException(message: ErrorMessages.generalMessage2);
     }

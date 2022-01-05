@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pure/model/pure_user_model.dart';
 
 import '../../../../../blocs/bloc.dart';
+import '../../../../../model/pure_user_model.dart';
 import '../../../../../services/connection_service.dart';
 import '../../../../../services/invitation_service.dart';
 import '../../../../../services/search_service.dart';
@@ -36,7 +36,11 @@ class _ConnectionsNetworkState extends State<ConnectionsNetwork> {
       listenWhen: (previous, current) =>
           (previous is Authenticated && current is Authenticated) &&
           (previous.user.connectionCounter != current.user.connectionCounter),
-      listener: (context, state) {},
+      listener: (context, state) {
+        context
+            .read<RefreshConnectionsCubit>()
+            .refresh(CurrentUser.currentUserId);
+      },
       builder: (context, state) {
         if (state is Authenticated) {
           return Column(

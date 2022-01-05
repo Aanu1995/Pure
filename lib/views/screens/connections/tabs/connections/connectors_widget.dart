@@ -31,6 +31,7 @@ class _ConnectorsWidgetState extends State<ConnectorsWidget> {
     super.initState();
     _controller.addListener(_onScroll);
     currentuserId = CurrentUser.currentUserId;
+    refreshData(); // refreshes data to be in sync with remote data
   }
 
   ///  Listeners
@@ -101,7 +102,7 @@ class _ConnectorsWidgetState extends State<ConnectorsWidget> {
               if (state is RefreshingConnectors) {
                 return RefreshLoadingWidget();
               } else if (state is ConnectorsRefreshFailed) {
-                return RefreshFailureWidget(onTap: () => onRefreshFailed());
+                return RefreshFailureWidget(onTap: () => refreshData());
               }
               return const Offstage();
             },
@@ -129,7 +130,7 @@ class _ConnectorsWidgetState extends State<ConnectorsWidget> {
                     );
                   else
                     return RefreshIndicator(
-                      onRefresh: onRefresh,
+                      onRefresh: onRefreshActivated,
                       child: ConnectorList(
                         controller: _controller,
                         connectors: connectorList,
@@ -143,7 +144,7 @@ class _ConnectorsWidgetState extends State<ConnectorsWidget> {
                       title: state.message,
                       description: "Please check your internet connection",
                       buttonTitle: "Try again",
-                      onPressed: () => tryAgain(),
+                      onPressed: () => refreshData(),
                     ),
                   );
                 }
@@ -156,11 +157,17 @@ class _ConnectorsWidgetState extends State<ConnectorsWidget> {
     );
   }
 
-  Future<void> onRefresh() async {
+  Future<void> onRefreshActivated() async {
     final state = context.read<LoadMoreConnectorCubit>().state;
     if (state is! LoadingConnections) {
       await context.read<RefreshConnectionsCubit>().refresh(currentuserId);
     }
+  }
+
+  void refreshData() {
+    context
+        .read<RefreshConnectionsCubit>()
+        .refresh(currentuserId, showIndicator: true);
   }
 
   void _onScroll() async {
@@ -171,7 +178,7 @@ class _ConnectorsWidgetState extends State<ConnectorsWidget> {
     }
   }
 
-  Future<void> loadAgain(DocumentSnapshot lastDoc) async {
+  Future<void> loadMoreConnections(DocumentSnapshot lastDoc) async {
     // call the provider to fetch more users
     context
         .read<LoadMoreConnectorCubit>()
@@ -182,7 +189,7 @@ class _ConnectorsWidgetState extends State<ConnectorsWidget> {
     final state = context.read<ConnectorCubit>().state;
     if (state is ConnectionsLoaded) {
       if (tryAgain) {
-        loadAgain(state.connectionModel.lastDoc!);
+        loadMoreConnections(state.connectionModel.lastDoc!);
       } else {
         final loadMoreState = context.read<LoadMoreConnectorCubit>().state;
         if (loadMoreState is! LoadingConnections &&
@@ -191,17 +198,13 @@ class _ConnectorsWidgetState extends State<ConnectorsWidget> {
           // check is the last documentId is available
           final lastDoc = state.connectionModel.lastDoc;
           if (lastDoc != null) {
-            loadAgain(lastDoc);
+            loadMoreConnections(lastDoc);
           } else {
-            onRefresh();
+            onRefreshActivated();
           }
         }
       }
     }
-  }
-
-  void tryAgain() {
-    context.read<ConnectorCubit>().loadConnections(currentuserId);
   }
 
   void _onSearchTapped() {
@@ -214,11 +217,5 @@ class _ConnectorsWidgetState extends State<ConnectorsWidget> {
         type: PageTransitionType.bottomToTop,
       ),
     );
-  }
-
-  void onRefreshFailed() {
-    context
-        .read<RefreshConnectionsCubit>()
-        .refresh(currentuserId, showIndicator: true);
   }
 }

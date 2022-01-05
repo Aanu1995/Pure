@@ -25,14 +25,15 @@ class ReceivedScreen extends StatefulWidget {
 class _ReceivedScreenState extends State<ReceivedScreen>
     with AutomaticKeepAliveClientMixin {
   ScrollController _controller = ScrollController();
-  late String currentuserId;
+  late String currentUserId;
   final _desc = "You will be notified when an invitation arrives";
 
   @override
   void initState() {
     super.initState();
-    currentuserId = CurrentUser.currentUserId;
+    currentUserId = CurrentUser.currentUserId;
     _controller.addListener(_onScroll);
+    refreshData(); // refreshes data to be in sync with remote data
   }
 
   ///  Listeners
@@ -66,13 +67,12 @@ class _ReceivedScreenState extends State<ReceivedScreen>
         );
         BlocProvider.of<AuthCubit>(context).update(currentUser);
       }
-      final message = "You and ${state.fullName} are now connected";
-      showSuccessFlash(context, message);
-
       BlocProvider.of<ConnectorCubit>(context).addConnectionBack(
         0,
         Connector.fromInviter(state.inviter),
       );
+      final message = "You and ${state.fullName} are now connected";
+      showSuccessFlash(context, message);
     } else if (state is Ignored) {
       final authState = BlocProvider.of<AuthCubit>(context).state;
       if (authState is Authenticated) {
@@ -125,7 +125,7 @@ class _ReceivedScreenState extends State<ReceivedScreen>
               if (state is RefreshingInviters) {
                 return RefreshLoadingWidget();
               } else if (state is InviterRefreshFailed) {
-                return RefreshFailureWidget(onTap: () => onRefreshFailed());
+                return RefreshFailureWidget(onTap: () => refreshData());
               }
               return Offstage();
             },
@@ -147,7 +147,7 @@ class _ReceivedScreenState extends State<ReceivedScreen>
                     );
                   else
                     return RefreshIndicator(
-                      onRefresh: onRefresh,
+                      onRefresh: onRefreshActivated,
                       child: ListView.custom(
                         controller: _controller,
                         padding: EdgeInsets.all(0),
@@ -195,7 +195,7 @@ class _ReceivedScreenState extends State<ReceivedScreen>
                     title: state.message,
                     description: "Please check your internet connection",
                     buttonTitle: "Try again",
-                    onPressed: () => tryAgain(),
+                    onPressed: () => refreshData(),
                   );
                 }
                 return Center(child: const CustomProgressIndicator());
@@ -207,12 +207,10 @@ class _ReceivedScreenState extends State<ReceivedScreen>
     );
   }
 
-  Future<void> onRefresh() async {
+  Future<void> onRefreshActivated() async {
     final state = context.read<LoadMoreInviterCubit>().state;
     if (state is! LoadingInviters) {
-      await context
-          .read<RefreshInviterCubit>()
-          .refresh(CurrentUser.currentUserId);
+      await context.read<RefreshInviterCubit>().refresh(currentUserId);
     }
   }
 
@@ -224,18 +222,24 @@ class _ReceivedScreenState extends State<ReceivedScreen>
     }
   }
 
-  Future<void> loadAgain(InviterModel inviterModel) async {
+  void refreshData() {
+    context
+        .read<RefreshInviterCubit>()
+        .refresh(currentUserId, showIndicator: true);
+  }
+
+  Future<void> loadMoreInviters(InviterModel inviterModel) async {
     // call the provider to fetch more users
     context
         .read<LoadMoreInviterCubit>()
-        .loadMoreInvitees(CurrentUser.currentUserId, inviterModel);
+        .loadMoreInvitees(currentUserId, inviterModel);
   }
 
   Future<void> _fetchMore({bool tryAgain = false}) async {
     final state = context.read<ReceivedInvitationCubit>().state;
     if (state is InvitersLoaded) {
       if (tryAgain) {
-        loadAgain(state.inviterModel);
+        loadMoreInviters(state.inviterModel);
       } else {
         final loadMoreState = context.read<LoadMoreInviterCubit>().state;
         if (loadMoreState is! LoadingInviters &&
@@ -243,23 +247,12 @@ class _ReceivedScreenState extends State<ReceivedScreen>
             state.hasMore) {
           // check is the last documentId is available
           if (state.inviterModel.lastDoc != null) {
-            loadAgain(state.inviterModel);
+            loadMoreInviters(state.inviterModel);
           } else {
-            onRefresh();
+            onRefreshActivated();
           }
         }
       }
     }
-  }
-
-  void tryAgain() {
-    BlocProvider.of<ReceivedInvitationCubit>(context)
-        .loadDataFromRemoteStorage(CurrentUser.currentUserId);
-  }
-
-  void onRefreshFailed() {
-    context
-        .read<RefreshInviterCubit>()
-        .refresh(CurrentUser.currentUserId, showIndicator: true);
   }
 }

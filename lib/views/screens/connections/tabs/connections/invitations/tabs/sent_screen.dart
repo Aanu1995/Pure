@@ -33,6 +33,7 @@ class _SentScreenState extends State<SentScreen>
     super.initState();
     _controller.addListener(_onScroll);
     currentuserId = CurrentUser.currentUserId;
+    refreshData(); // refreshes data to be in sync with remote data
   }
 
   void loadMoreListener(BuildContext context, SentInvitationState state) {
@@ -105,7 +106,7 @@ class _SentScreenState extends State<SentScreen>
               if (state is RefreshingInvitees) {
                 return RefreshLoadingWidget();
               } else if (state is InviteeRefreshFailed) {
-                return RefreshFailureWidget(onTap: () => onRefreshFailed());
+                return RefreshFailureWidget(onTap: () => refreshData());
               }
               return Offstage();
             },
@@ -127,7 +128,7 @@ class _SentScreenState extends State<SentScreen>
                     );
                   else
                     return RefreshIndicator(
-                      onRefresh: onRefresh,
+                      onRefresh: onRefreshActivated,
                       child: ListView.custom(
                         controller: _controller,
                         padding: EdgeInsets.all(0),
@@ -175,7 +176,7 @@ class _SentScreenState extends State<SentScreen>
                     title: state.message,
                     description: "Please check your internet connection",
                     buttonTitle: "Try again",
-                    onPressed: () => tryAgain(),
+                    onPressed: () => refreshData(),
                   );
                 }
                 return Center(child: const CustomProgressIndicator());
@@ -187,11 +188,17 @@ class _SentScreenState extends State<SentScreen>
     );
   }
 
-  Future<void> onRefresh() async {
+  Future<void> onRefreshActivated() async {
     final state = context.read<LoadMoreInviteeCubit>().state;
     if (state is! LoadingInvitees) {
       await context.read<RefreshInviteeCubit>().refresh(currentuserId);
     }
+  }
+
+  void refreshData() {
+    context
+        .read<RefreshInviteeCubit>()
+        .refresh(currentuserId, showIndicator: true);
   }
 
   void _onScroll() async {
@@ -202,7 +209,7 @@ class _SentScreenState extends State<SentScreen>
     }
   }
 
-  Future<void> loadAgain(InviteeModel inviteeModel) async {
+  Future<void> loadMoreInvitee(InviteeModel inviteeModel) async {
     // call the provider to fetch more users
     context
         .read<LoadMoreInviteeCubit>()
@@ -213,7 +220,7 @@ class _SentScreenState extends State<SentScreen>
     final state = context.read<SentInvitationCubit>().state;
     if (state is InviteesLoaded) {
       if (tryAgain) {
-        loadAgain(state.inviteeModel);
+        loadMoreInvitee(state.inviteeModel);
       } else {
         final loadMoreState = context.read<LoadMoreInviteeCubit>().state;
         if (loadMoreState is! LoadingInvitees &&
@@ -221,24 +228,12 @@ class _SentScreenState extends State<SentScreen>
             state.hasMore) {
           // check is the last documentId is available
           if (state.inviteeModel.lastDoc != null) {
-            loadAgain(state.inviteeModel);
+            loadMoreInvitee(state.inviteeModel);
           } else {
-            onRefresh();
+            onRefreshActivated();
           }
         }
       }
     }
-  }
-
-  void tryAgain() {
-    context
-        .read<SentInvitationCubit>()
-        .loadDataFromRemoteStorage(currentuserId);
-  }
-
-  void onRefreshFailed() {
-    context
-        .read<RefreshInviteeCubit>()
-        .refresh(currentuserId, showIndicator: true);
   }
 }

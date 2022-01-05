@@ -144,6 +144,7 @@ class _TaggedUsers extends StatelessWidget {
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
       minChildSize: 0.4,
+      initialChildSize: 0.4,
       builder: (context, scrollController) {
         return Container(
           color: Theme.of(context).dialogBackgroundColor,

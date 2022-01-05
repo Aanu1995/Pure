@@ -23,11 +23,6 @@ class ConnectorCubit extends Cubit<ConnectorState> {
 
   Future<void> loadConnections(String userId) async {
     // load data from local storage first
-    await _loadDataFromLocalStorage();
-    loadDataFromRemoteStorage(userId);
-  }
-
-  Future<void> _loadDataFromLocalStorage() async {
     ConnectionModel connectionModel = ConnectionModel(connectors: []);
     try {
       // load from local storage
@@ -40,20 +35,6 @@ class ConnectorCubit extends Cubit<ConnectorState> {
       emit(ConnectionsLoaded(connectionModel: connectionModel));
     } catch (e) {
       emit(ConnectionFailed(ErrorMessages.generalMessage2));
-    }
-  }
-
-  void loadDataFromRemoteStorage(String userId) {
-    try {
-      _subscription?.cancel();
-      _subscription =
-          connectionService.getConnectionList(userId).listen((connectionModel) {
-        emit(ConnectionsLoaded(connectionModel: connectionModel));
-      });
-    } catch (_) {
-      final currentState = state;
-      if (currentState is! ConnectionsLoaded)
-        emit(ConnectionFailed(ErrorMessages.generalMessage2));
     }
   }
 
