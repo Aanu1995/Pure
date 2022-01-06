@@ -49,7 +49,9 @@ class ReceipientMessage extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(left: 2, top: 2),
                       child: Text(
-                        "@${_senderUser?.username}",
+                        _senderUser?.username != null
+                            ? "@${_senderUser?.username}"
+                            : "anonymous",
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
