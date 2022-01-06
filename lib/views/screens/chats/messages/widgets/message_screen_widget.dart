@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -104,20 +105,20 @@ class _MessageBodyState extends State<MessageBody> {
             // Message Input Box for Group chat
             BlocBuilder<GroupCubit, GroupState>(
               builder: (context, state) {
-                // if (state is GroupMembers) {
-                //   final isAMember = state.members.firstWhereOrNull(
-                //       (element) => element.id == CurrentUser.currentUserId);
-                //   if (isAMember != null) {
-                //     return MessageInputBox(
-                //       chatId: widget.chatId,
-                //       inputFocusNode: _inputFocusNode,
-                //       controller: _inputController,
-                //       userTaggingNotifier: _userTaggedNotifier,
-                //       onSentButtonPressed: (final message) =>
-                //           sendMessage(context, message),
-                //     );
-                //   }
-                // }
+                if (state is GroupMembers) {
+                  final isAMember = state.members.firstWhereOrNull(
+                      (element) => element.id == CurrentUser.currentUserId);
+                  if (isAMember != null) {
+                    return MessageInputBox(
+                      chatId: widget.chatId,
+                      inputFocusNode: _inputFocusNode,
+                      controller: _inputController,
+                      userTaggingNotifier: _userTaggedNotifier,
+                      onSentButtonPressed: (final message) =>
+                          sendMessage(context, message),
+                    );
+                  }
+                }
                 return Container(
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 30),
                   color: Theme.of(context).colorScheme.secondary,
