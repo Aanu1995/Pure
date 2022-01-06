@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pure/model/chat/message_model.dart';
 
 import '../../../../blocs/bloc.dart';
 import '../../../../model/chat/chat_model.dart';
+import '../../../../model/chat/message_model.dart';
 import '../../../../model/pure_user_model.dart';
 import '../../../../repositories/push_notification.dart';
 import '../../../../services/chat/chat_service.dart';
