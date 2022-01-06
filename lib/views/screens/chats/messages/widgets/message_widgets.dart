@@ -1,17 +1,17 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:linkify/linkify.dart';
-import 'package:collection/collection.dart';
-import 'package:pure/utils/navigate.dart';
-import 'package:pure/views/screens/settings/profile/profile_screen.dart';
 
 import '../../../../../blocs/bloc.dart';
 import '../../../../../model/chat/attachment_model.dart';
 import '../../../../../model/chat/message_model.dart';
 import '../../../../../utils/app_utils.dart';
 import '../../../../../utils/file_utils.dart';
+import '../../../../../utils/navigate.dart';
 import '../../../../../utils/palette.dart';
+import '../../../settings/profile/profile_screen.dart';
 
 class TrailingText extends StatelessWidget {
   final String time;

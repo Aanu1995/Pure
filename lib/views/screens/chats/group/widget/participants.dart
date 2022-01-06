@@ -1,6 +1,7 @@
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pure/model/chat/message_model.dart';
 
 import '../../../../../blocs/bloc.dart';
 import '../../../../../model/chat/chat_model.dart';
@@ -27,11 +28,25 @@ class Participants extends StatefulWidget {
 }
 
 class _ParticipantsState extends State<Participants> {
+  late PureUser currentUser;
   final _style = const TextStyle(
     fontSize: 12,
     fontWeight: FontWeight.w600,
     letterSpacing: 0.05,
   );
+
+  @override
+  void initState() {
+    super.initState();
+    getCurrentUser();
+  }
+
+  void getCurrentUser() {
+    final authState = context.read<AuthCubit>().state;
+    if (authState is Authenticated) {
+      currentUser = authState.user;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -181,8 +196,7 @@ class _ParticipantsState extends State<Participants> {
           BlocProvider.of<ParticipantCubit>(context)
               .removeAdmin(widget.chat.chatId, user.id);
         } else if (result == "remove") {
-          BlocProvider.of<ParticipantCubit>(context)
-              .removeMember(widget.chat.chatId, index, user);
+          removeMember(index, user);
         }
       } else {
         onUserLongPressed(context, user);
@@ -194,6 +208,18 @@ class _ParticipantsState extends State<Participants> {
     if (!user.isMe) {
       push(context: context, page: ProfileScreen(user: user));
     }
+  }
+
+  void removeMember(int index, PureUser removedMember) {
+    final message = MessageModel.notifyMessage(
+      "removed",
+      currentUser.id,
+      "@${currentUser.username}",
+      object: "@${removedMember.username}",
+    );
+    context
+        .read<ParticipantCubit>()
+        .removeMember(widget.chat.chatId, index, message, removedMember);
   }
 }
 

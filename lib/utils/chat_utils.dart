@@ -11,7 +11,7 @@ import '../model/chat/chat_model.dart';
 import '../model/chat/message_model.dart';
 import 'global_utils.dart';
 
-double isFromSameUser(final int index, final List<MessageModel> messages) {
+double bottomSpace(final int index, final List<MessageModel> messages) {
   if (index > 0) {
     final isSameUser = messages[index - 1].senderId == messages[index].senderId;
     return isSameUser ? 4.0 : 16.0;

@@ -29,14 +29,26 @@ class MessageModel extends Equatable {
   final List<Attachment>? attachments;
   final PreviewData? linkPreviewData;
 
+  /// The objectUsername is the idetifier of the person who receives an action
+  /// performed by the senderId
+  /// e.g when user @Aanu is removed from the group chat by @Josh
+  /// the subjectId in this case is @Aanu
+  final String? subjectUsername;
+  final String? objectUsername;
+  // use to differentiate normal message from notification message
+  final bool isNotificationMessage;
+
   const MessageModel({
     required this.messageId,
     required this.senderId,
     required this.text,
+    this.isNotificationMessage = false,
     this.sentDate,
     this.receipt = Receipt.Pending,
     this.attachments,
     this.linkPreviewData,
+    this.subjectUsername,
+    this.objectUsername,
   });
 
   factory MessageModel.fromMap(Map<String, dynamic> data) {
@@ -69,6 +81,9 @@ class MessageModel extends Equatable {
       receipt: getReadReceipt(data["status"] as int),
       attachments: _attachments,
       linkPreviewData: _linkPreviewData,
+      isNotificationMessage: data["isNotificationMessage"] as bool? ?? false,
+      subjectUsername: data["subjectUsername"] as String?,
+      objectUsername: data["objectUsername"] as String?,
     );
   }
 
@@ -81,6 +96,9 @@ class MessageModel extends Equatable {
       receipt: newRecept ?? Receipt.Failed,
       attachments: attachments,
       linkPreviewData: linkData ?? linkPreviewData,
+      isNotificationMessage: isNotificationMessage,
+      subjectUsername: subjectUsername,
+      objectUsername: objectUsername,
     );
   }
 
@@ -95,6 +113,9 @@ class MessageModel extends Equatable {
           : msgReceipt,
       attachments: attachments,
       linkPreviewData: linkPreviewData,
+      isNotificationMessage: isNotificationMessage,
+      subjectUsername: subjectUsername,
+      objectUsername: objectUsername,
     );
   }
 
@@ -107,6 +128,9 @@ class MessageModel extends Equatable {
       receipt: receipt,
       attachments: attachs,
       linkPreviewData: linkPreviewData,
+      isNotificationMessage: isNotificationMessage,
+      subjectUsername: subjectUsername,
+      objectUsername: objectUsername,
     );
   }
 
@@ -117,6 +141,7 @@ class MessageModel extends Equatable {
       text: text,
       sentDate: DateTime.now(),
       receipt: Receipt.Pending,
+      isNotificationMessage: false,
     );
   }
 
@@ -129,6 +154,22 @@ class MessageModel extends Equatable {
       sentDate: DateTime.now(),
       receipt: Receipt.Pending,
       attachments: attachments,
+      isNotificationMessage: false,
+    );
+  }
+
+  static MessageModel notifyMessage(
+      String text, String senderId, String subject,
+      {String? object}) {
+    return MessageModel(
+      messageId: generateDatabaseId(),
+      senderId: senderId,
+      text: text,
+      sentDate: DateTime.now(),
+      receipt: Receipt.Sent,
+      subjectUsername: subject,
+      objectUsername: object,
+      isNotificationMessage: true,
     );
   }
 
@@ -141,6 +182,9 @@ class MessageModel extends Equatable {
       "status": 1,
       "attachments": attachments?.map((e) => e.toMap()).toList(),
       "link_preview_data": linkPreviewData?.toJson(),
+      "isNotificationMessage": isNotificationMessage,
+      "subjectUsername": subjectUsername,
+      "objectUsername": objectUsername,
     };
   }
 
@@ -171,6 +215,9 @@ class MessageModel extends Equatable {
         sentDate,
         receipt,
         attachments,
-        linkPreviewData
+        linkPreviewData,
+        isNotificationMessage,
+        subjectUsername,
+        objectUsername,
       ];
 }

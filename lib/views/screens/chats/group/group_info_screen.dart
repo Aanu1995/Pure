@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:pure/model/chat/message_model.dart';
 
 import '../../../../blocs/bloc.dart';
 import '../../../../model/chat/chat_model.dart';
@@ -35,6 +36,7 @@ class GroupInfoScreen extends StatefulWidget {
 
 class _GroupInfoScreenState extends State<GroupInfoScreen> {
   late ChatModel chat;
+  late PureUser currentUser;
 
   final _style = const TextStyle(
     fontSize: 16,
@@ -47,6 +49,14 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
     super.initState();
     chat = widget.chat;
     sortByAdmin();
+    getCurrentUser();
+  }
+
+  void getCurrentUser() {
+    final authState = context.read<AuthCubit>().state;
+    if (authState is Authenticated) {
+      currentUser = authState.user;
+    }
   }
 
   // update as state in Bloc Listener updates
@@ -269,7 +279,9 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
 
     if (result == OkCancelResult.ok) {
       final userId = CurrentUser.currentUserId;
-      context.read<ParticipantCubit>().exitGroup(chat.chatId, userId);
+      final message = MessageModel.notifyMessage(
+          "left", userId, "@${currentUser.username}");
+      context.read<ParticipantCubit>().exitGroup(chat.chatId, message, userId);
     }
   }
 

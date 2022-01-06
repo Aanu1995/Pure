@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pure/model/chat/message_model.dart';
 
 import '../../../../../model/pure_user_model.dart';
 import '../../../../../services/chat/chat_service.dart';
@@ -27,11 +28,12 @@ class ParticipantCubit extends Cubit<ParticipantState> {
     }
   }
 
-  Future<void> removeMember(String chatId, int index, PureUser member) async {
+  Future<void> removeMember(
+      String chatId, int index, MessageModel message, PureUser member) async {
     emit(RemovingParticipant(member));
 
     try {
-      await chatService.removeParticipant(chatId, member.id);
+      await chatService.removeParticipant(chatId, message, member.id);
       emit(ParticipantRemoved(member));
     } on NetworkException catch (_) {
       emit(FailedToRemoveParticipant(index, member));
@@ -42,11 +44,12 @@ class ParticipantCubit extends Cubit<ParticipantState> {
     }
   }
 
-  Future<void> exitGroup(String chatId, String userId) async {
+  Future<void> exitGroup(
+      String chatId, MessageModel message, String userId) async {
     emit(ExitingGroup());
 
     try {
-      await chatService.removeParticipant(chatId, userId);
+      await chatService.removeParticipant(chatId, message, userId);
       emit(GroupExited(chatId));
     } on NetworkException catch (error) {
       emit(FailedToExitGroup(error.message!));
