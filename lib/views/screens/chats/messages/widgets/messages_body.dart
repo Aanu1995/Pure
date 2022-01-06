@@ -6,12 +6,12 @@ import '../../../../../model/chat/message_model.dart';
 import '../../../../../model/pure_user_model.dart';
 import '../../../../../utils/chat_utils.dart';
 import '../../../../widgets/grouped_list/grouped_list.dart';
-import 'separator_widget.dart';
 import 'empty_widget.dart';
 import 'load_more_widgets.dart';
 import 'message_widgets.dart';
 import 'new_message_widget.dart';
 import 'receipient_message_widget.dart';
+import 'separator_widget.dart';
 import 'user_message_widget.dart';
 
 class Messagesbody extends StatefulWidget {

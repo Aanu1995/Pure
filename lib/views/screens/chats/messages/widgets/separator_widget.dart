@@ -17,8 +17,8 @@ class GroupDateSeparator extends StatelessWidget {
         Container(
           margin: const EdgeInsets.symmetric(vertical: 16.0),
           padding: const EdgeInsets.symmetric(
-            vertical: 10.0,
-            horizontal: 16.0,
+            vertical: 7.0,
+            horizontal: 10.0,
           ),
           decoration: BoxDecoration(
             color: Theme.of(context).dialogBackgroundColor,
@@ -46,16 +46,15 @@ class NewMessageSeparator extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Expanded(child: Divider()),
+        Expanded(child: Divider(color: Colors.green.shade500)),
         Container(
           margin: const EdgeInsets.symmetric(vertical: 16.0),
           padding: const EdgeInsets.symmetric(
-            vertical: 10.0,
-            horizontal: 16.0,
+            vertical: 7.0,
+            horizontal: 10.0,
           ),
           decoration: BoxDecoration(
-            color:
-                Theme.of(context).colorScheme.primaryVariant.withOpacity(0.7),
+            color: Colors.green.shade800,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
@@ -64,11 +63,11 @@ class NewMessageSeparator extends StatelessWidget {
             style: TextStyle(
               fontSize: 13.0,
               fontWeight: FontWeight.w600,
-              color: Theme.of(context).colorScheme.secondary,
+              color: Colors.white,
             ),
           ),
         ),
-        Expanded(child: Divider()),
+        Expanded(child: Divider(color: Colors.green.shade500)),
       ],
     );
   }
