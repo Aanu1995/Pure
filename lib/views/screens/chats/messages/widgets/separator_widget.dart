@@ -120,7 +120,7 @@ class NotificationMessage extends StatelessWidget {
   String _getNotificationText(BuildContext context) {
     final state = BlocProvider.of<AuthCubit>(context).state;
     if (state is Authenticated) {
-      final currentUsername = state.user.username;
+      final currentUsername = state.user.getAtUsername;
       String subjectUsername = message.subjectUsername ?? "";
       String objectUsername = message.objectUsername ?? "";
 
@@ -132,20 +132,20 @@ class NotificationMessage extends StatelessWidget {
   }
 
   String getSubjectUsername(String? name, String currentUsername) {
-    return name == "@$currentUsername" ? "You" : name ?? "";
+    return name == currentUsername ? "You" : name ?? "";
   }
 
   String getObjectUsername(String? name, String currentUsername) {
     if (name != null) {
       List<String> names = name.split(",");
       // checks if the current user exists
-      final index = names.indexOf("@$currentUsername");
+      final index = names.indexOf(currentUsername);
       // if it exists, move the user to the first in the list
       if (index >= 0) {
         names.remove(0);
         names.insert(0, "You");
       }
-      return names.join(",");
+      return names.join(", ");
     }
     return "";
   }

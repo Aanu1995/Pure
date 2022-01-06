@@ -73,6 +73,8 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
       widget.onChatChanged.call(newChat);
       setState(() => chat = newChat);
       sortByAdmin();
+    } else if (state is ParticipantRemoved || state is OperationCompleted) {
+      widget.onChatChanged.call(chat);
     } else if (state is FailedToRemoveParticipant) {
       widget.participants.insert(state.index, state.participant);
     } else if (state is ExitingGroup) {
@@ -279,8 +281,8 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
 
     if (result == OkCancelResult.ok) {
       final userId = CurrentUser.currentUserId;
-      final message = MessageModel.notifyMessage(
-          "left", userId, "@${currentUser.username}");
+      final message =
+          MessageModel.notifyMessage("left", userId, currentUser.getAtUsername);
       context.read<ParticipantCubit>().exitGroup(chat.chatId, message, userId);
     }
   }

@@ -12,12 +12,16 @@ class ParticipantCubit extends Cubit<ParticipantState> {
 
   ParticipantCubit(this.chatService) : super(ParticipantInitial());
 
-  Future<void> addGroupMembers(String chatId, List<PureUser> newMembers) async {
+  Future<void> addGroupMembers(
+      String chatId, List<PureUser> newMembers, MessageModel message) async {
     emit(AddingParticipant());
 
     try {
       await chatService.addNewParticipants(
-          chatId, newMembers.map((e) => e.id).toList());
+        chatId,
+        newMembers.map((e) => e.id).toList(),
+        message,
+      );
       emit(NewParticipant(newMembers: newMembers));
     } on NetworkException catch (e) {
       emit(NewParticipantFailed(e.message!));

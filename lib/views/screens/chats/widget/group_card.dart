@@ -110,7 +110,9 @@ class _GroupCardState extends State<GroupCard> {
                                 bool isYou =
                                     _senderUser.id == CurrentUser.currentUserId;
                                 return Text(
-                                  isYou ? "You: " : "${_senderUser.fullName}: ",
+                                  isYou
+                                      ? "You: "
+                                      : "${_senderUser.getAtUsername}: ",
                                   style: _style.copyWith(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,

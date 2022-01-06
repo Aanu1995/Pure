@@ -117,7 +117,7 @@ class _ParticipantsState extends State<Participants> {
                       ),
                     ),
                     TextSpan(
-                      text: "  @${participant.username}",
+                      text: "  ${participant.getAtUsername}",
                       style: _style.copyWith(
                         fontSize: 13.0,
                         fontWeight: FontWeight.w500,
@@ -214,8 +214,8 @@ class _ParticipantsState extends State<Participants> {
     final message = MessageModel.notifyMessage(
       "removed",
       currentUser.id,
-      "@${currentUser.username}",
-      object: "@${removedMember.username}",
+      currentUser.getAtUsername,
+      object: removedMember.getAtUsername,
     );
     context
         .read<ParticipantCubit>()

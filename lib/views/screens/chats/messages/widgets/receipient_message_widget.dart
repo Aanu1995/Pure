@@ -3,7 +3,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pure/views/screens/chats/messages/widgets/pure_link_preview.dart';
 
 import '../../../../../blocs/bloc.dart';
 import '../../../../../model/chat/attachment_model.dart';
@@ -12,6 +11,7 @@ import '../../../../../model/pure_user_model.dart';
 import 'docfile_preview_widget.dart';
 import 'file_widget.dart';
 import 'message_widgets.dart';
+import 'pure_link_preview.dart';
 
 class ReceipientMessage extends StatelessWidget {
   final MessageModel message;
@@ -49,9 +49,7 @@ class ReceipientMessage extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(left: 2, top: 2),
                       child: Text(
-                        _senderUser?.username != null
-                            ? "@${_senderUser?.username}"
-                            : "anonymous",
+                        _senderUser != null ? _senderUser!.getAtUsername : "~~",
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,

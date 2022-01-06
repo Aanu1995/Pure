@@ -3,17 +3,17 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:pure/model/chat/message_model.dart';
-import 'package:pure/services/chat/message_service.dart';
 import 'package:stream_transform/stream_transform.dart';
 
 import '../../model/chat/chat_model.dart';
+import '../../model/chat/message_model.dart';
 import '../../model/pure_user_model.dart';
 import '../../utils/exception.dart';
 import '../../utils/global_utils.dart';
 import '../../utils/request_messages.dart';
 import '../remote_storage_service.dart';
 import '../user_service.dart';
+import 'message_service.dart';
 
 abstract class ChatService {
   const ChatService();
@@ -21,7 +21,8 @@ abstract class ChatService {
   Future<ChatModel> createGroupChat(final ChatModel chatModel,
       {File? groupImage});
   Future<void> updateGroupChat(String chatId, Map<String, dynamic> data);
-  Future<void> addNewParticipants(String chatId, List<String> newMembers);
+  Future<void> addNewParticipants(
+      String chatId, List<String> newMembers, MessageModel message);
   Future<void> removeParticipant(
       String chatId, MessageModel message, String memberId);
   Future<void> addAdmin(String chatId, String memberId);
@@ -123,12 +124,24 @@ class ChatServiceImp extends ChatService {
 
   @override
   Future<void> addNewParticipants(
-      String chatId, List<String> newMembers) async {
+      String chatId, List<String> newMembers, MessageModel message) async {
     try {
       await _chatCollection
           .doc(chatId)
           .update({"members": FieldValue.arrayUnion(newMembers)}).timeout(
-              GlobalUtils.updateTimeOutInDuration);
+        GlobalUtils.updateTimeOutInDuration,
+      );
+      // all the participant receipt
+      Map<String, dynamic> data = <String, dynamic>{};
+      for (final memberId in newMembers) {
+        data[memberId] = {
+          "lastSeen": DateTime.now().toUtc().toIso8601String(),
+          "unreadCount": 0,
+        };
+      }
+
+      await _receiptCollection.doc(chatId).update(data);
+      await _messageService.sendMessage(chatId, message);
     } on TimeoutException catch (_) {
       throw ServerException(message: ErrorMessages.timeoutMessage);
     } catch (e) {

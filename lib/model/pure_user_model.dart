@@ -203,6 +203,8 @@ class PureUser extends Equatable {
       firstName.isEmpty ? 'New User' : '$firstName $lastName';
 
   bool get isMe => id == CurrentUser.currentUserId;
+  // @username
+  String get getAtUsername => "@$username";
 
   ConnectionAction checkConnectionAction(String userId) {
     if (connections!.keys.toList().contains(userId)) {
