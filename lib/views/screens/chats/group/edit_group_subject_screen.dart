@@ -124,7 +124,7 @@ class _EditGroupSubjectState extends State<EditGroupSubject> {
   void save() {
     if (_nameController.text.isNotEmpty) {
       FocusScope.of(context).unfocus();
-      final subject = _nameController.text;
+      final subject = _nameController.text.trim();
       final message = MessageModel.notifyMessage(
         'changed the subject to "$subject"',
         currentUser.id,

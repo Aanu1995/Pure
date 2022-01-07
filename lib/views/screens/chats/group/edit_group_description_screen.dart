@@ -125,7 +125,7 @@ class _EditGroupDescriptionState extends State<EditGroupDescription> {
   void save() {
     if (_descController.text.isNotEmpty) {
       FocusScope.of(context).unfocus();
-      final desc = _descController.text;
+      final desc = _descController.text.trim();
       final message = MessageModel.notifyMessage(
         "changed this group's description",
         currentUser.id,

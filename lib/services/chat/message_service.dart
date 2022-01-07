@@ -91,6 +91,8 @@ class MessageServiceImp extends MessageService {
 
           String? newTopMsgDate = _getTopReadMessageDate(data, currentUserId);
 
+          // checks if there is an a receipt update from any group member
+          // if yes, then fetch the missed messages starting from the lastMessage date
           if (newTopMsgDate != null && (topMsgDate != newTopMsgDate)) {
             final msgResult =
                 await _getNewMessagesFuture(chatId, lastSeenMessageDate);
@@ -113,6 +115,14 @@ class MessageServiceImp extends MessageService {
               }
               return _getMessageModel(msgResult, newTopMsgDate, data);
             }
+            // fetches my own last sent message
+          } else if (newTopMsgDate != null &&
+              lastSeenMessageDate != newTopMsgDate) {
+            final msgResult =
+                await _getMyLastMessage(chatId, lastSeenMessageDate);
+            if (msgResult != null) {
+              return _getMessageModel(msgResult, newTopMsgDate, data);
+            }
           }
         }
         return null;
@@ -122,6 +132,7 @@ class MessageServiceImp extends MessageService {
     }
   }
 
+  @override
   Future<MessagesModel> getRecentMessages(String chatId) async {
     try {
       final colref = await _chatCollection
@@ -283,6 +294,33 @@ class MessageServiceImp extends MessageService {
         }
       }
       return MessagesModel(messages: messages, lastDoc: lastDoc);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<MessagesModel?> _getMyLastMessage(
+      String chatId, String lastSeenMsgDate) async {
+    try {
+      final colref = await _chatCollection
+          .doc(chatId)
+          .collection(GlobalUtils.messageCollection)
+          .where('sentDate', isEqualTo: lastSeenMsgDate)
+          .get()
+          .timeout(GlobalUtils.timeOutInDuration);
+
+      List<MessageModel> messages = [];
+
+      if (colref.docs.isNotEmpty) {
+        for (final data in colref.docs) {
+          try {
+            messages.add(MessageModel.fromMap(data.data()));
+          } catch (e) {
+            log(e.toString());
+          }
+        }
+      }
+      return MessagesModel(messages: messages);
     } catch (e) {
       return null;
     }

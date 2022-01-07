@@ -28,6 +28,7 @@ class ChatModel extends Equatable {
   final String lastMessage;
   final String? senderId;
   final List<String>? admins;
+  final List<String>? removedMembers;
 
   const ChatModel({
     required this.chatId,
@@ -42,6 +43,7 @@ class ChatModel extends Equatable {
     required this.members,
     required this.updateDate,
     this.admins,
+    this.removedMembers,
   });
 
   factory ChatModel.fromMap(Map<String, dynamic> data) {
@@ -58,6 +60,8 @@ class ChatModel extends Equatable {
       creationDate: DateTime.parse(data['creationDate'] as String).toLocal(),
       updateDate: DateTime.parse(data['updateDate'] as String).toLocal(),
       admins: List<String>.from(data['admins'] as List? ?? <String>[]),
+      removedMembers:
+          List<String>.from(data['removedMembers'] as List? ?? <String>[]),
     );
   }
 
@@ -72,6 +76,7 @@ class ChatModel extends Equatable {
       creationDate: creationDate,
       lastMessage: lastMessage,
       admins: admins ?? [],
+      removedMembers: removedMembers ?? [],
       members: members,
       senderId: senderId,
       updateDate: updateDate,
@@ -95,6 +100,7 @@ class ChatModel extends Equatable {
       creationDate: creationDate,
       lastMessage: lastMessage,
       admins: newAdmins,
+      removedMembers: removedMembers,
       members: members,
       senderId: senderId,
       updateDate: updateDate,
@@ -131,6 +137,7 @@ class ChatModel extends Equatable {
       "updateDate": creationDate.toUtc().toIso8601String(),
       "members": members,
       "admins": <String>[],
+      "removedMembers": <String>[],
     };
   }
 
@@ -168,5 +175,6 @@ class ChatModel extends Equatable {
         admins,
         updateDate,
         senderId,
+        removedMembers,
       ];
 }

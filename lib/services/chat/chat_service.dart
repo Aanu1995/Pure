@@ -67,6 +67,7 @@ class ChatServiceImp extends ChatService {
   late UserService _userService;
   late MessageService _messageService;
 
+  @override
   Future<ChatModel> createGroupChat(
       final ChatModel chatModel, MessageModel message,
       {File? groupImage}) async {
@@ -95,6 +96,7 @@ class ChatServiceImp extends ChatService {
     }
   }
 
+  @override
   Future<void> updateGroupChat(
       String chatId, Map<String, dynamic> data, MessageModel message) async {
     try {
@@ -110,6 +112,7 @@ class ChatServiceImp extends ChatService {
     }
   }
 
+  @override
   Future<String> updateGroupImage(
       String chatId, File file, MessageModel message) async {
     try {
@@ -201,7 +204,6 @@ class ChatServiceImp extends ChatService {
       final querySnapshot = await _chatCollection
               .where("members", arrayContains: userId)
               .orderBy("updateDate", descending: true)
-              //   .limit(GlobalUtils.cachedChatsLimit)
               .get(GetOptions(source: Source.cache))
           as QuerySnapshot<Map<String, dynamic>?>;
 
