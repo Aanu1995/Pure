@@ -76,6 +76,7 @@ class MessageServiceImp extends MessageService {
     // this fetches new messages for a user on every receipt update using the
     // user last seen message time
     String? topMsgDate;
+    final fillDate = DateTime(2021).toIso8601String();
 
     try {
       return _receiptCollection
@@ -84,11 +85,9 @@ class MessageServiceImp extends MessageService {
           .asyncMap((docSnapshot) async {
         final data = docSnapshot.data() as Map<String, dynamic>?;
         if (data != null) {
-          // this will be null if user just connected with another user
-          // or if the user just joined
+          // retrieves the date of the last message seen by the user
           final lastSeenMessageDate =
-              data[currentUserId]["lastSeen"] as String? ??
-                  DateTime(1970).toIso8601String();
+              data[currentUserId]["lastSeen"] as String? ?? fillDate;
 
           String? newTopMsgDate = _getTopReadMessageDate(data, currentUserId);
 
@@ -96,23 +95,21 @@ class MessageServiceImp extends MessageService {
             final msgResult =
                 await _getNewMessagesFuture(chatId, lastSeenMessageDate);
             if (msgResult != null) {
-              final shouldUpdateLocalStorage =
-                  topMsgDate == null && msgResult.messages.length <= 20;
-              topMsgDate = newTopMsgDate;
+              final shouldUpdate =
+                  topMsgDate == null && msgResult.messages.length <= 10;
 
-              // shouldUpdateLocalStorage is true only when the user starts
-              // listening for the first time.
-              // if shouldUpdateLocalStorage is true, the local storage is
-              // updated with the last 20 messages in order to be in sync
-              // with the data in the remote database. else nothing happens
-              if (shouldUpdateLocalStorage) {
-                _getNewMessagesFuture(
-                  chatId,
-                  DateTime(1970).toIso8601String(),
-                  limit: 20,
-                ).then((result) {
-                  _getMessageModel(result!, newTopMsgDate, data);
-                });
+              // This line of code is added to add support for multiple devices
+              // for example, if a user chatted with another user using a
+              // device different from the first one, the messages of the last chat will not appear
+              // on the second device but this line of code helps to retrieve the
+              // last 10 messages when a message is open on any device in order to keep track
+              // of last 10 messages. Though not the best solution.
+
+              topMsgDate = newTopMsgDate;
+              if (shouldUpdate) {
+                _getNewMessagesFuture(chatId, fillDate, limit: 10).then(
+                  (result) => _getMessageModel(result!, newTopMsgDate, data),
+                );
               }
               return _getMessageModel(msgResult, newTopMsgDate, data);
             }

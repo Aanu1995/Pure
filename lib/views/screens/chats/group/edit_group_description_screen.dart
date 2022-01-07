@@ -4,6 +4,8 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 import '../../../../blocs/bloc.dart';
 import '../../../../model/chat/chat_model.dart';
+import '../../../../model/chat/message_model.dart';
+import '../../../../model/pure_user_model.dart';
 import '../../../../utils/palette.dart';
 import '../../../widgets/snackbars.dart';
 
@@ -17,6 +19,7 @@ class EditGroupDescription extends StatefulWidget {
 
 class _EditGroupDescriptionState extends State<EditGroupDescription> {
   final _descController = TextEditingController();
+  late PureUser currentUser;
 
   final _style = const TextStyle(
     fontSize: 17.0,
@@ -37,6 +40,14 @@ class _EditGroupDescriptionState extends State<EditGroupDescription> {
   void initState() {
     super.initState();
     _descController.text = widget.chat.groupDescription!;
+    getCurrentUser();
+  }
+
+  void getCurrentUser() {
+    final authState = context.read<AuthCubit>().state;
+    if (authState is Authenticated) {
+      currentUser = authState.user;
+    }
   }
 
   @override
@@ -114,9 +125,15 @@ class _EditGroupDescriptionState extends State<EditGroupDescription> {
   void save() {
     if (_descController.text.isNotEmpty) {
       FocusScope.of(context).unfocus();
+      final desc = _descController.text;
+      final message = MessageModel.notifyMessage(
+        "changed this group's description",
+        currentUser.id,
+        currentUser.getAtUsername,
+      );
       context
           .read<GroupChatCubit>()
-          .updateGroupDesc(widget.chat, _descController.text);
+          .updateGroupDesc(widget.chat, desc, message);
     }
   }
 }

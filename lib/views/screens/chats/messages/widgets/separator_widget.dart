@@ -93,7 +93,7 @@ class NotificationMessage extends StatelessWidget {
       ),
       child: Center(
         child: Container(
-          margin: const EdgeInsets.only(top: 5.0),
+          margin: const EdgeInsets.only(top: 5.0, left: 30, right: 30),
           padding: const EdgeInsets.symmetric(
             vertical: 6.0,
             horizontal: 8.0,
@@ -105,6 +105,8 @@ class NotificationMessage extends StatelessWidget {
           child: Text(
             _getNotificationText(context),
             textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontSize: 11.5,
               fontWeight: FontWeight.w500,
@@ -137,11 +139,12 @@ class NotificationMessage extends StatelessWidget {
   String getObjectUsername(String? name, String currentUsername) {
     if (name != null) {
       List<String> names = name.split(",");
+
       // checks if the current user exists
       final index = names.indexOf(currentUsername);
       // if it exists, move the user to the first in the list
       if (index >= 0) {
-        names.remove(0);
+        names.remove(currentUsername);
         names.insert(0, "You");
       }
       return names.join(", ");
@@ -157,7 +160,7 @@ class NotificationMessage extends StatelessWidget {
   }
 
   double TSpace(final int index, final List<MessageModel> messages) {
-    if (messages.length > index) {
+    if (messages.length > (index + 1)) {
       return messages[index + 1].isNotificationMessage ? 0.0 : 16.0;
     } else
       return 8;

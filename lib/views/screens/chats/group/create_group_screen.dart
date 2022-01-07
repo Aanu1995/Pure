@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../../blocs/bloc.dart';
 import '../../../../model/chat/chat_model.dart';
+import '../../../../model/chat/message_model.dart';
 import '../../../../model/pure_user_model.dart';
 import '../../../../utils/app_permission.dart';
 import '../../../../utils/app_utils.dart';
@@ -28,6 +29,7 @@ class CreateGroupScreen extends StatefulWidget {
 }
 
 class _CreateGroupScreenState extends State<CreateGroupScreen> {
+  late PureUser currentUser;
   ImageMethods imageMethods = ImageUtils();
   final _imagePicker = ImagePicker();
 
@@ -41,6 +43,14 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     _groupNameController.addListener(() {
       _groupSubjectNotifier.value = _groupNameController.text.isNotEmpty;
     });
+    getCurrentUser();
+  }
+
+  void getCurrentUser() {
+    final authState = context.read<AuthCubit>().state;
+    if (authState is Authenticated) {
+      currentUser = authState.user;
+    }
   }
 
   @override
@@ -216,13 +226,14 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     if (currentState is GroupMembers) {
       List<String> members = currentState.members.map((e) => e.id).toList();
       members.insert(0, CurrentUser.currentUserId);
+      final groupName = _groupNameController.text.trim();
 
       final chatModel = ChatModel(
         chatId: generateDatabaseId(),
         type: ChatType.Group,
-        groupName: _groupNameController.text.trim(),
+        groupName: groupName,
         creationDate: DateTime.now(),
-        lastMessage: "Group created",
+        lastMessage: "",
         groupCreatedBy: CurrentUser.currentUserId,
         members: members,
         updateDate: DateTime.now(),
@@ -230,7 +241,14 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
         groupImage: "",
       );
 
-      context.read<GroupChatCubit>().createGroupChat(chatModel, imageFile);
+      final message = MessageModel.notifyMessage(
+        'created group "$groupName"',
+        currentUser.id,
+        currentUser.getAtUsername,
+      );
+      context
+          .read<GroupChatCubit>()
+          .createGroupChat(chatModel, message, imageFile);
     }
   }
 }
