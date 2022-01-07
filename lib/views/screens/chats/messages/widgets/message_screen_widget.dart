@@ -82,14 +82,16 @@ class _MessageBodyState extends State<MessageBody> {
                             valueListenable: _userTaggedNotifier,
                             builder: (context, value, _) {
                               if (value == null) return Offstage();
-                              final users = taggedUsers(state.members, value);
-                              return users.isEmpty
-                                  ? Offstage()
-                                  : TaggedUsers(
-                                      members: users,
-                                      onUserPressed: (username) =>
-                                          onTaggedUserSelected(value, username),
-                                    );
+                              final members = state.members.toList();
+                              final users = getTaggedUsers(members, value);
+                              if (users.isEmpty)
+                                return Offstage();
+                              else
+                                return TaggedUsers(
+                                  members: users,
+                                  onUserPressed: (username) =>
+                                      onTaggedUserSelected(value, username),
+                                );
                             },
                           );
                         }
@@ -148,10 +150,8 @@ class _MessageBodyState extends State<MessageBody> {
     context.read<MessageCubit>().sendMessage(widget.chatId, message);
   }
 
-  List<PureUser> taggedUsers(List<PureUser> users, String value) {
-    final members = users.toList();
+  List<PureUser> getTaggedUsers(List<PureUser> members, String value) {
     members.removeWhere((element) => element.id == CurrentUser.currentUserId);
-
     return members.toList().where((member) {
       return member.username.toLowerCase().contains(value.toLowerCase());
     }).toList();
