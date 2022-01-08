@@ -21,8 +21,11 @@ class TaggedUsers extends StatelessWidget {
       minChildSize: 0.4,
       initialChildSize: 0.4,
       builder: (context, scrollController) {
-        return Container(
-          color: Theme.of(context).dialogBackgroundColor,
+        return DecoratedBox(
+          decoration: BoxDecoration(
+            color: Theme.of(context).dialogBackgroundColor,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
           child: ListView.separated(
             itemCount: members.length,
             controller: scrollController,

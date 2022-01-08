@@ -117,14 +117,17 @@ class _GroupMessageAppBarTitleState extends State<GroupMessageAppBarTitle> {
         children: [
           Avartar(size: 22, ringSize: 0.8, imageURL: chat.groupImage!),
           const SizedBox(width: 10.0),
-          Text(
-            chat.groupName!,
-            maxLines: 1,
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 17.5,
-              fontFamily: Palette.sanFontFamily,
-              letterSpacing: 0.5,
+          Expanded(
+            child: Text(
+              chat.groupName!,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 17.5,
+                fontFamily: Palette.sanFontFamily,
+                letterSpacing: 0.5,
+              ),
             ),
           ),
         ],

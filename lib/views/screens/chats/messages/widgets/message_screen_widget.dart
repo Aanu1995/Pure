@@ -5,11 +5,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../blocs/bloc.dart';
 import '../../../../../model/chat/message_model.dart';
 import '../../../../../model/pure_user_model.dart';
-import '../../../../../utils/chat_utils.dart';
 import '../../../../widgets/editable_text_controller.dart';
 import 'message_inbox_widget.dart';
 import 'messages_body.dart';
-import 'tagged_user_profile.dart';
+import 'tagged_user_sheet.dart';
 
 class MessageBody extends StatefulWidget {
   final String chatId;
@@ -73,32 +72,10 @@ class _MessageBodyState extends State<MessageBody> {
                       sendMessage(context, message),
                 ),
                 if (widget.isGroupChat)
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: BlocBuilder<GroupCubit, GroupState>(
-                      builder: (context, state) {
-                        if (state is GroupMembers) {
-                          return ValueListenableBuilder<String?>(
-                            valueListenable: _userTaggedNotifier,
-                            builder: (context, value, _) {
-                              if (value == null) return Offstage();
-                              final members = state.members.toList();
-                              final users = getTaggedUsers(members, value);
-                              if (users.isEmpty)
-                                return Offstage();
-                              else
-                                return TaggedUsers(
-                                  members: users,
-                                  onUserPressed: (username) =>
-                                      onTaggedUserSelected(value, username),
-                                );
-                            },
-                          );
-                        }
-                        return Offstage();
-                      },
-                    ),
-                  ),
+                  TaggedUserSheet(
+                    controller: _inputController,
+                    userTaggingNotifier: _userTaggedNotifier,
+                  )
               ],
             ),
           ),
@@ -148,16 +125,5 @@ class _MessageBodyState extends State<MessageBody> {
 
   void sendMessage(final BuildContext context, final MessageModel message) {
     context.read<MessageCubit>().sendMessage(widget.chatId, message);
-  }
-
-  List<PureUser> getTaggedUsers(List<PureUser> members, String value) {
-    members.removeWhere((element) => element.id == CurrentUser.currentUserId);
-    return members.toList().where((member) {
-      return member.username.toLowerCase().contains(value.toLowerCase());
-    }).toList();
-  }
-
-  void onTaggedUserSelected(String input, String selected) {
-    replaceUserTagOnSelected(_inputController, input, selected);
   }
 }
