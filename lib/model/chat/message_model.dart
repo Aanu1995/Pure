@@ -12,9 +12,14 @@ class MessagesModel extends Equatable {
   final List<MessageModel> messages;
   final DocumentSnapshot? lastDoc;
   final String? topMessageDate;
+  final bool shouldUpdateReceipt;
 
-  const MessagesModel(
-      {required this.messages, this.lastDoc, this.topMessageDate});
+  const MessagesModel({
+    required this.messages,
+    this.lastDoc,
+    this.topMessageDate,
+    this.shouldUpdateReceipt = true,
+  });
 
   @override
   List<Object?> get props => [messages, lastDoc, topMessageDate];

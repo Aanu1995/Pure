@@ -219,7 +219,7 @@ class ChatServiceImp extends ChatService {
       }
       return ChatsModel(chats: chats, firstDoc: firstDoc, lastDoc: lastDoc);
     } catch (e) {
-      throw ServerException(message: ErrorMessages.generalMessage2);
+      return ChatsModel(chats: chats, firstDoc: firstDoc, lastDoc: lastDoc);
     }
   }
 

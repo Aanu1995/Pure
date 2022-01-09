@@ -30,9 +30,6 @@ class Connector extends Equatable {
     );
   }
 
-  @override
-  List<Object?> get props => [connectorId, connectionId, connectionDate];
-
   // required for data of user to save to local storage
   Map<String, dynamic> toSaveMap() {
     return <String, dynamic>{
@@ -41,4 +38,7 @@ class Connector extends Equatable {
       "date": connectionDate!.toUtc().toIso8601String(),
     };
   }
+
+  @override
+  List<Object?> get props => [connectorId, connectionId, connectionDate];
 }

@@ -85,6 +85,7 @@ class MessageServiceImp extends MessageService {
           .asyncMap((docSnapshot) async {
         final data = docSnapshot.data() as Map<String, dynamic>?;
         if (data != null) {
+          print("object");
           // retrieves the date of the last message seen by the user
           final lastSeenMessageDate =
               data[currentUserId]["lastSeen"] as String? ?? fillDate;
@@ -121,7 +122,12 @@ class MessageServiceImp extends MessageService {
             final msgResult =
                 await _getMyLastMessage(chatId, lastSeenMessageDate);
             if (msgResult != null) {
-              return _getMessageModel(msgResult, newTopMsgDate, data);
+              return _getMessageModel(
+                msgResult,
+                newTopMsgDate,
+                data,
+                shouldUpdateReceipt: false,
+              );
             }
           }
         }
@@ -259,11 +265,13 @@ class MessageServiceImp extends MessageService {
   }
 
   MessagesModel _getMessageModel(final MessagesModel msgModel,
-      String topMessageDate, final Map<String, dynamic>? data) {
+      String topMessageDate, final Map<String, dynamic>? data,
+      {bool shouldUpdateReceipt = true}) {
     return MessagesModel(
       messages: msgModel.messages.toList(),
       topMessageDate: topMessageDate,
       lastDoc: msgModel.lastDoc,
+      shouldUpdateReceipt: shouldUpdateReceipt,
     );
   }
 

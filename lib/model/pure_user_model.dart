@@ -127,10 +127,6 @@ class PureUser extends Equatable {
       }
     } else if (isAcceptInvitation) {
       _receivedCounter -= 1;
-      _connectionCounter += 1;
-      if (identifier != null) {
-        newConnections[identifier] = ConnectionStatus.Connected;
-      }
     } else if (isRemovedConnection) {
       _connectionCounter -= 1;
       if (identifier != null) {

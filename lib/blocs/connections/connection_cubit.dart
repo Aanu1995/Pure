@@ -101,8 +101,12 @@ class ConnectorCubit extends Cubit<ConnectorState> {
     final currentState = state;
     if (currentState is ConnectionsLoaded) {
       final connectionList = currentState.connectionModel.connectors.toList();
-      // remove the invitee from the list
-      connectionList.insert(index, connector);
+      // add the connector back
+      if (connectionList.isNotEmpty) {
+        connectionList.insert(index, connector);
+      } else {
+        connectionList.add(connector);
+      }
 
       emit(ConnectionsLoaded(
         connectionModel: ConnectionModel(
