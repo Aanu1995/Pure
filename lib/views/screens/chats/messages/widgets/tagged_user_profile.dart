@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+
 import '../../../../../model/pure_user_model.dart';
-import 'package:pure/views/widgets/avatar.dart';
+import '../../../../widgets/avatar.dart';
 
 class TaggedUsers extends StatelessWidget {
   final List<PureUser> members;
@@ -45,7 +46,7 @@ class TaggedUsers extends StatelessWidget {
                         ),
                       ),
                       TextSpan(
-                        text: "  @${member.username}",
+                        text: "  ${member.getAtUsername}",
                         style: _style.copyWith(
                           fontSize: 14.0,
                           fontWeight: FontWeight.w500,

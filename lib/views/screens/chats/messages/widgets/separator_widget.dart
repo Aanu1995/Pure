@@ -58,7 +58,7 @@ class NewMessageSeparator extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
-            "New Messages",
+            "Unread messages",
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 13.0,
