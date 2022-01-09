@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import '../utils/true_time.dart';
+
 class UserPresenceModel extends Equatable {
   final bool isOnline;
   final DateTime lastSeen;
@@ -14,20 +16,20 @@ class UserPresenceModel extends Equatable {
   }
 
   static UserPresenceModel onError() {
-    return UserPresenceModel(isOnline: false, lastSeen: DateTime.now());
+    return UserPresenceModel(isOnline: false, lastSeen: TrueTime.now());
   }
 
   static Map<String, dynamic> onlineData() {
     return <String, dynamic>{
       'isOnline': true,
-      "lastSeen": DateTime.now().toUtc().toIso8601String()
+      "lastSeen": TrueTime.now().toUtc().toIso8601String()
     };
   }
 
   static Map<String, dynamic> offlineData() {
     return <String, dynamic>{
       'isOnline': false,
-      "lastSeen": DateTime.now().toUtc().toIso8601String()
+      "lastSeen": TrueTime.now().toUtc().toIso8601String()
     };
   }
 

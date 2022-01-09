@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:random_color/random_color.dart';
 
+import '../utils/true_time.dart';
 import 'app_enum.dart';
 
 // this class is a singleton to make current user id accessible globally
@@ -165,7 +166,7 @@ class PureUser extends Equatable {
       'location': '',
       'about': '',
       'photoURL': user.photoURL ?? '',
-      'date': DateTime.now().toUtc().toIso8601String(),
+      'date': TrueTime.now().toUtc().toIso8601String(),
       "color":
           _randomColor.randomColor(colorBrightness: ColorBrightness.dark).value,
     };

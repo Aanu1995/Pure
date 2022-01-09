@@ -8,6 +8,7 @@ import '../../../../model/pure_user_model.dart';
 import '../../../../utils/chat_utils.dart';
 import '../../../../utils/navigate.dart';
 import '../../../../utils/palette.dart';
+import '../../../../utils/true_time.dart';
 import '../../../widgets/avatar.dart';
 import '../../../widgets/user_profile_provider.dart';
 import '../messages/messages_screen.dart';
@@ -34,7 +35,7 @@ class _OneToOneCardState extends State<OneToOneCard> {
     letterSpacing: 0.05,
   );
 
-  DateTime _lastUpdate = DateTime.now();
+  DateTime _lastUpdate = TrueTime.now();
 
   @override
   Widget build(BuildContext context) {

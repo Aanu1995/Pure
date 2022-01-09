@@ -16,6 +16,7 @@ import '../../../../utils/image_utils.dart';
 import '../../../../utils/navigate.dart';
 import '../../../../utils/palette.dart';
 import '../../../../utils/pick_file_dialog.dart';
+import '../../../../utils/true_time.dart';
 import '../../../widgets/snackbars.dart';
 import '../../../widgets/user_profile_provider.dart';
 import '../messages/group_chat_message_screen.dart';
@@ -232,11 +233,11 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
         chatId: generateDatabaseId(),
         type: ChatType.Group,
         groupName: groupName,
-        creationDate: DateTime.now(),
+        creationDate: TrueTime.now(),
         lastMessage: "",
         groupCreatedBy: CurrentUser.currentUserId,
         members: members,
-        updateDate: DateTime.now(),
+        updateDate: TrueTime.now(),
         groupDescription: "",
         groupImage: "",
       );

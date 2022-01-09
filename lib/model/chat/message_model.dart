@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
-import 'package:intl/intl.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' show PreviewData;
+import 'package:intl/intl.dart';
 
 import '../../utils/app_utils.dart';
+import '../../utils/true_time.dart';
 import 'attachment_model.dart';
 
 enum Receipt { Failed, Pending, Sent, Delivered, Read }
@@ -144,7 +145,7 @@ class MessageModel extends Equatable {
       messageId: generateDatabaseId(),
       senderId: senderId,
       text: text,
-      sentDate: DateTime.now(),
+      sentDate: TrueTime.now(),
       receipt: Receipt.Pending,
       isNotificationMessage: false,
     );
@@ -156,7 +157,7 @@ class MessageModel extends Equatable {
       messageId: generateDatabaseId(),
       senderId: senderId,
       text: text,
-      sentDate: DateTime.now(),
+      sentDate: TrueTime.now(),
       receipt: Receipt.Pending,
       attachments: attachments,
       isNotificationMessage: false,
@@ -170,7 +171,7 @@ class MessageModel extends Equatable {
       messageId: generateDatabaseId(),
       senderId: senderId,
       text: text,
-      sentDate: DateTime.now(),
+      sentDate: TrueTime.now(),
       receipt: Receipt.Sent,
       subjectUsername: subject,
       objectUsername: object,

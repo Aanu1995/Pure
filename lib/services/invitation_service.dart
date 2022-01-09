@@ -10,6 +10,7 @@ import '../repositories/local_storage.dart';
 import '../utils/exception.dart';
 import '../utils/global_utils.dart';
 import '../utils/request_messages.dart';
+import '../utils/true_time.dart';
 
 abstract class InvitationService {
   const InvitationService();
@@ -217,7 +218,7 @@ class InvitationServiceImp extends InvitationService {
     try {
       await _invitationCollection.doc(invitationId).update({
         "isAccepted": true,
-        "sentDate": DateTime.now().toUtc().toIso8601String()
+        "sentDate": TrueTime.now().toUtc().toIso8601String()
       }).timeout(GlobalUtils.updateTimeOutInDuration);
     } on TimeoutException catch (_) {
       throw ServerException(message: ErrorMessages.timeoutMessage);

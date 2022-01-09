@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 
+import '../utils/true_time.dart';
 import 'inviter_model.dart';
 
 // The person that you are connected with is called Connector
@@ -26,7 +27,7 @@ class Connector extends Equatable {
     return Connector(
       connectorId: inviter.inviterId,
       connectionId: inviter.invitationId,
-      connectionDate: DateTime.now().toLocal(),
+      connectionDate: TrueTime.now().toLocal(),
     );
   }
 

@@ -12,6 +12,7 @@ import '../../services/connection_service.dart';
 import '../../services/user_service.dart';
 import '../../utils/image_utils.dart';
 import '../../utils/palette.dart';
+import '../../utils/true_time.dart';
 import '../widgets/nav_bar_notification.dart';
 import '../widgets/push_notification_navigation.dart';
 import 'chats/chat_screen.dart';
@@ -66,6 +67,7 @@ class __AppBaseExtensionState extends State<_AppBaseExtension> {
   @override
   void initState() {
     super.initState();
+    TrueTime.initialize();
     cupertinoTabController = CupertinoTabController();
     initialize();
     initializePushNotificationMethods();

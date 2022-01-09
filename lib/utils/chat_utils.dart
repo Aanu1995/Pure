@@ -10,6 +10,7 @@ import 'package:linkify/linkify.dart';
 import '../model/chat/chat_model.dart';
 import '../model/chat/message_model.dart';
 import 'global_utils.dart';
+import 'true_time.dart';
 
 double bottomSpace(final int index, final List<MessageModel> messages) {
   if (index > 0) {
@@ -43,11 +44,11 @@ DocumentSnapshot? getLastDoc(MessagesModel newMsg, MessagesModel oldMsg) {
 
 String groupDate(DateTime date) {
   final filteredDate = DateTime(date.year, date.month, date.day);
-  if (DateTime.now().difference(filteredDate).inDays == 0) return "Today";
-  if (DateTime.now().difference(filteredDate).inDays == 1) return "Yesterday";
-  if (DateTime.now().difference(filteredDate).inDays < 7)
+  if (TrueTime.now().difference(filteredDate).inDays == 0) return "Today";
+  if (TrueTime.now().difference(filteredDate).inDays == 1) return "Yesterday";
+  if (TrueTime.now().difference(filteredDate).inDays < 7)
     return DateFormat("EEEE").format(date);
-  if (DateTime.now().difference(filteredDate).inDays < 365)
+  if (TrueTime.now().difference(filteredDate).inDays < 365)
     return DateFormat.MMMEd().format(date);
 
   return DateFormat.yMMMd().format(date);
@@ -55,10 +56,10 @@ String groupDate(DateTime date) {
 
 String chatTime(final DateTime date) {
   final filteredDate = DateTime(date.year, date.month, date.day);
-  if (DateTime.now().difference(filteredDate).inDays == 0)
+  if (TrueTime.now().difference(filteredDate).inDays == 0)
     return DateFormat.jm().format(date);
-  if (DateTime.now().difference(filteredDate).inDays == 1) return "Yesterday";
-  if (DateTime.now().difference(filteredDate).inDays < 7)
+  if (TrueTime.now().difference(filteredDate).inDays == 1) return "Yesterday";
+  if (TrueTime.now().difference(filteredDate).inDays < 7)
     return DateFormat("EEEE").format(date);
 
   return DateFormat.yMd().format(date);
