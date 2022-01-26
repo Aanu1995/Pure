@@ -25,8 +25,9 @@ class NewMessagesCubit extends Cubit<MessageState> {
           // update the UI on new messages
           _update(messagesModel);
 
-          // Only updates if the prev date is not equal to current date
-          _updateTheLastMessageReceipt(chatId, userId, messagesModel);
+          if (messagesModel.shouldUpdateReceipt) {
+            _updateTheLastMessageReceipt(chatId, userId, messagesModel);
+          }
         }
       });
     } catch (e) {}

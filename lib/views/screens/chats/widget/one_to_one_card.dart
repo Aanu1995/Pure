@@ -1,16 +1,18 @@
 import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../blocs/bloc.dart';
 import '../../../../model/chat/chat_model.dart';
 import '../../../../model/pure_user_model.dart';
+import '../../../../model/route/message_route.dart';
 import '../../../../utils/chat_utils.dart';
-import '../../../../utils/navigate.dart';
 import '../../../../utils/palette.dart';
+import '../../../../utils/routing.dart';
+import '../../../../utils/true_time.dart';
 import '../../../widgets/avatar.dart';
 import '../../../widgets/user_profile_provider.dart';
-import '../messages/messages_screen.dart';
 
 class OneToOneCard extends StatefulWidget {
   final ChatModel chat;
@@ -34,7 +36,7 @@ class _OneToOneCardState extends State<OneToOneCard> {
     letterSpacing: 0.05,
   );
 
-  DateTime _lastUpdate = DateTime.now();
+  DateTime _lastUpdate = TrueTime.now();
 
   @override
   Widget build(BuildContext context) {
@@ -174,17 +176,13 @@ class _OneToOneCardState extends State<OneToOneCard> {
   }
 
   void pushToMessagesScreen(BuildContext context, PureUser user) {
-    push(
-      context: context,
-      rootNavigator: true,
-      page: BlocProvider.value(
-        value: BlocProvider.of<UserPresenceCubit>(context),
-        child: MessagesScreen(
-          chatId: widget.chat.chatId,
-          receipient: user,
-          hasPresenceActivated: true,
-        ),
-      ),
+    final msgRoute = MessageRoute(
+      chatId: widget.chat.chatId,
+      receipient: user,
+      hasPresenceActivated: true,
+      state: BlocProvider.of<UserPresenceCubit>(context),
     );
+
+    context.go(AppRoute.message, extra: msgRoute);
   }
 }

@@ -17,16 +17,12 @@ class ChatCubit extends Cubit<ChatState> {
   Future<void> fetchChats(String userId) async {
     emit(LoadingChats());
 
-    try {
-      final result = await chatService.getOfflineChats(userId);
-      emit(ChatsLoaded(chatsModel: result));
-      if (result.firstDoc != null) {
-        _getAllNewChats(userId, result.firstDoc!);
-      } else {
-        _updateOnNewChat(userId);
-      }
-    } catch (e) {
-      emit(ChatsLoaded(chatsModel: ChatsModel(chats: [])));
+    final result = await chatService.getOfflineChats(userId);
+    emit(ChatsLoaded(chatsModel: result));
+    if (result.firstDoc != null) {
+      _getAllNewChats(userId, result.firstDoc!);
+    } else {
+      _updateOnNewChat(userId);
     }
   }
 

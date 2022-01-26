@@ -51,9 +51,10 @@ class _GroupChatMessageScreenState extends State<GroupChatMessageScreen> {
           ),
           BlocProvider(create: (_) => NewMessagesCubit(MessageServiceImp())),
           BlocProvider(
-              create: (_) => LoadMoreMessageCubit(MessageServiceImp())),
+            create: (_) => LoadMoreMessageCubit(MessageServiceImp()),
+          ),
         ],
-        child: MessageBody(chatId: widget.chatModel.chatId),
+        child: MessageBody(chatId: widget.chatModel.chatId, isGroupChat: true),
       ),
     );
   }

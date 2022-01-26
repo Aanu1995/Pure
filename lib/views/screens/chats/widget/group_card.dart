@@ -1,16 +1,17 @@
 import 'package:badges/badges.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pure/utils/chat_utils.dart';
-import '../../../../utils/palette.dart';
 
 import '../../../../blocs/bloc.dart';
 import '../../../../model/chat/chat_model.dart';
 import '../../../../model/pure_user_model.dart';
+import '../../../../utils/chat_utils.dart';
 import '../../../../utils/navigate.dart';
+import '../../../../utils/palette.dart';
+import '../../../../utils/true_time.dart';
 import '../../../widgets/avatar.dart';
 import '../messages/group_chat_message_screen.dart';
-import 'package:collection/collection.dart';
 
 class GroupCard extends StatefulWidget {
   final ChatModel chat;
@@ -29,7 +30,7 @@ class _GroupCardState extends State<GroupCard> {
     letterSpacing: 0.05,
   );
 
-  DateTime _lastUpdate = DateTime.now();
+  DateTime _lastUpdate = TrueTime.now();
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +111,9 @@ class _GroupCardState extends State<GroupCard> {
                                 bool isYou =
                                     _senderUser.id == CurrentUser.currentUserId;
                                 return Text(
-                                  isYou ? "You: " : "${_senderUser.fullName}: ",
+                                  isYou
+                                      ? "You: "
+                                      : "${_senderUser.getAtUsername}: ",
                                   style: _style.copyWith(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,

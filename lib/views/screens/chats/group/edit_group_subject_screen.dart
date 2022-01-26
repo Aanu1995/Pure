@@ -4,6 +4,8 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 import '../../../../blocs/bloc.dart';
 import '../../../../model/chat/chat_model.dart';
+import '../../../../model/chat/message_model.dart';
+import '../../../../model/pure_user_model.dart';
 import '../../../../utils/palette.dart';
 import '../../../widgets/snackbars.dart';
 
@@ -17,6 +19,7 @@ class EditGroupSubject extends StatefulWidget {
 
 class _EditGroupSubjectState extends State<EditGroupSubject> {
   final _nameController = TextEditingController();
+  late PureUser currentUser;
 
   final _style = const TextStyle(
     fontSize: 17.0,
@@ -37,6 +40,14 @@ class _EditGroupSubjectState extends State<EditGroupSubject> {
   void initState() {
     super.initState();
     _nameController.text = widget.chat.groupName!;
+    getCurrentUser();
+  }
+
+  void getCurrentUser() {
+    final authState = context.read<AuthCubit>().state;
+    if (authState is Authenticated) {
+      currentUser = authState.user;
+    }
   }
 
   @override
@@ -113,9 +124,15 @@ class _EditGroupSubjectState extends State<EditGroupSubject> {
   void save() {
     if (_nameController.text.isNotEmpty) {
       FocusScope.of(context).unfocus();
+      final subject = _nameController.text.trim();
+      final message = MessageModel.notifyMessage(
+        'changed the subject to "$subject"',
+        currentUser.id,
+        currentUser.getAtUsername,
+      );
       context
           .read<GroupChatCubit>()
-          .updateGroupSubject(widget.chat, _nameController.text);
+          .updateGroupSubject(widget.chat, subject, message);
     }
   }
 }
