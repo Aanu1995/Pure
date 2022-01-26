@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../blocs/bloc.dart';
 import '../../model/pure_user_model.dart';
@@ -12,6 +13,7 @@ import '../../services/connection_service.dart';
 import '../../services/user_service.dart';
 import '../../utils/image_utils.dart';
 import '../../utils/palette.dart';
+import '../../utils/true_time.dart';
 import '../widgets/nav_bar_notification.dart';
 import '../widgets/push_notification_navigation.dart';
 import 'chats/chat_screen.dart';
@@ -20,12 +22,9 @@ import 'home/home_page.dart';
 import 'notifications/notifications_screen.dart';
 import 'settings/settings_screen.dart';
 
-// This is a global controller to control bottom nav bar from
-// anywhere within the app
-late CupertinoTabController cupertinoTabController;
-
 class AppBase extends StatelessWidget {
-  const AppBase({Key? key}) : super(key: key);
+  final int initialIndex;
+  const AppBase({Key? key, required this.initialIndex}) : super(key: key);
 
   static final _chatService = ChatServiceImp();
   static final _connectionService = ConnectionServiceImpl();
@@ -40,19 +39,24 @@ class AppBase extends StatelessWidget {
         BlocProvider(create: (_) => ChatCubit(_chatService)),
         BlocProvider(create: (_) => UnReadChatCubit(_chatService)),
       ],
-      child: _AppBaseExtension(),
+      child: _AppBaseExtension(initialIndex: initialIndex),
     );
   }
 }
 
 class _AppBaseExtension extends StatefulWidget {
-  const _AppBaseExtension({Key? key}) : super(key: key);
+  final int initialIndex;
+  const _AppBaseExtension({Key? key, required this.initialIndex})
+      : super(key: key);
 
   @override
   __AppBaseExtensionState createState() => __AppBaseExtensionState();
 }
 
 class __AppBaseExtensionState extends State<_AppBaseExtension> {
+// This is a global controller to control bottom nav bar from
+// anywhere within the app
+  late CupertinoTabController _cupertinoTabController;
   // creates list of key for each tab
   // This is required to handle backbutton in android
   final tabKeys = [
@@ -66,7 +70,9 @@ class __AppBaseExtensionState extends State<_AppBaseExtension> {
   @override
   void initState() {
     super.initState();
-    cupertinoTabController = CupertinoTabController();
+    TrueTime.initialize();
+    _cupertinoTabController =
+        CupertinoTabController(initialIndex: widget.initialIndex);
     initialize();
     initializePushNotificationMethods();
   }
@@ -84,8 +90,14 @@ class __AppBaseExtensionState extends State<_AppBaseExtension> {
   }
 
   @override
+  void didUpdateWidget(covariant _AppBaseExtension oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _cupertinoTabController.index = widget.initialIndex;
+  }
+
+  @override
   void dispose() {
-    cupertinoTabController.dispose();
+    _cupertinoTabController.dispose();
     super.dispose();
   }
 
@@ -94,12 +106,13 @@ class __AppBaseExtensionState extends State<_AppBaseExtension> {
     return WillPopScope(
       onWillPop: onWillPop,
       child: CupertinoTabScaffold(
-        controller: cupertinoTabController,
+        controller: _cupertinoTabController,
         tabBar: CupertinoTabBar(
           backgroundColor: Theme.of(context).colorScheme.secondary,
           activeColor: Palette.tintColor,
           inactiveColor: Theme.of(context).colorScheme.secondaryVariant,
           iconSize: 24,
+          onTap: (index) => context.go('/home/$index'),
           items: const [
             BottomNavigationBarItem(
               icon: ImageIcon(AssetImage(ImageUtils.home)),
@@ -146,12 +159,12 @@ class __AppBaseExtensionState extends State<_AppBaseExtension> {
   // is in the home tab
   Future<bool> onWillPop() async {
     final result =
-        await tabKeys[cupertinoTabController.index].currentState!.maybePop();
+        await tabKeys[_cupertinoTabController.index].currentState!.maybePop();
     if (result)
       return false;
     else {
-      if (cupertinoTabController.index != 0) {
-        cupertinoTabController.index = 0;
+      if (_cupertinoTabController.index != 0) {
+        _cupertinoTabController.index = 0;
         return false;
       }
       return true;

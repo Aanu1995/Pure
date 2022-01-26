@@ -33,6 +33,7 @@ dependencies:
   go_router: ^2.5.7
   intl: ^0.17.0
   linkify: ^4.1.0
+  ntp: ^2.0.0
   open_file: ^3.2.1
   palette_generator: ^0.3.2
   permission_handler: ^8.3.0

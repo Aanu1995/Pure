@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../blocs/bloc.dart';
 import '../../../../model/chat/chat_model.dart';
+import '../../../../model/chat/message_model.dart';
 import '../../../../model/pure_user_model.dart';
 import '../../../../repositories/push_notification.dart';
 import '../../../../services/chat/chat_service.dart';
@@ -35,6 +36,7 @@ class GroupInfoScreen extends StatefulWidget {
 
 class _GroupInfoScreenState extends State<GroupInfoScreen> {
   late ChatModel chat;
+  late PureUser currentUser;
 
   final _style = const TextStyle(
     fontSize: 16,
@@ -47,6 +49,14 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
     super.initState();
     chat = widget.chat;
     sortByAdmin();
+    getCurrentUser();
+  }
+
+  void getCurrentUser() {
+    final authState = context.read<AuthCubit>().state;
+    if (authState is Authenticated) {
+      currentUser = authState.user;
+    }
   }
 
   // update as state in Bloc Listener updates
@@ -63,6 +73,8 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
       widget.onChatChanged.call(newChat);
       setState(() => chat = newChat);
       sortByAdmin();
+    } else if (state is ParticipantRemoved || state is OperationCompleted) {
+      widget.onChatChanged.call(chat);
     } else if (state is FailedToRemoveParticipant) {
       widget.participants.insert(state.index, state.participant);
     } else if (state is ExitingGroup) {
@@ -269,7 +281,9 @@ class _GroupInfoScreenState extends State<GroupInfoScreen> {
 
     if (result == OkCancelResult.ok) {
       final userId = CurrentUser.currentUserId;
-      context.read<ParticipantCubit>().exitGroup(chat.chatId, userId);
+      final message =
+          MessageModel.notifyMessage("left", userId, currentUser.getAtUsername);
+      context.read<ParticipantCubit>().exitGroup(chat.chatId, message, userId);
     }
   }
 

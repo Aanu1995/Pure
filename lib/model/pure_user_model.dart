@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:random_color/random_color.dart';
 
+import '../utils/true_time.dart';
 import 'app_enum.dart';
 
 // this class is a singleton to make current user id accessible globally
@@ -127,10 +128,6 @@ class PureUser extends Equatable {
       }
     } else if (isAcceptInvitation) {
       _receivedCounter -= 1;
-      _connectionCounter += 1;
-      if (identifier != null) {
-        newConnections[identifier] = ConnectionStatus.Connected;
-      }
     } else if (isRemovedConnection) {
       _connectionCounter -= 1;
       if (identifier != null) {
@@ -169,7 +166,7 @@ class PureUser extends Equatable {
       'location': '',
       'about': '',
       'photoURL': user.photoURL ?? '',
-      'date': DateTime.now().toUtc().toIso8601String(),
+      'date': TrueTime.now().toUtc().toIso8601String(),
       "color":
           _randomColor.randomColor(colorBrightness: ColorBrightness.dark).value,
     };
@@ -203,6 +200,8 @@ class PureUser extends Equatable {
       firstName.isEmpty ? 'New User' : '$firstName $lastName';
 
   bool get isMe => id == CurrentUser.currentUserId;
+  // @username
+  String get getAtUsername => "@$username";
 
   ConnectionAction checkConnectionAction(String userId) {
     if (connections!.keys.toList().contains(userId)) {

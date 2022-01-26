@@ -9,8 +9,9 @@ import '../../../../../model/connection_model.dart';
 import '../../../../../model/invitation_model.dart';
 import '../../../../../model/inviter_model.dart';
 import '../../../../../model/pure_user_model.dart';
-import '../../../../../utils/palette.dart';
+import '../../../../../model/route/message_route.dart';
 import '../../../../../utils/navigate.dart';
+import '../../../../../utils/palette.dart';
 import '../../../../widgets/custom_button.dart';
 import '../../../../widgets/snackbars.dart';
 import '../../../chats/messages/messages_screen.dart';
@@ -180,10 +181,12 @@ class ConnectionStatusButton extends StatelessWidget {
       user.id,
       CurrentUser.currentUserId,
     );
+
+    final msgRoute = MessageRoute(chatId: chatId, receipient: user);
     push(
       context: context,
       rootNavigator: true,
-      page: MessagesScreen(chatId: chatId, receipient: user),
+      page: MessagesScreen(msgRoute: msgRoute),
     );
   }
 

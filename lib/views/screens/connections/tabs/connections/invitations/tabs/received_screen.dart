@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../../../blocs/bloc.dart';
-import '../../../../../../../model/connection_model.dart';
 import '../../../../../../../model/invitation_model.dart';
 import '../../../../../../../model/pure_user_model.dart';
 import '../../../../../../widgets/custom_keep_alive.dart';
@@ -61,16 +60,9 @@ class _ReceivedScreenState extends State<ReceivedScreen>
     } else if (state is Accept) {
       final authState = BlocProvider.of<AuthCubit>(context).state;
       if (authState is Authenticated) {
-        final currentUser = authState.user.copyWith(
-          isAcceptInvitation: true,
-          identifier: state.inviter.inviterId,
-        );
+        final currentUser = authState.user.copyWith(isAcceptInvitation: true);
         BlocProvider.of<AuthCubit>(context).update(currentUser);
       }
-      BlocProvider.of<ConnectorCubit>(context).addConnectionBack(
-        0,
-        Connector.fromInviter(state.inviter),
-      );
       final message = "You and ${state.fullName} are now connected";
       showSuccessFlash(context, message);
     } else if (state is Ignored) {

@@ -34,7 +34,7 @@ class _SplashScreenState extends State<SplashScreen> {
         context.goNamed("social");
       } else if (authState is Authenticated) {
         CurrentUser.setUserId = authState.user.id;
-        context.goNamed("home");
+        context.go("/home/0");
       }
     }
     initializeLoadingAttributes(context);

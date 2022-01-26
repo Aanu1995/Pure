@@ -8,6 +8,8 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../../../blocs/bloc.dart';
 import '../../../../../model/chat/chat_model.dart';
+import '../../../../../model/chat/message_model.dart';
+import '../../../../../model/pure_user_model.dart';
 import '../../../../../utils/app_permission.dart';
 import '../../../../../utils/image_utils.dart';
 import '../../../../../utils/navigate.dart';
@@ -23,10 +25,24 @@ class GroupBanner extends StatefulWidget {
 }
 
 class _GroupBannerState extends State<GroupBanner> {
+  late PureUser currentUser;
   ImageMethods imageMethods = ImageUtils();
   final _imagePicker = ImagePicker();
 
   File? imageFile;
+
+  @override
+  void initState() {
+    super.initState();
+    getCurrentUser();
+  }
+
+  void getCurrentUser() {
+    final authState = context.read<AuthCubit>().state;
+    if (authState is Authenticated) {
+      currentUser = authState.user;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +117,14 @@ class _GroupBannerState extends State<GroupBanner> {
       if (file != null) {
         setState(() => imageFile = file);
         // upload profile picture
-        context.read<GroupChatCubit>().uploadGroupImage(widget.chat, file);
+        final message = MessageModel.notifyMessage(
+          "changed this group's icon",
+          currentUser.id,
+          currentUser.getAtUsername,
+        );
+        context
+            .read<GroupChatCubit>()
+            .uploadGroupImage(widget.chat, file, message);
       }
     } on PlatformException catch (_) {
       if (source == ImageSource.gallery) {

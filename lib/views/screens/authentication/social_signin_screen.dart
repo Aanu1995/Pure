@@ -39,7 +39,7 @@ class SocialSignInScreenExt extends StatelessWidget {
       updateUserFCMToken(state.pureUser.id); // updates fcm token
       EasyLoading.dismiss();
       BlocProvider.of<AuthCubit>(context).authenticateUser();
-      GoRouter.of(context).goNamed("home");
+      context.go("/home/0");
     } else if (state is AuthUserFailure) {
       EasyLoading.dismiss();
       showFailureFlash(context, state.message);

@@ -4,9 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../blocs/bloc.dart';
 import '../../../../../model/chat/chat_model.dart';
+import '../../../../../model/chat/message_model.dart';
 import '../../../../../model/pure_user_model.dart';
-import '../../../../../utils/palette.dart';
 import '../../../../../utils/navigate.dart';
+import '../../../../../utils/palette.dart';
 import '../../../../widgets/avatar.dart';
 import '../../../settings/profile/profile_screen.dart';
 
@@ -27,11 +28,25 @@ class Participants extends StatefulWidget {
 }
 
 class _ParticipantsState extends State<Participants> {
+  late PureUser currentUser;
   final _style = const TextStyle(
     fontSize: 12,
     fontWeight: FontWeight.w600,
     letterSpacing: 0.05,
   );
+
+  @override
+  void initState() {
+    super.initState();
+    getCurrentUser();
+  }
+
+  void getCurrentUser() {
+    final authState = context.read<AuthCubit>().state;
+    if (authState is Authenticated) {
+      currentUser = authState.user;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -102,7 +117,7 @@ class _ParticipantsState extends State<Participants> {
                       ),
                     ),
                     TextSpan(
-                      text: "  @${participant.username}",
+                      text: "  ${participant.getAtUsername}",
                       style: _style.copyWith(
                         fontSize: 13.0,
                         fontWeight: FontWeight.w500,
@@ -181,8 +196,7 @@ class _ParticipantsState extends State<Participants> {
           BlocProvider.of<ParticipantCubit>(context)
               .removeAdmin(widget.chat.chatId, user.id);
         } else if (result == "remove") {
-          BlocProvider.of<ParticipantCubit>(context)
-              .removeMember(widget.chat.chatId, index, user);
+          removeMember(index, user);
         }
       } else {
         onUserLongPressed(context, user);
@@ -194,6 +208,18 @@ class _ParticipantsState extends State<Participants> {
     if (!user.isMe) {
       push(context: context, page: ProfileScreen(user: user));
     }
+  }
+
+  void removeMember(int index, PureUser removedMember) {
+    final message = MessageModel.notifyMessage(
+      "removed",
+      currentUser.id,
+      currentUser.getAtUsername,
+      object: removedMember.getAtUsername,
+    );
+    context
+        .read<ParticipantCubit>()
+        .removeMember(widget.chat.chatId, index, message, removedMember);
   }
 }
 

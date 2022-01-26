@@ -14,9 +14,17 @@ abstract class LocalStorage {
   Future<void> saveUserData(Map<String, dynamic> data);
   Future<dynamic> getData(String key);
   Future<void> saveData(String key, dynamic data);
+  Future<bool> saveIntData(String key, int value);
+  Future<int?> getIntData(String key);
 }
 
 class LocalStorageImpl implements LocalStorage {
+  @override
+  Future<bool> saveIntData(String key, int value) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.setInt(key, value);
+  }
+
   @override
   Future<bool> saveStringData(String key, String value) async {
     final prefs = await SharedPreferences.getInstance();
@@ -33,6 +41,12 @@ class LocalStorageImpl implements LocalStorage {
   Future<String?> getStringData(String key) async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(key);
+  }
+
+  @override
+  Future<int?> getIntData(String key) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(key);
   }
 
   @override

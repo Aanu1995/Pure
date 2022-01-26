@@ -6,12 +6,12 @@ import '../../../../../model/chat/message_model.dart';
 import '../../../../../model/pure_user_model.dart';
 import '../../../../../utils/chat_utils.dart';
 import '../../../../widgets/grouped_list/grouped_list.dart';
-import 'date_separator_widget.dart';
 import 'empty_widget.dart';
 import 'load_more_widgets.dart';
 import 'message_widgets.dart';
 import 'new_message_widget.dart';
 import 'receipient_message_widget.dart';
+import 'separator_widget.dart';
 import 'user_message_widget.dart';
 
 class Messagesbody extends StatefulWidget {
@@ -141,7 +141,6 @@ class _MessagesbodyState extends State<Messagesbody> {
                               else {
                                 final message = messages[index];
                                 final isSelf = message.isSelf(currentUserId);
-                                final spacing = isFromSameUser(index, messages);
 
                                 return Column(
                                   children: [
@@ -151,28 +150,37 @@ class _MessagesbodyState extends State<Messagesbody> {
                                         showNewMessageAtIndex = -1;
                                         return const NewMessageSeparator();
                                       }),
-                                    Padding(
-                                      key: ValueKey(message),
-                                      padding: EdgeInsets.only(
-                                        bottom: spacing,
-                                        left: 8.0,
-                                        right: 8.0,
+                                    if (message.isNotificationMessage)
+                                      NotificationMessage(
+                                        message: message,
+                                        index: index,
+                                        messages: messages,
+                                      )
+                                    else
+                                      Padding(
+                                        key: ValueKey(message),
+                                        padding: EdgeInsets.only(
+                                          bottom: bottomSpace(index, messages),
+                                          left: 8.0,
+                                          right: 8.0,
+                                        ),
+                                        child: isSelf
+                                            ? UserMessage(
+                                                key: ValueKey(message),
+                                                hideNip:
+                                                    hideNip(index, messages),
+                                                chatId: widget.chatId,
+                                                message: message,
+                                              )
+                                            : ReceipientMessage(
+                                                key: ValueKey(message),
+                                                hideNip:
+                                                    hideNip(index, messages),
+                                                message: message,
+                                                isGroupMessage:
+                                                    widget.firstName == null,
+                                              ),
                                       ),
-                                      child: isSelf
-                                          ? UserMessage(
-                                              key: ValueKey(message),
-                                              hideNip: hideNip(index, messages),
-                                              chatId: widget.chatId,
-                                              message: message,
-                                            )
-                                          : ReceipientMessage(
-                                              key: ValueKey(message),
-                                              hideNip: hideNip(index, messages),
-                                              message: message,
-                                              isGroupMessage:
-                                                  widget.firstName == null,
-                                            ),
-                                    ),
                                   ],
                                 );
                               }
