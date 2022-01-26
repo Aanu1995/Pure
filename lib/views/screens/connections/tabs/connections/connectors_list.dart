@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../blocs/bloc.dart';
 import '../../../../../model/connection_model.dart';
 import '../../../../../model/pure_user_model.dart';
+import '../../../../../model/route/message_route.dart';
 import '../../../../../utils/app_utils.dart';
 import '../../../../../utils/navigate.dart';
 import '../../../../../utils/palette.dart';
@@ -148,7 +149,7 @@ class _ConnectorProfile extends StatelessWidget {
                       ),
                       IconButton(
                         onPressed: () =>
-                            onProfileTapped(context, connector, user),
+                            onMessageTapped(context, connector, user),
                         padding: const EdgeInsets.only(left: 4.0, right: 8.0),
                         icon: Icon(
                           Icons.chat_outlined,
@@ -197,15 +198,17 @@ class _ConnectorProfile extends StatelessWidget {
     }
   }
 
-  void onProfileTapped(
+  void onMessageTapped(
     BuildContext context,
     Connector connector,
     PureUser user,
   ) {
+    final msgRoute =
+        MessageRoute(chatId: connector.connectionId, receipient: user);
     push(
       context: context,
       rootNavigator: true,
-      page: MessagesScreen(chatId: connector.connectionId, receipient: user),
+      page: MessagesScreen(msgRoute: msgRoute),
     );
   }
 }

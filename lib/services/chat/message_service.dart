@@ -85,7 +85,6 @@ class MessageServiceImp extends MessageService {
           .asyncMap((docSnapshot) async {
         final data = docSnapshot.data() as Map<String, dynamic>?;
         if (data != null) {
-          print("object");
           // retrieves the date of the last message seen by the user
           final lastSeenMessageDate =
               data[currentUserId]["lastSeen"] as String? ?? fillDate;

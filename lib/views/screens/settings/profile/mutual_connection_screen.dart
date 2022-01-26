@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pure/model/route/message_route.dart';
 import 'package:pure/views/widgets/custom_keep_alive.dart';
 
 import '../../../../blocs/bloc.dart';
@@ -131,10 +132,12 @@ class _ConnectorProfile extends StatelessWidget {
       user.id,
       CurrentUser.currentUserId,
     );
+
+    final msgRoute = MessageRoute(chatId: chatId, receipient: user);
     push(
       context: context,
       rootNavigator: true,
-      page: MessagesScreen(chatId: chatId, receipient: user),
+      page: MessagesScreen(msgRoute: msgRoute),
     );
   }
 }
