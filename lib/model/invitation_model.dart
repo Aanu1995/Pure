@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 
+import '../utils/true_time.dart';
 import 'connection_model.dart';
 import 'invitee_model.dart';
 import 'inviter_model.dart';
@@ -51,7 +52,7 @@ class InvitationModel {
       "senderId": senderId,
       "receiverId": receiverId,
       "isAccepted": isAccepted,
-      "sentDate": DateTime.now().toUtc().toIso8601String(),
+      "sentDate": TrueTime.now().toUtc().toIso8601String(),
       "members": [senderId, receiverId],
     };
   }
@@ -62,7 +63,7 @@ class InvitationModel {
       "senderId": senderId,
       "receiverId": "",
       "isAccepted": false,
-      "sentDate": DateTime.now().toUtc().toIso8601String(),
+      "sentDate": TrueTime.now().toUtc().toIso8601String(),
       "members": [senderId],
     };
   }

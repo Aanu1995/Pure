@@ -1,21 +1,17 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:pure/views/widgets/custom_keep_alive.dart';
-import '../../../../model/chat/chat_model.dart';
-import '../../../widgets/snackbars.dart';
 
 import '../../../../blocs/bloc.dart';
+import '../../../../model/chat/chat_model.dart';
+import '../../../../model/chat/message_model.dart';
 import '../../../../model/pure_user_model.dart';
-import '../../../../utils/palette.dart';
 import '../../../../utils/app_utils.dart';
-import '../../../widgets/avatar.dart';
 import '../../../widgets/message_widget.dart';
-import '../../../widgets/user_profile_provider.dart';
-import 'friend_profile.dart';
+import '../../../widgets/snackbars.dart';
+import 'widget/new_applicant_profile.dart';
+import 'widget/user_connection_list.dart';
 
 class AddNewParticipant extends StatefulWidget {
   final ChatModel chat;
@@ -33,6 +29,7 @@ class AddNewParticipant extends StatefulWidget {
 }
 
 class _AddNewParticipantState extends State<AddNewParticipant> {
+  late PureUser currentUser;
   final _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   List<String> friendsUserId = [];
@@ -41,13 +38,14 @@ class _AddNewParticipantState extends State<AddNewParticipant> {
   void initState() {
     super.initState();
     initialize();
+    getCurrentUser();
   }
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    _focusNode.dispose();
-    super.dispose();
+  void getCurrentUser() {
+    final authState = context.read<AuthCubit>().state;
+    if (authState is Authenticated) {
+      currentUser = authState.user;
+    }
   }
 
   void initialize() {
@@ -72,6 +70,13 @@ class _AddNewParticipantState extends State<AddNewParticipant> {
       EasyLoading.dismiss();
       showFailureFlash(context, state.message);
     }
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _focusNode.dispose();
+    super.dispose();
   }
 
   @override
@@ -148,7 +153,7 @@ class _AddNewParticipantState extends State<AddNewParticipant> {
                       else {
                         final friends =
                             state.friends.map((e) => e.connectorId).toList();
-                        return _Connections(connections: friends);
+                        return UserConnectionList(connections: friends);
                       }
                     } else if (state is SearchFriendFailure) {
                       return MessageDisplay(
@@ -157,7 +162,7 @@ class _AddNewParticipantState extends State<AddNewParticipant> {
                         description: "Please check your internet connection",
                       );
                     }
-                    return _Connections(
+                    return UserConnectionList(
                       key: ValueKey(friendsUserId),
                       connections: friendsUserId,
                     );
@@ -180,147 +185,12 @@ class _AddNewParticipantState extends State<AddNewParticipant> {
   }
 
   void addNewAppliacants(String chatId, List<PureUser> members) {
-    context.read<ParticipantCubit>().addGroupMembers(chatId, members);
-  }
-}
-
-class NewApplicantProfile extends StatelessWidget {
-  const NewApplicantProfile({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<AddParticipantCubit, GroupState>(
-      builder: (context, memberState) {
-        if (memberState is GroupMembers && memberState.members.isNotEmpty) {
-          return Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: SizedBox(
-              width: 1.0.sw,
-              height: 100.0,
-              child: ListView.builder(
-                itemCount: memberState.members.length,
-                scrollDirection: Axis.horizontal,
-                itemBuilder: (context, index) {
-                  final user = memberState.members[index];
-                  return SizedBox(
-                    width: 80,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 8, 4, 8),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Avartar2(size: 30.0, imageURL: user.photoURL),
-                              const SizedBox(height: 8.0),
-                              Text(
-                                user.fullName,
-                                textAlign: TextAlign.center,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  letterSpacing: 0.05,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Positioned(
-                          top: -10.0,
-                          right: -4.0,
-                          child: IconButton(
-                            onPressed: () => context
-                                .read<AddParticipantCubit>()
-                                .removeMember(user),
-                            icon: CircleAvatar(
-                              radius: 10,
-                              backgroundColor: Theme.of(context)
-                                  .colorScheme
-                                  .secondaryVariant,
-                              child: Icon(
-                                Icons.close,
-                                size: 14.0,
-                                color: Theme.of(context).colorScheme.surface,
-                              ),
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-          );
-        }
-        return Offstage();
-      },
+    final message = MessageModel.notifyMessage(
+      "added",
+      currentUser.id,
+      currentUser.getAtUsername,
+      object: members.toList().map((e) => e.getAtUsername).toList().join(","),
     );
-  }
-}
-
-class _Connections extends StatelessWidget {
-  final List<String> connections;
-  const _Connections({Key? key, required this.connections}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.custom(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      physics: const AlwaysScrollableScrollPhysics(),
-      childrenDelegate: SliverChildBuilderDelegate(
-        (BuildContext context, int index) {
-          final friendId = connections[index];
-
-          return CustomKeepAlive(
-            key: ValueKey<String>(friendId),
-            child: ProfileProvider(
-              key: ValueKey(friendId),
-              userId: friendId,
-              child: ConnectionProfile(
-                key: ValueKey(friendId),
-                showSeparator: index < (connections.length - 1),
-                builder: (context, user) {
-                  return BlocBuilder<AddParticipantCubit, GroupState>(
-                    builder: (context, groupState) {
-                      if (groupState is GroupMembers) {
-                        final isMember =
-                            isUserAMember(groupState.members, user);
-
-                        return Checkbox(
-                          value: isMember,
-                          activeColor: Palette.tintColor,
-                          shape: CircleBorder(),
-                          onChanged: (active) => active!
-                              ? context
-                                  .read<AddParticipantCubit>()
-                                  .addMember(user)
-                              : context
-                                  .read<AddParticipantCubit>()
-                                  .removeMember(user),
-                        );
-                      }
-                      return Offstage();
-                    },
-                  );
-                },
-              ),
-            ),
-          );
-        },
-        childCount: connections.length,
-        findChildIndexCallback: (Key key) {
-          final ValueKey<String> valueKey = key as ValueKey<String>;
-          final String data = valueKey.value;
-          return connections.indexOf(data);
-        },
-      ),
-    );
-  }
-
-  bool isUserAMember(List<PureUser> members, PureUser user) {
-    return members.firstWhereOrNull((element) => element.id == user.id) != null;
+    context.read<ParticipantCubit>().addGroupMembers(chatId, members, message);
   }
 }

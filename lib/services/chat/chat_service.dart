@@ -6,24 +6,30 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:stream_transform/stream_transform.dart';
 
 import '../../model/chat/chat_model.dart';
+import '../../model/chat/message_model.dart';
 import '../../model/pure_user_model.dart';
 import '../../utils/exception.dart';
 import '../../utils/global_utils.dart';
 import '../../utils/request_messages.dart';
 import '../remote_storage_service.dart';
 import '../user_service.dart';
+import 'message_service.dart';
 
 abstract class ChatService {
   const ChatService();
-
-  Future<ChatModel> createGroupChat(final ChatModel chatModel,
+  Future<ChatModel> createGroupChat(
+      final ChatModel chatModel, MessageModel message,
       {File? groupImage});
-  Future<void> updateGroupChat(String chatId, Map<String, dynamic> data);
-  Future<void> addNewParticipants(String chatId, List<String> newMembers);
-  Future<void> removeParticipant(String chatId, String memberId);
+  Future<void> updateGroupChat(
+      String chatId, Map<String, dynamic> data, MessageModel message);
+  Future<void> addNewParticipants(
+      String chatId, List<String> newMembers, MessageModel message);
+  Future<void> removeParticipant(
+      String chatId, MessageModel message, String memberId);
   Future<void> addAdmin(String chatId, String memberId);
   Future<void> removeAdmin(String chatId, String memberId);
-  Future<String> updateGroupImage(String chatId, File file);
+  Future<String> updateGroupImage(
+      String chatId, File file, MessageModel message);
   Future<ChatsModel> getOfflineChats(String userId);
   Stream<ChatsModel?> getRealTimeChats(String userId);
   Stream<ChatsModel?> getLastRemoteMessage(
@@ -39,13 +45,19 @@ class ChatServiceImp extends ChatService {
   final FirebaseFirestore? firestore;
   final RemoteStorage? remoteStorageImpl;
   final UserService? userService;
+  final MessageService? messageService;
 
-  ChatServiceImp({this.firestore, this.remoteStorageImpl, this.userService}) {
+  ChatServiceImp(
+      {this.firestore,
+      this.remoteStorageImpl,
+      this.userService,
+      this.messageService}) {
     _firestore = firestore ?? FirebaseFirestore.instance;
     _chatCollection = _firestore.collection(GlobalUtils.chatCollection);
     _receiptCollection = _firestore.collection(GlobalUtils.receiptCollection);
     _remoteStorage = remoteStorageImpl ?? RemoteStorageImpl();
     _userService = userService ?? UserServiceImpl();
+    _messageService = messageService ?? MessageServiceImp();
   }
 
   late FirebaseFirestore _firestore;
@@ -53,8 +65,11 @@ class ChatServiceImp extends ChatService {
   late CollectionReference _receiptCollection;
   late RemoteStorage _remoteStorage;
   late UserService _userService;
+  late MessageService _messageService;
 
-  Future<ChatModel> createGroupChat(final ChatModel chatModel,
+  @override
+  Future<ChatModel> createGroupChat(
+      final ChatModel chatModel, MessageModel message,
       {File? groupImage}) async {
     String? groupImageURL;
     try {
@@ -72,6 +87,7 @@ class ChatServiceImp extends ChatService {
           .doc(groupChat.chatId)
           .set(groupChat.toMap())
           .timeout(GlobalUtils.timeOutInDuration);
+      await _messageService.sendMessage(groupChat.chatId, message);
       return groupChat;
     } on TimeoutException catch (_) {
       throw ServerException(message: ErrorMessages.timeoutMessage);
@@ -80,13 +96,15 @@ class ChatServiceImp extends ChatService {
     }
   }
 
-  Future<void> updateGroupChat(String chatId, Map<String, dynamic> data) async {
+  @override
+  Future<void> updateGroupChat(
+      String chatId, Map<String, dynamic> data, MessageModel message) async {
     try {
       await _chatCollection
           .doc(chatId)
           .update(data)
           .timeout(GlobalUtils.updateTimeOutInDuration);
-      ;
+      await _messageService.sendMessage(chatId, message);
     } on TimeoutException catch (_) {
       throw ServerException(message: ErrorMessages.timeoutMessage);
     } catch (e) {
@@ -94,12 +112,15 @@ class ChatServiceImp extends ChatService {
     }
   }
 
-  Future<String> updateGroupImage(String chatId, File file) async {
+  @override
+  Future<String> updateGroupImage(
+      String chatId, File file, MessageModel message) async {
     try {
       final groupImageURL =
           await _remoteStorage.uploadProfileImage(chatId, file);
       if (groupImageURL != null) {
-        await updateGroupChat(chatId, ChatModel.toGroupImageMap(groupImageURL));
+        await updateGroupChat(
+            chatId, ChatModel.toGroupImageMap(groupImageURL), message);
         return groupImageURL;
       } else {
         throw ServerException(message: ErrorMessages.generalMessage2);
@@ -113,13 +134,25 @@ class ChatServiceImp extends ChatService {
 
   @override
   Future<void> addNewParticipants(
-      String chatId, List<String> newMembers) async {
+      String chatId, List<String> newMembers, MessageModel message) async {
     try {
       await _chatCollection
           .doc(chatId)
           .update({"members": FieldValue.arrayUnion(newMembers)}).timeout(
-              GlobalUtils.updateTimeOutInDuration);
-      ;
+        GlobalUtils.updateTimeOutInDuration,
+      );
+      // all the participant receipt
+      Map<String, dynamic> data = <String, dynamic>{};
+      for (final memberId in newMembers) {
+        data[memberId] = {
+          // the date is just a placeholder
+          "lastSeen": DateTime(2021).toUtc().toIso8601String(),
+          "unreadCount": 0,
+        };
+      }
+
+      await _receiptCollection.doc(chatId).update(data);
+      await _messageService.sendMessage(chatId, message);
     } on TimeoutException catch (_) {
       throw ServerException(message: ErrorMessages.timeoutMessage);
     } catch (e) {
@@ -128,7 +161,8 @@ class ChatServiceImp extends ChatService {
   }
 
   @override
-  Future<void> removeParticipant(String chatId, String memberId) async {
+  Future<void> removeParticipant(
+      String chatId, MessageModel message, String memberId) async {
     try {
       await _chatCollection.doc(chatId).update({
         "members": FieldValue.arrayRemove(<String>[memberId]),
@@ -138,6 +172,7 @@ class ChatServiceImp extends ChatService {
       await _receiptCollection
           .doc(chatId)
           .update({memberId: FieldValue.delete()});
+      await _messageService.sendMessage(chatId, message);
     } on TimeoutException catch (_) {
       throw ServerException(message: ErrorMessages.timeoutMessage);
     } catch (e) {
@@ -169,7 +204,6 @@ class ChatServiceImp extends ChatService {
       final querySnapshot = await _chatCollection
               .where("members", arrayContains: userId)
               .orderBy("updateDate", descending: true)
-              //   .limit(GlobalUtils.cachedChatsLimit)
               .get(GetOptions(source: Source.cache))
           as QuerySnapshot<Map<String, dynamic>?>;
 
@@ -185,7 +219,7 @@ class ChatServiceImp extends ChatService {
       }
       return ChatsModel(chats: chats, firstDoc: firstDoc, lastDoc: lastDoc);
     } catch (e) {
-      throw ServerException(message: ErrorMessages.generalMessage2);
+      return ChatsModel(chats: chats, firstDoc: firstDoc, lastDoc: lastDoc);
     }
   }
 

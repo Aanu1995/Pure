@@ -10,17 +10,20 @@ import '../../../../../utils/exception.dart';
 import '../../../../../utils/image_utils.dart';
 import '../../../../../utils/palette.dart';
 import '../../../../widgets/snackbars.dart';
+import 'tagged_user_sheet.dart';
 
 class ChatImagePreviewScreen extends StatefulWidget {
   final File imageFile;
   final TextEditingController controller;
   final ImageSource source;
-  const ChatImagePreviewScreen(
-      {Key? key,
-      required this.imageFile,
-      required this.controller,
-      required this.source})
-      : super(key: key);
+  final ValueNotifier<String?>? userTaggingNotifier;
+  const ChatImagePreviewScreen({
+    Key? key,
+    required this.imageFile,
+    required this.controller,
+    required this.source,
+    this.userTaggingNotifier,
+  }) : super(key: key);
 
   @override
   State<ChatImagePreviewScreen> createState() => _ChatImagePreviewScreenState();
@@ -114,114 +117,119 @@ class _ChatImagePreviewScreenState extends State<ChatImagePreviewScreen> {
                 ),
               ),
             ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(0, 16, 0, 24),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      InkWell(
-                        onTap: () => _pickImage(),
-                        borderRadius: BorderRadius.circular(500),
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: CircleAvatar(
-                            radius: 20.0,
-                            child: CircleAvatar(
-                              radius: 19.0,
-                              backgroundColor:
-                                  Theme.of(context).dialogBackgroundColor,
-                              child: const Icon(Icons.add_outlined),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8.0),
-                      Expanded(
-                        child: CupertinoTextField(
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 16, 0, 24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: widget.userTaggingNotifier == null
+                      ? Offstage()
+                      : TaggedUserSheet(
                           controller: widget.controller,
-                          style: _textStyle.copyWith(
-                            color: Theme.of(context).colorScheme.primaryVariant,
-                          ),
-                          minLines: 1,
-                          maxLines: 5,
-                          textInputAction: TextInputAction.newline,
-                          placeholder: "Add a caption...",
-                          placeholderStyle: _textStyle.copyWith(
-                            color: Colors.grey.shade600,
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 13.0,
-                            horizontal: 10.0,
-                          ),
+                          userTaggingNotifier: widget.userTaggingNotifier!,
                         ),
-                      ),
-                      InkWell(
-                        onTap: () => Navigator.of(context).pop(imageFiles),
-                        borderRadius: BorderRadius.circular(500),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8.0,
-                            vertical: 4.0,
-                          ),
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    InkWell(
+                      onTap: () => _pickImage(),
+                      borderRadius: BorderRadius.circular(500),
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: CircleAvatar(
+                          radius: 20.0,
                           child: CircleAvatar(
-                            radius: 20.0,
-                            backgroundColor: Theme.of(context).primaryColor,
-                            child: const Icon(
-                              Icons.send,
-                              size: 24.0,
-                              color: Colors.white,
-                            ),
+                            radius: 19.0,
+                            backgroundColor:
+                                Theme.of(context).dialogBackgroundColor,
+                            child: const Icon(Icons.add_outlined),
                           ),
                         ),
                       ),
-                    ],
-                  ),
-                  if (imageFiles.length > 1)
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: SizedBox(
-                        height: 100.0,
-                        child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: imageFiles.length,
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 16.0,
-                                  horizontal: 2.0,
-                                ),
-                                child: InkWell(
-                                  child: Container(
-                                    width: 85.0,
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: index == currentIndex
-                                            ? Palette.tintColor
-                                            : Colors.transparent,
-                                        width: 2,
-                                      ),
-                                    ),
-                                    child: Image.file(
-                                      imageFiles[index],
-                                      fit: BoxFit.cover,
+                    ),
+                    const SizedBox(width: 8.0),
+                    Expanded(
+                      child: CupertinoTextField(
+                        controller: widget.controller,
+                        style: _textStyle.copyWith(
+                          color: Theme.of(context).colorScheme.primaryVariant,
+                        ),
+                        minLines: 1,
+                        maxLines: 5,
+                        textInputAction: TextInputAction.newline,
+                        placeholder: "Add a caption...",
+                        placeholderStyle: _textStyle.copyWith(
+                          color: Colors.grey.shade600,
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 13.0,
+                          horizontal: 10.0,
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () => Navigator.of(context).pop(imageFiles),
+                      borderRadius: BorderRadius.circular(500),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8.0,
+                          vertical: 4.0,
+                        ),
+                        child: CircleAvatar(
+                          radius: 20.0,
+                          backgroundColor: Theme.of(context).primaryColor,
+                          child: const Icon(
+                            Icons.send,
+                            size: 24.0,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                if (imageFiles.length > 1)
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: SizedBox(
+                      height: 100.0,
+                      child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: imageFiles.length,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 16.0,
+                                horizontal: 2.0,
+                              ),
+                              child: InkWell(
+                                child: Container(
+                                  width: 85.0,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: index == currentIndex
+                                          ? Palette.tintColor
+                                          : Colors.transparent,
+                                      width: 2,
                                     ),
                                   ),
-                                  onTap: () {
-                                    _controller.jumpToPage(index);
-                                    currentIndex = index;
-                                  },
+                                  child: Image.file(
+                                    imageFiles[index],
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
-                              );
-                            }),
-                      ),
-                    )
-                ],
-              ),
+                                onTap: () {
+                                  _controller.jumpToPage(index);
+                                  currentIndex = index;
+                                },
+                              ),
+                            );
+                          }),
+                    ),
+                  )
+              ],
             ),
           ),
         ],

@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 
+import '../utils/true_time.dart';
 import 'inviter_model.dart';
 
 // The person that you are connected with is called Connector
@@ -26,12 +27,9 @@ class Connector extends Equatable {
     return Connector(
       connectorId: inviter.inviterId,
       connectionId: inviter.invitationId,
-      connectionDate: DateTime.now().toLocal(),
+      connectionDate: TrueTime.now().toLocal(),
     );
   }
-
-  @override
-  List<Object?> get props => [connectorId, connectionId, connectionDate];
 
   // required for data of user to save to local storage
   Map<String, dynamic> toSaveMap() {
@@ -41,4 +39,7 @@ class Connector extends Equatable {
       "date": connectionDate!.toUtc().toIso8601String(),
     };
   }
+
+  @override
+  List<Object?> get props => [connectorId, connectionId, connectionDate];
 }

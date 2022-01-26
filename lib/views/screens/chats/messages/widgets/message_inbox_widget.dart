@@ -4,10 +4,13 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../../blocs/bloc.dart';
 import '../../../../../model/chat/message_model.dart';
 import '../../../../../model/pure_user_model.dart';
+import '../../../../../services/chat/chat_service.dart';
 import '../../../../../utils/app_permission.dart';
 import '../../../../../utils/chat_utils.dart';
 import '../../../../../utils/exception.dart';
@@ -256,16 +259,37 @@ class _MessageInputBoxState extends State<MessageInputBox> {
   Future<void> _showImagePreviewScreen(
       File imageFile, ImageSource source) async {
     final navigator = Navigator.of(context);
-    final result = await navigator.push<List<File>?>(
-      PageTransition(
-        child: ChatImagePreviewScreen(
-          imageFile: imageFile,
-          controller: widget.controller,
-          source: source,
-        ),
-        type: PageTransitionType.bottomToTop,
-      ),
+    List<File>? result;
+    final previewScreen = ChatImagePreviewScreen(
+      imageFile: imageFile,
+      controller: widget.controller,
+      userTaggingNotifier: widget.userTaggingNotifier,
+      source: source,
     );
+
+    if (widget.userTaggingNotifier != null) {
+      final state = context.read<GroupCubit>().state;
+      if (state is GroupMembers) {
+        result = await navigator.push<List<File>?>(
+          PageTransition(
+            child: BlocProvider(
+              lazy: false,
+              create: (_) => GroupCubit(ChatServiceImp())
+                ..addAllMembers(state.members.toList()),
+              child: previewScreen,
+            ),
+            type: PageTransitionType.bottomToTop,
+          ),
+        );
+      }
+    } else {
+      result = await navigator.push<List<File>?>(
+        PageTransition(
+          child: previewScreen,
+          type: PageTransitionType.bottomToTop,
+        ),
+      );
+    }
 
     if (result != null) sendMessageWithImage(result);
   }

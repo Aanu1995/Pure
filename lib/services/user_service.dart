@@ -81,6 +81,7 @@ class UserServiceImpl extends UserService {
   }
 
   // This gets the user extra data such as connection list
+  @override
   Future<PureUserExtraModel> getUserExtraData(String userId) async {
     try {
       final docSnap = await _userExtCollection.doc(userId).get();
@@ -245,6 +246,7 @@ class UserServiceImpl extends UserService {
     await _userCollection.doc(userId).update({'FCM_token.$deviceId': token});
   }
 
+  @override
   Future<void> setUserPresence(String userId) async {
     final onlineData = UserPresenceModel.onlineData();
     final offlineData = UserPresenceModel.offlineData();

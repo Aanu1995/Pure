@@ -149,7 +149,6 @@ class _ChatKeepAliveState extends State<ChatKeepAlive>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-
     if (widget.isGroupChat) {
       return GroupMembersProvider(
         key: ValueKey(widget.chat.members.length),
